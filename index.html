@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Educativo - C.E. El Tinteral</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+  <!-- BANNER DE AVISOS DEL DIRECTOR -->
+  <div id="bannerAvisos" class="banner-urgente d-none" aria-live="assertive" role="alert"></div>
+
+  <!-- NAVEGACIÓN SUPERIOR (NUEVO) -->
+  <nav class="top-nav">
+    <div class="theme-switch-wrapper">
+      <label class="theme-switch" for="checkbox-theme">
+        <input type="checkbox" id="checkbox-theme" aria-label="Cambiar tema oscuro/claro" />
+        <div class="slider round">
+          <span class="icon-sun"><i data-lucide="sun" class="icon-sm"></i></span>
+          <span class="icon-moon"><i data-lucide="moon" class="icon-sm"></i></span>
+        </div>
+      </label>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="nube-row">
+      <i class="ni" data-lucide="monitor"></i>
+      <i class="ni" data-lucide="cloud"></i>
+      <i class="ni" data-lucide="server"></i>
+    </div>
+    <p class="hero-sub">Complejo Educativo</p>
+    <h1 class="hero-titulo"><span class="ce">C.E.</span> El Tinteral</h1>
+    <div class="hero-badges">
+      <span class="badge"><i data-lucide="cloud" class="icon-md"></i> Portal Educativo Digital</span>
+      <span class="badge"><i data-lucide="monitor" class="icon-md"></i> Modernización Digital</span>
+      <span class="badge"><i data-lucide="wifi" class="icon-md"></i> Recursos en la Nube</span>
+    </div>
+  </div>
+
+  <div class="wave-wrap">
+    <svg viewBox="0 0 500 55" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path class="wave-bg" d="M0,0 C125,55 375,0 500,45 L500,0 Z" />
+      <path class="wave-fg" d="M0,28 C150,65 350,8 500,38 L500,0 L0,0 Z" />
+    </svg>
+  </div>
+
+  <div class="content">
+    <p class="seccion-label">Selecciona tu nivel y grado</p>
+
+    <!-- Buscador Inteligente -->
+    <div class="buscador-wrap">
+      <span class="buscador-icon" aria-hidden="true"><i data-lucide="search" class="icon-xl"></i></span>
+      <input type="search" id="buscadorMaterias" class="buscador-input"
+        placeholder="Buscar materia (ej. Matemáticas)..." autocomplete="off" aria-label="Buscar materias o grados">
+      <div id="search-spinner" class="search-spinner hidden"></div>
+
+      <div id="search-dropdown" class="search-dropdown hidden">
+        <div class="dropdown-header">Vistos Recientemente</div>
+        <div id="recent-searches"></div>
+      </div>
+    </div>
+
+    <!-- Contenedor Dinámico de Niveles y Grados -->
+    <div id="contenedor-niveles" aria-live="polite">
+      <!-- Skeleton Loaders -->
+      <div class="skeleton-wrap">
+        <div class="skeleton skeleton-btn"></div>
+      </div>
+      <div class="skeleton-wrap">
+        <div class="skeleton skeleton-btn"></div>
+      </div>
+      <div class="skeleton-wrap">
+        <div class="skeleton skeleton-btn"></div>
+      </div>
+    </div>
+
+    <!-- Botón de Acceso Docente -->
+    <div class="acceso-docente-wrap">
+      <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-docente"
+        aria-label="Acceso para Docentes en Google Drive">
+        <div class="btn-docente-content">
+          <span class="icon" aria-hidden="true"><i data-lucide="lock"></i></span>
+          <span class="text">Acceso para Docentes</span>
+        </div>
+        <span class="subtext">Inicia sesión en Drive para subir materiales</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SHEET PRINCIPAL — Tipo de recurso
+  ═══════════════════════════════════════ -->
+  <div class="overlay" id="overlay" aria-modal="true" role="dialog" aria-labelledby="sTitulo">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="sheet-hdr">
+        <h2 class="sheet-titulo" id="sTitulo">Materia</h2>
+        <button class="cerrar btn-cerrar-sheet" aria-label="Cerrar modal">✕</button>
+      </div>
+      <p class="sheet-sub" id="sSub">Selecciona el tipo de recurso</p>
+
+      <div class="rec-grid" id="grid-recursos-top"></div>
+
+      <button class="btn-tareas" id="btnAbrirTareas">
+        <div class="btn-tareas-inner">
+          <div class="btn-tareas-icon" aria-hidden="true"><i data-lucide="pen-tool"></i></div>
+          <div class="btn-tareas-text">
+            <div class="btn-tareas-title">
+              <span>Tareas y Actividades</span>
+              <span class="badge-nuevo">NUEVO</span>
+            </div>
+            <div class="btn-tareas-subtitle">
+              <span><i data-lucide="calendar" class="icon-xs"></i> Semana actual</span> <span class="dot">·</span>
+              <span><i data-lucide="folder" class="icon-xs"></i> Historial</span>
+            </div>
+          </div>
+          <div class="btn-tareas-arrow" aria-hidden="true"><i data-lucide="chevron-right"></i></div>
+        </div>
+        <div class="btn-tareas-line"></div>
+      </button>
+
+      <div class="rec-grid mt-10" id="grid-recursos-bottom"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SHEET SECUNDARIO — Tareas
+  ═══════════════════════════════════════ -->
+  <div class="overlay2" id="overlay2" aria-modal="true" role="dialog" aria-labelledby="sheet2-titulo">
+    <div class="sheet2">
+      <div class="handle"></div>
+      <div class="sheet-hdr">
+        <div>
+          <h2 class="sheet2-titulo" id="sheet2-titulo"><i data-lucide="pen-tool" class="icon-xl icon-align"></i> Tareas
+            y Actividades</h2>
+          <p class="sheet2-sub" id="sSub2">Elige qué sección necesitas</p>
+        </div>
+        <button class="cerrar btn-cerrar-sheet2" aria-label="Cerrar modal">✕</button>
+      </div>
+
+      <div id="lista-semana-actual" class="pdf-lista" aria-live="polite"></div>
+
+      <button class="hist-toggle" id="histToggle" aria-expanded="false" aria-controls="histPanel">
+        <span><i data-lucide="folder" class="icon-md icon-align"></i> Tareas de Semanas Anteriores</span>
+        <span class="hf" aria-hidden="true"><i data-lucide="chevron-down" class="icon-md"></i></span>
+      </button>
+      <div class="hist-panel" id="histPanel">
+        <div id="lista-historico" class="pdf-lista"></div>
+      </div>
+
+      <div class="preview-wrap">
+        <p class="preview-title">
+          Vista Previa del Mensaje</p>
+        <div class="mensaje-preview" id="waPreviewText">
+          <strong>*Portal C.E. El Tinteral*</strong><br>
+          Revisa los recursos de<br>
+          <strong>Materia - Grado</strong>
+        </div>
+      </div>
+
+      <button class="wa-btn" id="waBtnTareas">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path
+            d="M12 0C5.373 0 0 5.373 0 12c0 2.136.561 4.14 1.535 5.874L.057 23.998l6.304-1.654A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.933a9.927 9.927 0 01-5.031-1.362l-.361-.214-3.741.981 1-3.633-.235-.374A9.927 9.927 0 012.067 12C2.067 6.512 6.512 2.067 12 2.067S21.933 6.512 21.933 12 17.488 21.933 12 21.933z" />
+        </svg>
+        Compartir en WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MODAL VISOR PDF
+  ═══════════════════════════════════════ -->
+  <div class="pdf-overlay" id="pdfOverlay" aria-modal="true" role="dialog" aria-labelledby="pdfNombre">
+    <div class="pdf-header">
+      <div class="pdf-header-info">
+        <span class="pdf-tipo">Recurso educativo</span>
+        <h2 class="pdf-nombre" id="pdfNombre">Documento</h2>
+      </div>
+      <div class="pdf-header-btns">
+        <a class="pdf-descargar" id="pdfDescargarBtn" href="#" download target="_blank" rel="noopener noreferrer"><i
+            data-lucide="download" class="icon-md icon-align"></i>
+          Descargar</a>
+        <button class="pdf-cerrar btn-cerrar-visor" aria-label="Cerrar visor PDF"><i data-lucide="x"
+            class="icon-md icon-align"></i> Cerrar</button>
+      </div>
+    </div>
+    <div class="pdf-viewer-wrap">
+      <div class="pdf-loader" id="pdfLoader">
+        <div class="spinner"></div>
+        <p>Cargando documento…<br>no se descargará en su celular</p>
+      </div>
+      <iframe id="pdf-iframe" src="" allow="autoplay" loading="lazy" title="Visor de PDF"></iframe>
+    </div>
+    <div class="pdf-footer">
+      <span>Vista previa desde Google Drive</span>
+      <span class="dot">·</span>
+      <span>Descarga disponible <i data-lucide="download" class="icon-sm icon-align"></i></span>
+    </div>
+  </div>
+
+  <!-- Scripts Modulares -->
+  <!-- Scripts Modulares -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script src="./overlays.js?v=3"></script>
+<script src="./materiasData.js?v=3"></script>
+<script src="./materias.js?v=3"></script>
+<script src="./buscador.js?v=3"></script>
+<script src="./app2.js?v=3"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    if(window.lucide){
+      lucide.createIcons();
+    }
+});
+</script>
+</body>
+
+</html>
