@@ -16,20 +16,17 @@ export default async function handler(req, res) {
       });
     }
 
-    const query = encodeURIComponent(
-      `'${folderId}' in parents and trashed = false`
-    );
+    const query = `'${folderId}' in parents and trashed = false`;
 
-    const fields = encodeURIComponent(
-      "files(id,name,mimeType,createdTime,modifiedTime,webViewLink)"
-    );
+    const params = new URLSearchParams({
+      q: query,
+      fields: "files(id,name,mimeType,createdTime,modifiedTime,webViewLink,thumbnailLink,webContentLink)",
+      orderBy: "modifiedTime desc",
+      pageSize: "100",
+      key: apiKey
+    });
 
-    const url =
-      `https://www.googleapis.com/drive/v3/files?q=${query}` +
-      `&fields=${fields}` +
-      `&orderBy=modifiedTime desc` +
-      `&pageSize=100` +
-      `&key=${apiKey}`;
+    const url = `https://www.googleapis.com/drive/v3/files?${params.toString()}`;
 
     const driveResponse = await fetch(url);
     const driveData = await driveResponse.json();
