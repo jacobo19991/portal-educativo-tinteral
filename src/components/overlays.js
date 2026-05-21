@@ -128,7 +128,7 @@ window.OverlaysApp = (function() {
 
     const urlImagen = file.thumbnailLink ? file.thumbnailLink : '';
     const iconoHTML = urlImagen 
-      ? `<img src="${urlImagen}" alt="Miniatura" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" />` 
+      ? `<img src="${urlImagen}" alt="Miniatura" loading="lazy" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" />` 
       : `<i data-lucide="${icono}" class="icon-3xl"></i>`;
 
     const div = document.createElement('div');
