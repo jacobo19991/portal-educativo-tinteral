@@ -11,3 +11,9 @@ CREATE POLICY "Auth_Delete_Grados" ON grados FOR DELETE USING (auth.role() = 'au
 CREATE POLICY "Auth_Insert_Niveles" ON niveles FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Auth_Update_Niveles" ON niveles FOR UPDATE USING (auth.role() = 'authenticated');
 CREATE POLICY "Auth_Delete_Niveles" ON niveles FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Paso 3: Permitir que TODOS puedan LEER (SELECT) el catálogo
+CREATE POLICY "Public_Select_Materias" ON materias FOR SELECT USING (true);
+CREATE POLICY "Public_Select_Grados" ON grados FOR SELECT USING (true);
+CREATE POLICY "Public_Select_Niveles" ON niveles FOR SELECT USING (true);
+
