@@ -1,9 +1,10 @@
 // Configuración global y estado de la app
+// Configuración global y estado de la app
 window.AppConfig = {
   SEMANA_ACTIVA: 4,
-  LINK_PORTAL: 'https://jacobo19991.github.io/portal-tinteral-v4/ACTUALIZACIONportal_tinteral_v4%20(1).html',
+  LINK_PORTAL: 'https://portal-educativo-tinteral.vercel.app',
   NUMERO_WHATSAPP: '50363097679',
-  DRIVE_API_ENDPOINT: 'https://portal-educativo-tinteral.vercel.app/api/drive',
+  DRIVE_API_KEY: 'AIzaSyDVCP8IqXMjelF7H1Y4VBbD3v21js5Llxc',
   SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs'
 };
 
