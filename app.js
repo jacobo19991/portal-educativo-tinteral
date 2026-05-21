@@ -1,5 +1,4 @@
 // Configuración global y estado de la app
-
 window.AppConfig = {
   SEMANA_ACTIVA: 4,
   LINK_PORTAL: 'https://portal-educativo-tinteral.vercel.app',
