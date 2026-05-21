@@ -48,6 +48,7 @@ export default async function handler(req, res) {
             icono: grado.icono,
             pin: grado.pin,
             materias: (grado.materias || []).map(mat => ({
+                id: mat.id,
                 nombre: mat.nombre,
                 folderId: mat.folder_id
             }))

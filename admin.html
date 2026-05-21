@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - C.E. El Tinteral</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/admin/admin.css">
+</head>
+<body>
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="loginScreen" class="glass-container visible">
+        <div class="login-card">
+            <div class="login-icon">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <h2>Acceso Restringido</h2>
+            <p>Área de administración del catálogo educativo.</p>
+            <form id="loginForm">
+                <div class="input-group">
+                    <i data-lucide="key"></i>
+                    <input type="password" id="adminPassword" placeholder="Contraseña Maestra" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary" id="btnIngresar">
+                    <span>Desbloquear Sistema</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </form>
+            <div id="loginError" class="error-msg d-none">Contraseña incorrecta o error de conexión.</div>
+        </div>
+    </div>
+
+    <!-- PANEL PRINCIPAL (DASHBOARD) -->
+    <div id="adminDashboard" class="dashboard d-none">
+        <header class="admin-header">
+            <div class="header-content">
+                <div>
+                    <h1>Centro de Control</h1>
+                    <p>Gestiona materias y carpetas de Google Drive en tiempo real.</p>
+                </div>
+                <button id="btnSalir" class="btn-secondary">
+                    <i data-lucide="log-out"></i> Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="toolbar">
+                <button id="btnRefresh" class="btn-icon" aria-label="Recargar datos">
+                    <i data-lucide="refresh-cw"></i> Sincronizar con Supabase
+                </button>
+            </div>
+            
+            <div id="catalogoContainer" class="catalogo-grid">
+                <!-- Se llenará dinámicamente -->
+                <div class="spinner-center">Cargando base de datos...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL EDITAR / AÑADIR MATERIA -->
+    <div id="materiaModal" class="modal-overlay d-none">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nueva Materia</h3>
+                <button class="btn-close" id="btnCerrarModal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="materiaForm">
+                    <input type="hidden" id="matId">
+                    <input type="hidden" id="matGradoId">
+                    
+                    <div class="form-group">
+                        <label for="matNombre">Nombre de la Materia</label>
+                        <input type="text" id="matNombre" required placeholder="Ej: Matemáticas Avanzadas">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="matFolder">ID de Carpeta (Google Drive)</label>
+                        <input type="text" id="matFolder" required placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j">
+                        <small>El código largo que aparece en el link de la carpeta de Drive.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="matOrden">Orden (Opcional)</label>
+                        <input type="number" id="matOrden" value="99">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="btnCancelarModal">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="btnGuardarMateria">
+                            <i data-lucide="save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="./src/admin/admin.js"></script>
+</body>
+</html>
