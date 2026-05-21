@@ -126,10 +126,15 @@ window.OverlaysApp = (function() {
     
     const fechaStr = new Date(file.modifiedTime).toLocaleDateString('es-SV', { day: '2-digit', month: 'short', year: 'numeric' });
 
+    const urlImagen = file.thumbnailLink ? file.thumbnailLink : '';
+    const iconoHTML = urlImagen 
+      ? `<img src="${urlImagen}" alt="Miniatura" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" />` 
+      : `<i data-lucide="${icono}" class="icon-3xl"></i>`;
+
     const div = document.createElement('div');
     div.className = 'pdf-item';
     div.innerHTML = `
-      <span class="pdf-item-icono" aria-hidden="true"><i data-lucide="${icono}" class="icon-3xl"></i></span>
+      <span class="pdf-item-icono" aria-hidden="true">${iconoHTML}</span>
       <div class="pdf-item-info">
         <span class="pdf-item-nombre">${window.escapeHtml(file.name)}</span>
         <span class="pdf-item-semana">Modificado: ${fechaStr} ${esReciente ? '<span class="semana-tag">RECIENTE</span>' : ''}</span>
