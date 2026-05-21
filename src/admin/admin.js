@@ -1,25 +1,44 @@
-let adminPassword = sessionStorage.getItem('adminPassword') || '';
+import { supabase } from './services/supabase.js';
+
 let catalogoData = [];
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
     
-    if (adminPassword) {
+    // Verificar si hay sesión activa usando Supabase
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
         mostrarDashboard();
     }
 
     // Login Form
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        adminPassword = document.getElementById('adminPassword').value;
-        sessionStorage.setItem('adminPassword', adminPassword);
-        mostrarDashboard();
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+        
+        const btn = document.getElementById('btnIngresar');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader" class="spinning"></i> Autenticando...`;
+        lucide.createIcons();
+        document.getElementById('loginError').classList.add('d-none');
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        btn.innerHTML = originalText;
+        lucide.createIcons();
+
+        if (error) {
+            document.getElementById('loginError').textContent = error.message === 'Invalid login credentials' ? 'Credenciales incorrectas.' : error.message;
+            document.getElementById('loginError').classList.remove('d-none');
+        } else {
+            mostrarDashboard();
+        }
     });
 
     // Logout
-    document.getElementById('btnSalir').addEventListener('click', () => {
-        sessionStorage.removeItem('adminPassword');
-        adminPassword = '';
+    document.getElementById('btnSalir').addEventListener('click', async () => {
+        await supabase.auth.signOut();
         document.getElementById('adminDashboard').classList.remove('visible');
         document.getElementById('adminDashboard').classList.add('d-none');
         document.getElementById('loginScreen').classList.remove('d-none');
@@ -212,18 +231,30 @@ function cerrarModal() {
 }
 
 async function peticionAdmin(action, payload) {
-    const res = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: adminPassword, action, payload })
-    });
+    // Ya no usamos el puente inseguro de Vercel. 
+    // Escribimos directamente en Supabase porque tenemos un Token JWT seguro y políticas RLS.
     
-    const data = await res.json();
-    if (!res.ok) {
-        if(res.status === 401) {
-            document.getElementById('btnSalir').click(); // Logout
+    let error, data;
+
+    switch (action) {
+        case 'ADD_MATERIA':
+            ({ data, error } = await supabase.from('materias').insert([payload]));
+            break;
+        case 'EDIT_MATERIA':
+            ({ data, error } = await supabase.from('materias').update(payload).eq('id', payload.id));
+            break;
+        case 'DELETE_MATERIA':
+            ({ data, error } = await supabase.from('materias').delete().eq('id', payload.id));
+            break;
+        default:
+            throw new Error('Acción no reconocida');
+    }
+
+    if (error) {
+        if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+            document.getElementById('btnSalir').click(); // Logout si el token expiró
         }
-        throw new Error(data.error || 'Error desconocido');
+        throw new Error(error.message);
     }
     return data;
 }
