@@ -148,7 +148,7 @@ window.OverlaysApp = (function() {
     
     window.AppState.currentFileId = fileId;
     document.getElementById('pdfNombre').textContent = nombre;
-    document.getElementById('pdf-iframe').src = `${window.AppConfig.LINK_PORTAL}/api/pdf?fileId=${fileId}`;
+    document.getElementById('pdf-iframe').src = `https://drive.google.com/file/d/${fileId}/preview`;
     
     const btn = document.getElementById('pdfDescargarBtn');
     btn.href = `https://drive.google.com/uc?export=download&id=${fileId}`;

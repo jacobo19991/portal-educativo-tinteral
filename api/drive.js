@@ -1,53 +1,49 @@
-import { google } from 'googleapis';
-
 export default async function handler(req, res) {
   try {
-    // CORS configuration
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
-    if (req.method === 'OPTIONS') {
-      return res.status(200).end();
-    }
-
     const { folderId } = req.query;
+
     if (!folderId) {
-      return res.status(400).json({ error: "Falta folderId" });
+      return res.status(400).json({
+        error: "Falta folderId"
+      });
     }
 
-    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    const apiKey = process.env.DRIVE_API_KEY;
 
-    if (!email || !privateKey) {
-      return res.status(500).json({ error: "Faltan credenciales de Service Account en Vercel" });
+    if (!apiKey) {
+      return res.status(500).json({
+        error: "DRIVE_API_KEY no está configurada en Vercel"
+      });
     }
 
-    // Replace literal \n in privateKey
-    const formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
+    const query = encodeURIComponent(
+      `'${folderId}' in parents and trashed = false`
+    );
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: email,
-        private_key: formattedPrivateKey
-      },
-      scopes: ['https://www.googleapis.com/auth/drive.readonly']
-    });
+    const fields = encodeURIComponent(
+      "files(id,name,mimeType,createdTime,modifiedTime,webViewLink)"
+    );
 
-    const drive = google.drive({ version: 'v3', auth });
+    const url =
+      `https://www.googleapis.com/drive/v3/files?q=${query}` +
+      `&fields=${fields}` +
+      `&orderBy=modifiedTime desc` +
+      `&pageSize=100` +
+      `&key=${apiKey}`;
 
-    const query = `'${folderId}' in parents and trashed = false`;
-    const response = await drive.files.list({
-      q: query,
-      fields: 'files(id,name,mimeType,createdTime,modifiedTime,webViewLink)',
-      orderBy: 'modifiedTime desc',
-      pageSize: 100
-    });
+    const driveResponse = await fetch(url);
+    const driveData = await driveResponse.json();
 
-    return res.status(200).json(response.data);
+    if (!driveResponse.ok) {
+      return res.status(driveResponse.status).json({
+        error: "Google Drive API devolvió un error",
+        status: driveResponse.status,
+        details: driveData
+      });
+    }
+
+    return res.status(200).json(driveData);
+
   } catch (error) {
     return res.status(500).json({
       error: "Error interno en api/drive.js",
