@@ -48,7 +48,7 @@ window.OverlaysApp = (function() {
       return;
     }
 
-    const CACHE_MINUTES = 5;
+    const CACHE_MINUTES = 1;
     const cacheKey = 'drive_cache_' + folderId;
     const cached = sessionStorage.getItem(cacheKey);
 
