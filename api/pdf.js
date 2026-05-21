@@ -14,9 +14,9 @@ export default async function handler(req, res) {
       return res.status(200).end();
     }
 
-    const { folderId } = req.query;
-    if (!folderId) {
-      return res.status(400).json({ error: "Falta folderId" });
+    const { fileId } = req.query;
+    if (!fileId) {
+      return res.status(400).json({ error: "Falta fileId" });
     }
 
     const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -26,7 +26,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Faltan credenciales de Service Account en Vercel" });
     }
 
-    // Replace literal \n in privateKey
     const formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
 
     const auth = new google.auth.GoogleAuth({
@@ -39,20 +38,20 @@ export default async function handler(req, res) {
 
     const drive = google.drive({ version: 'v3', auth });
 
-    const query = `'${folderId}' in parents and trashed = false`;
-    const response = await drive.files.list({
-      q: query,
-      fields: 'files(id,name,mimeType,createdTime,modifiedTime,webViewLink)',
-      orderBy: 'modifiedTime desc',
-      pageSize: 100
-    });
+    const response = await drive.files.get(
+      { fileId: fileId, alt: 'media' },
+      { responseType: 'stream' }
+    );
 
-    return res.status(200).json(response.data);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="documento.pdf"');
+
+    // Pipe the response stream directly to the client
+    response.data.pipe(res);
   } catch (error) {
     return res.status(500).json({
-      error: "Error interno en api/drive.js",
-      message: error.message,
-      stack: error.stack
+      error: "Error descargando PDF en api/pdf.js",
+      message: error.message
     });
   }
 }
