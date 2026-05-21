@@ -3,7 +3,7 @@ window.AppConfig = {
   SEMANA_ACTIVA: 4,
   LINK_PORTAL: 'https://jacobo19991.github.io/portal-tinteral-v4/ACTUALIZACIONportal_tinteral_v4%20(1).html',
   NUMERO_WHATSAPP: '50363097679',
-  DRIVE_API_KEY: 'AIzaSyCwSR5_wwGBlvb3vyH7CkXnIOq6swvxP34',
+  DRIVE_API_ENDPOINT: 'https://portal-educativo-tinteral.vercel.app/api/drive',
   SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs'
 };
 
