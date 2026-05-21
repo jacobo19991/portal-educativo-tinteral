@@ -1,5 +1,15 @@
 import { abrirModalMateria } from './modal.js';
 
+export function generarSkeletonHTML() {
+    return `
+        <div class="skeleton-wrapper">
+            <div class="skeleton-box"></div>
+            <div class="skeleton-box" style="height: 200px; opacity: 0.8"></div>
+            <div class="skeleton-box" style="height: 120px; opacity: 0.6"></div>
+        </div>
+    `;
+}
+
 export function renderizarCatalogo(catalogoData, onEdit, onDelete) {
     const container = document.getElementById('catalogoContainer');
     container.innerHTML = '';
@@ -30,25 +40,31 @@ export function renderizarCatalogo(catalogoData, onEdit, onDelete) {
             const matList = document.createElement('div');
             matList.className = 'materias-list';
 
-            (grado.materias || []).forEach(mat => {
-                const matItem = document.createElement('div');
-                matItem.className = 'materia-item';
-                matItem.innerHTML = `
-                    <div class="mat-info">
-                        <span class="mat-nombre">${mat.nombre}</span>
-                        <span class="mat-folder">${mat.folderId}</span>
-                    </div>
-                    <div class="mat-actions">
-                        <button class="btn-action edit btn-edit-mat" data-id="${mat.id || ''}" data-nombre="${mat.nombre}" data-folder="${mat.folderId}" aria-label="Editar">
-                            <i data-lucide="edit-2"></i>
-                        </button>
-                        <button class="btn-action delete btn-del-mat" data-id="${mat.id || ''}" data-nombre="${mat.nombre}" aria-label="Eliminar">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    </div>
-                `;
-                matList.appendChild(matItem);
-            });
+            const materias = grado.materias || [];
+            if (materias.length === 0) {
+                matList.innerHTML = `<div class="empty-state">No hay materias registradas en este grado.</div>`;
+            } else {
+                materias.forEach(mat => {
+                    const matItem = document.createElement('div');
+                    matItem.className = 'materia-item';
+                    matItem.id = `materia-${mat.id}`; // Agregado ID para edición optimista
+                    matItem.innerHTML = `
+                        <div class="mat-info">
+                            <span class="mat-nombre">${mat.nombre}</span>
+                            <span class="mat-folder">${mat.folderId}</span>
+                        </div>
+                        <div class="mat-actions">
+                            <button class="btn-action edit btn-edit-mat" data-id="${mat.id || ''}" data-nombre="${mat.nombre}" data-folder="${mat.folderId}" aria-label="Editar">
+                                <i data-lucide="edit-2"></i>
+                            </button>
+                            <button class="btn-action delete btn-del-mat" data-id="${mat.id || ''}" data-nombre="${mat.nombre}" aria-label="Eliminar">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    `;
+                    matList.appendChild(matItem);
+                });
+            }
 
             gradoSec.appendChild(matList);
             nivelCard.appendChild(gradoSec);

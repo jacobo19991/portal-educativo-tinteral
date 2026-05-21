@@ -1,6 +1,6 @@
 import { checkSession, loginAdmin, logoutAdmin } from './services/auth.js';
 import { fetchCatalogo, peticionAdmin } from './services/api.js';
-import { renderizarCatalogo } from './components/catalog.js';
+import { renderizarCatalogo, generarSkeletonHTML } from './components/catalog.js';
 import { abrirModalMateria, cerrarModal, getModalFormData } from './components/modal.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -92,20 +92,26 @@ function mostrarDashboard() {
 
 async function cargarYRenderizarCatalogo() {
     const container = document.getElementById('catalogoContainer');
-    container.innerHTML = '<div class="spinner-center"><i data-lucide="loader" class="spinning" style="width:32px; height:32px; margin-bottom: 10px;"></i><br>Cargando catálogo...</div>';
-    if (window.lucide) lucide.createIcons();
+    container.innerHTML = generarSkeletonHTML(); // UX Moderna: Skeleton Loader
     
     try {
         const data = await fetchCatalogo();
         
-        // Pasamos callbacks para delegar eventos del componente catalog hacia arriba
         renderizarCatalogo(data, 
             (matEdit) => abrirModalMateria(null, matEdit), 
             async (idDelete) => {
+                // UX Moderna: Edición Optimista
+                const cardFisica = document.getElementById(`materia-${idDelete}`);
+                if (cardFisica) {
+                    cardFisica.classList.add('optimistic-hide'); // Animación de desaparición instantánea
+                }
+
                 try {
                     await peticionAdmin('DELETE_MATERIA', { id: idDelete });
-                    await cargarYRenderizarCatalogo();
+                    if (cardFisica) cardFisica.remove(); // Borrado real silencioso
                 } catch(err) {
+                    // Si falla, revertimos el cambio visual (Fallback seguro)
+                    if (cardFisica) cardFisica.classList.remove('optimistic-hide');
                     manejarErrorSesion(err);
                 }
             }
