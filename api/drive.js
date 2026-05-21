@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
   if (!apiKey) {
     return res.status(500).json({
-      error: "No existe DRIVE_API_KEY"
+      error: "DRIVE_API_KEY no configurada"
     });
   }
 
