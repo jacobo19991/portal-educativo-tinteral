@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function renderNiveles(niveles, contenedor) {
+export function renderNiveles(niveles, contenedor) {
   contenedor.innerHTML = ''; // Limpiar skeletons
   
   // Usamos DocumentFragment para evitar repintados innecesarios del DOM
