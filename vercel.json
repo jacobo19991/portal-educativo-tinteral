@@ -1,0 +1,1 @@
+﻿{`n  "headers": [`n    {`n      "source": "/(.*)",`n      "headers": [`n        {`n          "key": "Cache-Control",`n          "value": "s-maxage=1, stale-while-revalidate=59"`n        }`n      ]`n    }`n  ]`n}
