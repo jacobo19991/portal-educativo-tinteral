@@ -1,10 +1,10 @@
 // Configuración global y estado de la app
-// Configuración global y estado de la app
+
 window.AppConfig = {
   SEMANA_ACTIVA: 4,
   LINK_PORTAL: 'https://portal-educativo-tinteral.vercel.app',
   NUMERO_WHATSAPP: '50363097679',
-  DRIVE_API_KEY: 'AIzaSyDVCP8IqXMjelF7H1Y4VBbD3v21js5Llxc',
+  DRIVE_API_ENDPOINT: '/api/drive',
   SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs'
 };
 
