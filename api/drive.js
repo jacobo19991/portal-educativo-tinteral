@@ -11,24 +11,45 @@ export default async function handler(req, res) {
     const { folderId } = req.query;
 
     if (!folderId) {
-      return res.status(400).json({
-        error: "Falta folderId"
-      });
+      return res.status(400).json({ error: "Falta folderId" });
     }
 
     const apiKey = process.env.DRIVE_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({
-        error: "DRIVE_API_KEY no está configurada en Vercel"
-      });
+      return res.status(500).json({ error: "DRIVE_API_KEY no está configurada en Vercel" });
     }
 
-    const query = `'${folderId}' in parents and trashed = false`;
+    // =========================================================================
+    // PASO 1: PASO INTELIGENTE - Buscar la subcarpeta "Tareas y Actividades"
+    // =========================================================================
+    const buscaSubcarpetaQuery = `'${folderId}' in parents and name = 'Tareas y Actividades' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
 
-    // AQUI ESTA LA MAGIA: Se agregó thumbnailLink y webContentLink
+    const subcarpetaParams = new URLSearchParams({
+      q: buscaSubcarpetaQuery,
+      fields: "files(id)",
+      key: apiKey
+    });
+
+    const subcarpetaRes = await fetch(`https://www.googleapis.com/drive/v3/files?${subcarpetaParams.toString()}`);
+    const subcarpetaData = await subcarpetaRes.json();
+
+    // Por defecto usaremos el ID que mandó el frontend
+    let idFinalParaBuscar = folderId;
+
+    // Si el código encontró la subcarpeta "Tareas y Actividades", extrae su ID automáticamente
+    if (subcarpetaData.files && subcarpetaData.files.length > 0) {
+      idFinalParaBuscar = subcarpetaData.files[0].id;
+    }
+
+    // =========================================================================
+    // PASO 2: Traer los archivos reales (PDFs) dentro de esa carpeta destino
+    // =========================================================================
+    // Filtramos para que NO traiga carpetas (mimeType != 'application/vnd.google-apps.folder')
+    const queryArchivos = `'${idFinalParaBuscar}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
+
     const params = new URLSearchParams({
-      q: query,
+      q: queryArchivos,
       fields: "files(id,name,mimeType,createdTime,modifiedTime,webViewLink,thumbnailLink,webContentLink)",
       orderBy: "modifiedTime desc",
       pageSize: "100",
