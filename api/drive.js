@@ -17,38 +17,42 @@ export default async function handler(req, res) {
     const apiKey = process.env.DRIVE_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: "DRIVE_API_KEY no está configurada en Vercel" });
+      return res.status(500).json({ error: "DRIVE_API_KEY no está configurada" });
     }
 
-    // =========================================================================
-    // PASO 1: PASO INTELIGENTE - Buscar la subcarpeta "Tareas y Actividades"
-    // =========================================================================
-    const buscaSubcarpetaQuery = `'${folderId}' in parents and name = 'Tareas y Actividades' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+    // ==========================================================
+    // SALTO 1: Buscar "Tareas y Actividades" dentro de la Materia
+    // ==========================================================
+    const queryNivel1 = `'${folderId}' in parents and name contains 'Tareas' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+    const paramsNivel1 = new URLSearchParams({ q: queryNivel1, fields: "files(id,name)", key: apiKey });
 
-    const subcarpetaParams = new URLSearchParams({
-      q: buscaSubcarpetaQuery,
-      fields: "files(id)",
-      key: apiKey
-    });
+    const resNivel1 = await fetch(`https://www.googleapis.com/drive/v3/files?${paramsNivel1.toString()}`);
+    const dataNivel1 = await resNivel1.json();
 
-    const subcarpetaRes = await fetch(`https://www.googleapis.com/drive/v3/files?${subcarpetaParams.toString()}`);
-    const subcarpetaData = await subcarpetaRes.json();
-
-    // Por defecto usaremos el ID que mandó el frontend
-    let idFinalParaBuscar = folderId;
-
-    // Si el código encontró la subcarpeta "Tareas y Actividades", extrae su ID automáticamente
-    if (subcarpetaData.files && subcarpetaData.files.length > 0) {
-      idFinalParaBuscar = subcarpetaData.files[0].id;
+    let idNivel2 = folderId; // Por defecto se queda en la materia
+    if (dataNivel1.files && dataNivel1.files.length > 0) {
+      idNivel2 = dataNivel1.files[0].id;
     }
 
-    // =========================================================================
-    // PASO 2: Traer los archivos reales (PDFs) dentro de esa carpeta destino
-    // =========================================================================
-    // Filtramos para que NO traiga carpetas (mimeType != 'application/vnd.google-apps.folder')
+    // ==========================================================
+    // SALTO 2: Buscar "Tarea de la Semana" dentro de "Tareas y Actividades"
+    // ==========================================================
+    const queryNivel2 = `'${idNivel2}' in parents and name contains 'Semana' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+    const paramsNivel2 = new URLSearchParams({ q: queryNivel2, fields: "files(id,name)", key: apiKey });
+
+    const resNivel2 = await fetch(`https://www.googleapis.com/drive/v3/files?${paramsNivel2.toString()}`);
+    const dataNivel2 = await resNivel2.json();
+
+    let idFinalParaBuscar = idNivel2; // Por defecto se queda en el nivel 2
+    if (dataNivel2.files && dataNivel2.files.length > 0) {
+      idFinalParaBuscar = dataNivel2.files[0].id;
+    }
+
+    // ==========================================================
+    // SALTO 3: Traer los PDFs finales (excluyendo subcarpetas)
+    // ==========================================================
     const queryArchivos = `'${idFinalParaBuscar}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
-
-    const params = new URLSearchParams({
+    const paramsArchivos = new URLSearchParams({
       q: queryArchivos,
       fields: "files(id,name,mimeType,createdTime,modifiedTime,webViewLink,thumbnailLink,webContentLink)",
       orderBy: "modifiedTime desc",
@@ -56,15 +60,13 @@ export default async function handler(req, res) {
       key: apiKey
     });
 
-    const driveUrl = `https://www.googleapis.com/drive/v3/files?${params.toString()}`;
-
+    const driveUrl = `https://www.googleapis.com/drive/v3/files?${paramsArchivos.toString()}`;
     const response = await fetch(driveUrl);
     const data = await response.json();
 
     if (!response.ok) {
       return res.status(response.status).json({
         error: "Google Drive API rechazó la petición",
-        googleStatus: response.status,
         googleError: data
       });
     }
@@ -73,7 +75,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     return res.status(500).json({
-      error: "Error interno real en api/drive.js",
+      error: "Error interno en api/drive.js",
       message: error.message
     });
   }
