@@ -217,6 +217,19 @@ window.OverlaysApp = (function() {
     document.getElementById('overlay')?.addEventListener('click', e => { if (e.target.id === 'overlay') cerrarSheet(); });
     document.getElementById('overlay2')?.addEventListener('click', e => { if (e.target.id === 'overlay2') cerrarSheet2(); });
     
+    // Accesibilidad: Cerrar con ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const overlay = document.getElementById('overlay');
+        const overlay2 = document.getElementById('overlay2');
+        const pdfOverlay = document.getElementById('pdfOverlay');
+        
+        if (pdfOverlay && pdfOverlay.classList.contains('visible')) cerrarVisor();
+        else if (overlay2 && overlay2.classList.contains('visible')) cerrarSheet2();
+        else if (overlay && overlay.classList.contains('visible')) cerrarSheet();
+      }
+    });
+    
     // Abrir tareas
     document.getElementById('btnAbrirTareas')?.addEventListener('click', abrirSubTareas);
     

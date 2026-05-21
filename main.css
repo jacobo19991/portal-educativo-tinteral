@@ -1067,3 +1067,7 @@ mark.highlight {
   20%, 60% { transform: translateX(-6px); }
   40%, 80% { transform: translateX(6px); }
 }
+
+/* FOCUS VISIBLE PARA ACCESIBILIDAD */
+:focus-visible { outline: 3px solid #3b82f6; outline-offset: 2px; border-radius: 4px; }
+

@@ -1,5 +1,8 @@
+let lastFocusedElement = null;
+
 export function abrirModalMateria(gradoId, mat = null) {
     const modal = document.getElementById('materiaModal');
+    lastFocusedElement = document.activeElement; // Guardar el elemento que tenía el foco
     modal.classList.remove('d-none');
     
     if (mat) {
@@ -15,10 +18,45 @@ export function abrirModalMateria(gradoId, mat = null) {
         document.getElementById('matNombre').value = '';
         document.getElementById('matFolder').value = '';
     }
+
+    // Accesibilidad: Focus Trap y Escape
+    document.addEventListener('keydown', handleModalKeydown);
+    const firstInput = modal.querySelector('input');
+    if (firstInput) firstInput.focus();
 }
 
 export function cerrarModal() {
     document.getElementById('materiaModal').classList.add('d-none');
+    document.removeEventListener('keydown', handleModalKeydown);
+    if (lastFocusedElement) {
+        lastFocusedElement.focus(); // Devolver el foco al cerrar
+    }
+}
+
+function handleModalKeydown(e) {
+    if (e.key === 'Escape') {
+        cerrarModal();
+        return;
+    }
+
+    if (e.key === 'Tab') {
+        const modal = document.getElementById('materiaModal');
+        const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstElement) {
+                lastElement.focus();
+                e.preventDefault();
+            }
+        } else { // Tab
+            if (document.activeElement === lastElement) {
+                firstElement.focus();
+                e.preventDefault();
+            }
+        }
+    }
 }
 
 export function getModalFormData() {
