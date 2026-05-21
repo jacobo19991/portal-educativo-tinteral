@@ -352,21 +352,16 @@ function renderRecentSearches() {
 // FILTRAR
 // ==========================
 
+let domCache = null;
+
 function filtrarMaterias(term) {
-
-  const nivelWraps =
-    document.querySelectorAll(
-      '.nivel-wrap'
-    );
-
+  if (!domCache || domCache.length === 0) {
+    domCache = document.querySelectorAll('.nivel-wrap');
+  }
+  const nivelWraps = domCache;
 
   if (term === '') {
-
-    document
-      .querySelectorAll(
-        '.materia-row'
-      )
-      .forEach(row => {
+    document.querySelectorAll('.materia-row').forEach(row => {
 
         row.style.display = 'flex';
 

@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function renderNiveles(niveles, contenedor) {
   contenedor.innerHTML = ''; // Limpiar skeletons
+  
+  // Usamos DocumentFragment para evitar repintados innecesarios del DOM
+  const fragment = document.createDocumentFragment();
 
   niveles.forEach(nivel => {
     const nivelWrap = document.createElement('div');
@@ -32,12 +35,10 @@ function renderNiveles(niveles, contenedor) {
     btnNivel.className = `nivel-btn ${nivel.claseColor}`;
     btnNivel.innerHTML = `<span><i data-lucide="${iconName}" class="icon-2xl icon-align"></i></span> ${nivel.nombre} <span class="flecha" aria-hidden="true"><i data-lucide="chevron-down" class="icon-xl"></i></span>`;
 
-    // Panel de Nivel
     const panelNivel = document.createElement('div');
     panelNivel.className = 'nivel-panel';
     panelNivel.id = `panel-${nivel.id}`;
 
-    // Lógica para renderizar grados
     nivel.grados.forEach(grado => {
       const gradoWrap = document.createElement('div');
       gradoWrap.className = 'grado-wrap';
@@ -79,7 +80,6 @@ function renderNiveles(niveles, contenedor) {
         panelMaterias.appendChild(row);
       });
 
-      // Toggle Grado
       btnGrado.addEventListener('click', () => {
         const abierto = panelMaterias.classList.contains('visible');
         panelNivel.querySelectorAll('.materias-panel').forEach(p => p.classList.remove('visible'));
@@ -95,7 +95,6 @@ function renderNiveles(niveles, contenedor) {
       panelNivel.appendChild(gradoWrap);
     });
 
-    // Toggle Nivel
     btnNivel.addEventListener('click', () => {
       document.querySelectorAll('.nivel-panel').forEach(p => { if (p !== panelNivel) p.classList.remove('visible'); });
       document.querySelectorAll('.nivel-btn').forEach(b => { if (b !== btnNivel) b.classList.remove('abierto'); });
@@ -105,8 +104,11 @@ function renderNiveles(niveles, contenedor) {
 
     nivelWrap.appendChild(btnNivel);
     nivelWrap.appendChild(panelNivel);
-    contenedor.appendChild(nivelWrap);
+    fragment.appendChild(nivelWrap);
   });
+  
+  // Inyección única al DOM
+  contenedor.appendChild(fragment);
   
   if (window.lucide) window.lucide.createIcons();
 }
