@@ -105,10 +105,20 @@
                         <input type="text" id="matNombre" required placeholder="Ej: Matemáticas Avanzadas">
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group" id="fgFolderAdmin">
                         <label for="matFolder">ID de Carpeta (Google Drive)</label>
-                        <input type="text" id="matFolder" required placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j">
+                        <input type="text" id="matFolder" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j">
                         <small>El código largo que aparece en el link de la carpeta de Drive.</small>
+                    </div>
+
+                    <div class="form-group d-none" id="fgFolderDocente" style="text-align: center; padding: 20px 0;">
+                        <button type="button" id="btnGooglePicker" class="btn-primary" style="width: 100%; padding: 15px; font-size: 16px; background: #4285F4; border: none; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" alt="Drive" style="width: 24px; height: 24px;">
+                            Seleccionar desde mi Drive
+                        </button>
+                        <div id="selectedFolderName" style="margin-top: 15px; color: var(--text-secondary); font-size: 14px; font-style: italic;">
+                            Ninguna carpeta seleccionada
+                        </div>
                     </div>
 
                     <div class="form-group" id="fgOrden">

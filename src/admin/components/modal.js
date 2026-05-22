@@ -23,11 +23,17 @@ export function abrirModalMateria(gradoId, mat = null) {
         document.getElementById('modalTitle').textContent = 'Cambiar Carpeta de Tareas';
         document.getElementById('fgNombre').classList.add('d-none');
         document.getElementById('fgOrden').classList.add('d-none');
+        document.getElementById('fgFolderAdmin').classList.add('d-none');
+        document.getElementById('fgFolderDocente').classList.remove('d-none');
         document.getElementById('matNombre').removeAttribute('required');
+        document.getElementById('btnGuardarMateria').innerHTML = '<i data-lucide="check"></i> Guardar Cambios';
     } else {
         document.getElementById('fgNombre').classList.remove('d-none');
         document.getElementById('fgOrden').classList.remove('d-none');
+        document.getElementById('fgFolderAdmin').classList.remove('d-none');
+        document.getElementById('fgFolderDocente').classList.add('d-none');
         document.getElementById('matNombre').setAttribute('required', 'true');
+        document.getElementById('btnGuardarMateria').innerHTML = '<i data-lucide="save"></i> Guardar Cambios';
     }
 
     // Accesibilidad: Focus Trap y Escape
