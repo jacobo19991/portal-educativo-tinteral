@@ -30,4 +30,9 @@ async function fetchMateriasFromDB() {
 }
 
 // Iniciar búsqueda en la base de datos inmediatamente después de pintar la página
-document.addEventListener('DOMContentLoaded', fetchMateriasFromDB);
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+    fetchMateriasFromDB();
+});
