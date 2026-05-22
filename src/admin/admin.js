@@ -12,20 +12,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         mostrarDashboard();
     }
 
-    // 2. Manejo de Login
+    // 2. Manejo de Login por PIN (Docentes)
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('adminEmail').value;
-        const password = document.getElementById('adminPassword').value;
+        const pin = document.getElementById('adminPin').value;
         
         const btn = document.getElementById('btnIngresar');
         const originalText = btn.innerHTML;
-        btn.innerHTML = `<i data-lucide="loader" class="spinning"></i> Autenticando...`;
+        btn.innerHTML = `<span><i data-lucide="loader" class="spinning"></i> Validando...</span>`;
         if (window.lucide) lucide.createIcons();
         document.getElementById('loginError').classList.add('d-none');
 
         try {
-            await loginAdmin(email, password);
+            const res = await fetch('/api/login-pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin })
+            });
+            const data = await res.json();
+            
+            if (!res.ok) throw new Error(data.error || 'Error de conexión.');
+            
+            // Inyectar sesión en el cliente local (import dynamic para evitar ciclos si es posible, o directo si auth lo permite)
+            const { setSessionFromData } = await import('./services/auth.js');
+            await setSessionFromData(data.session);
+
             btn.innerHTML = originalText;
             if (window.lucide) lucide.createIcons();
             mostrarDashboard();
@@ -37,7 +48,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 3. Manejo de Logout
+    // 3. Manejo de Formulario Oculto de Administrador
+    document.getElementById('linkAdminMode').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('adminLoginForm').classList.toggle('d-none');
+    });
+
+    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+        const btn = document.getElementById('btnIngresarAdmin');
+        
+        btn.innerHTML = `<i data-lucide="loader" class="spinning"></i> Entrando...`;
+        if (window.lucide) lucide.createIcons();
+        document.getElementById('loginError').classList.add('d-none');
+        try {
+            await loginAdmin(email, password);
+            mostrarDashboard();
+        } catch (error) {
+            btn.innerHTML = `Entrar <i data-lucide="shield"></i>`;
+            if (window.lucide) lucide.createIcons();
+            document.getElementById('loginError').textContent = error.message;
+            document.getElementById('loginError').classList.remove('d-none');
+        }
+    });
+
+    // 4. Manejo de Logout
     document.getElementById('btnSalir').addEventListener('click', async () => {
         await logoutAdmin();
         document.getElementById('adminDashboard').classList.remove('visible');

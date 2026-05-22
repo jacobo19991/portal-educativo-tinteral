@@ -31,3 +31,11 @@ async function cargarRolUsuario(userId) {
 export async function logoutAdmin() {
     await supabase.auth.signOut();
 }
+
+export async function setSessionFromData(sessionData) {
+    const { data, error } = await supabase.auth.setSession(sessionData);
+    if (error) throw error;
+    await cargarRolUsuario(data.user.id);
+    return data;
+}
+

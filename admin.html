@@ -13,25 +13,44 @@
     <div id="loginScreen" class="glass-container visible">
         <div class="login-card">
             <div class="login-icon">
-                <i data-lucide="shield-check"></i>
+                <i data-lucide="lock"></i>
             </div>
-            <h2>Acceso Restringido</h2>
-            <p>Área de administración del catálogo educativo.</p>
+            <h2>Acceso Docente</h2>
+            <p>Ingrese PIN institucional para acceder.</p>
+            
             <form id="loginForm">
                 <div class="input-group">
-                    <i data-lucide="mail"></i>
-                    <input type="email" id="adminEmail" placeholder="Correo electrónico" required autocomplete="username">
-                </div>
-                <div class="input-group">
                     <i data-lucide="key"></i>
-                    <input type="password" id="adminPassword" placeholder="Contraseña Segura" required autocomplete="current-password">
+                    <input type="password" id="adminPin" placeholder="Ej: 1234" required autocomplete="off" style="text-align: center; font-size: 24px; letter-spacing: 8px;">
                 </div>
+                
                 <button type="submit" class="btn-primary" id="btnIngresar">
-                    <span>Desbloquear Sistema</span>
+                    <span>Entrar</span>
                     <i data-lucide="arrow-right"></i>
                 </button>
             </form>
-            <div id="loginError" class="error-msg d-none">Contraseña incorrecta o error de conexión.</div>
+
+            <div id="loginError" class="error-msg d-none" style="margin-top: 15px;">PIN incorrecto o error de conexión.</div>
+            
+            <div style="margin-top: 20px;">
+                <a href="#" id="linkAdminMode" style="color: var(--text-secondary); font-size: 12px; text-decoration: none;">Acceso Avanzado</a>
+            </div>
+
+            <!-- Formulario Admin Oculto -->
+            <form id="adminLoginForm" class="d-none" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h4 style="margin-bottom: 15px; color: var(--text-secondary); font-size: 14px;">Administrador</h4>
+                <div class="input-group">
+                    <i data-lucide="mail"></i>
+                    <input type="email" id="adminEmail" placeholder="Correo electrónico" autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="key"></i>
+                    <input type="password" id="adminPassword" placeholder="Contraseña Segura" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-secondary" id="btnIngresarAdmin">
+                    Entrar <i data-lucide="shield"></i>
+                </button>
+            </form>
         </div>
     </div>
 
