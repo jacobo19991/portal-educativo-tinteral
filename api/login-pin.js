@@ -14,8 +14,8 @@ export default async function handler(req, res) {
   try {
     const { pin } = req.body;
     
-    // Obtener el PIN real guardado en Vercel Env Vars
-    const realPin = process.env.DOCENTES_PIN;
+    // Obtener el PIN real guardado en Vercel Env Vars (con fallback a 2026 por si Vercel falla)
+    const realPin = process.env.DOCENTES_PIN || '2026';
     const url = process.env.SUPABASE_URL;
     const anonKey = process.env.SUPABASE_ANON_KEY;
 
