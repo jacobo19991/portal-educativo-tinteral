@@ -11,8 +11,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_ANON_KEY;
+    const url = process.env.SUPABASE_URL || 'https://zsfimkuvapbyssjdhddh.supabase.co';
+    const key = process.env.SUPABASE_ANON_KEY || 'sb_publishable_Kpkr1tKPJ1xPnoXtLM8H_w_xKvng6y_';
 
     if (!url || !key) {
       return res.status(500).json({ error: "Faltan variables de entorno SUPABASE_URL o SUPABASE_ANON_KEY" });
