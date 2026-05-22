@@ -42,6 +42,9 @@
                 <div>
                     <h1>Centro de Control</h1>
                     <p>Gestiona materias y carpetas de Google Drive en tiempo real.</p>
+                    <div id="roleBadgeContainer" style="margin-top: 8px;">
+                        <span id="roleBadge" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:rgba(255,255,255,0.1); border-radius:12px; font-size:12px; font-weight:600;"><i data-lucide="user" style="width:14px;height:14px;"></i> Docente</span>
+                    </div>
                 </div>
                 <button id="btnSalir" class="btn-secondary">
                     <i data-lucide="log-out"></i> Cerrar Sesión
@@ -75,7 +78,7 @@
                     <input type="hidden" id="matId">
                     <input type="hidden" id="matGradoId">
                     
-                    <div class="form-group">
+                    <div class="form-group" id="fgNombre">
                         <label for="matNombre">Nombre de la Materia</label>
                         <input type="text" id="matNombre" required placeholder="Ej: Matemáticas Avanzadas">
                     </div>
@@ -86,7 +89,7 @@
                         <small>El código largo que aparece en el link de la carpeta de Drive.</small>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="fgOrden">
                         <label for="matOrden">Orden (Opcional)</label>
                         <input type="number" id="matOrden" value="99">
                     </div>

@@ -87,6 +87,20 @@ function mostrarDashboard() {
     document.getElementById('loginScreen').classList.add('d-none');
     document.getElementById('adminDashboard').classList.remove('d-none');
     document.getElementById('adminDashboard').classList.add('visible');
+    
+    // Adaptación UI según el rol
+    const badge = document.getElementById('roleBadge');
+    if (window.userRole === 'admin') {
+        badge.innerHTML = `<i data-lucide="shield-alert" style="width:14px;height:14px;"></i> Administrador`;
+        badge.style.background = 'rgba(239, 68, 68, 0.2)';
+        badge.style.color = '#fca5a5';
+    } else {
+        badge.innerHTML = `<i data-lucide="user" style="width:14px;height:14px;"></i> Perfil Docente`;
+        badge.style.background = 'rgba(59, 130, 246, 0.2)';
+        badge.style.color = '#93c5fd';
+    }
+    if (window.lucide) lucide.createIcons();
+
     cargarYRenderizarCatalogo();
 }
 

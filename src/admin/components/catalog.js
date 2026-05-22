@@ -31,9 +31,11 @@ export function renderizarCatalogo(catalogoData, onEdit, onDelete) {
             gHeader.className = 'grado-header';
             gHeader.innerHTML = `
                 <h3><i data-lucide="folder-open"></i> ${grado.nombre}</h3>
+                ${window.userRole === 'admin' ? `
                 <button class="btn-sm btn-add-materia" data-gradoid="${grado.id}">
                     <i data-lucide="plus"></i> Añadir Materia
                 </button>
+                ` : ''}
             `;
             gradoSec.appendChild(gHeader);
 
@@ -51,15 +53,18 @@ export function renderizarCatalogo(catalogoData, onEdit, onDelete) {
                     matItem.innerHTML = `
                         <div class="mat-info">
                             <span class="mat-nombre">${mat.nombre}</span>
-                            <span class="mat-folder">${mat.folderId}</span>
+                            ${window.userRole === 'admin' ? `<span class="mat-folder">${mat.folderId}</span>` : `<span class="mat-folder">Carpeta asignada</span>`}
                         </div>
                         <div class="mat-actions">
                             <button class="btn-action edit btn-edit-mat" data-id="${mat.id || ''}" data-nombre="${mat.nombre}" data-folder="${mat.folderId}" aria-label="Editar">
-                                <i data-lucide="edit-2"></i>
+                                <i data-lucide="${window.userRole === 'admin' ? 'edit-2' : 'folder-up'}"></i>
+                                ${window.userRole !== 'admin' ? '<span class="action-text">Cambiar Carpeta</span>' : ''}
                             </button>
+                            ${window.userRole === 'admin' ? `
                             <button class="btn-action delete btn-del-mat" data-id="${mat.id || ''}" data-nombre="${mat.nombre}" aria-label="Eliminar">
                                 <i data-lucide="trash-2"></i>
                             </button>
+                            ` : ''}
                         </div>
                     `;
                     matList.appendChild(matItem);

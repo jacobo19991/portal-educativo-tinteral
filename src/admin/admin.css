@@ -473,3 +473,6 @@ body {
 /* FOCUS VISIBLE PARA ACCESIBILIDAD */
 :focus-visible { outline: 3px solid #3b82f6; outline-offset: 2px; border-radius: 4px; }
 
+
+.action-text { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; margin-left: 6px; font-weight: 500; }
+

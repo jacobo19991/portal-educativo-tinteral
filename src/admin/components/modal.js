@@ -19,6 +19,17 @@ export function abrirModalMateria(gradoId, mat = null) {
         document.getElementById('matFolder').value = '';
     }
 
+    if (window.userRole !== 'admin') {
+        document.getElementById('modalTitle').textContent = 'Cambiar Carpeta de Tareas';
+        document.getElementById('fgNombre').classList.add('d-none');
+        document.getElementById('fgOrden').classList.add('d-none');
+        document.getElementById('matNombre').removeAttribute('required');
+    } else {
+        document.getElementById('fgNombre').classList.remove('d-none');
+        document.getElementById('fgOrden').classList.remove('d-none');
+        document.getElementById('matNombre').setAttribute('required', 'true');
+    }
+
     // Accesibilidad: Focus Trap y Escape
     document.addEventListener('keydown', handleModalKeydown);
     const firstInput = modal.querySelector('input');
