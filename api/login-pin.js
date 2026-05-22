@@ -28,31 +28,54 @@ export default async function handler(req, res) {
     }
 
     // El PIN es correcto. Iniciar sesión en la cuenta compartida de docentes.
-    // Necesitamos una cuenta genérica en Supabase para todos los docentes.
-    const docenteEmail = process.env.DOCENTES_EMAIL || 'maestros@tinteral.edu.sv';
-    const docentePassword = process.env.DOCENTES_PASSWORD || 'Tinteral2026_Secreto*';
+    // Para simplificarte la vida, programaré el correo y clave maestra aquí mismo.
+    const docenteEmail = 'maestros@tinteral.edu.sv';
+    const docentePassword = 'Tinteral2026_Secreto*';
 
-    // Hacemos login en Supabase usando la API REST (Auth)
-    const authRes = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+    // 1. Intentamos hacer login
+    let authRes = await fetch(`${url}/auth/v1/token?grant_type=password`, {
         method: 'POST',
         headers: {
             "apikey": anonKey,
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            email: docenteEmail,
-            password: docentePassword
-        })
+        body: JSON.stringify({ email: docenteEmail, password: docentePassword })
     });
+
+    // 2. Si falla porque el usuario no existe, LO CREAMOS AUTOMÁTICAMENTE por ti
+    if (!authRes.ok) {
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        if (!serviceKey) throw new Error("Falta SUPABASE_SERVICE_ROLE_KEY para auto-crear la cuenta maestra.");
+        
+        await fetch(`${url}/auth/v1/admin/users`, {
+            method: 'POST',
+            headers: {
+                "apikey": serviceKey,
+                "Authorization": `Bearer ${serviceKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: docenteEmail, password: docentePassword, email_confirm: true })
+        });
+
+        // Reintentamos el login ahora que ya existe
+        authRes = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: {
+                "apikey": anonKey,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: docenteEmail, password: docentePassword })
+        });
+    }
 
     if (!authRes.ok) {
         const authErr = await authRes.json();
-        throw new Error("No se pudo iniciar sesión en la cuenta compartida: " + authErr.error_description);
+        throw new Error("Error interno de autenticación: " + (authErr.error_description || authErr.msg));
     }
 
     const sessionData = await authRes.json();
     
-    // Devolvemos la sesión completa al frontend para que la inyecte en Supabase local
+    // Devolvemos la sesión completa al frontend
     return res.status(200).json({ session: sessionData });
 
   } catch (error) {
