@@ -610,7 +610,7 @@ input:checked + .slider:before {
 }
 
 .overlay2 { z-index: 150; }
-.overlay.visible, .overlay2.visible { display: flex; }
+.overlay.visible, .overlay2.visible { display: flex; animation: fadeIn .3s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
 .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
 mark.highlight {
