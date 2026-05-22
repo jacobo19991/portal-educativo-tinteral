@@ -16,8 +16,8 @@ export default async function handler(req, res) {
     
     // Obtener el PIN real guardado en Vercel Env Vars (con fallback a 2026 por si Vercel falla)
     const realPin = process.env.DOCENTES_PIN || '2026';
-    const url = process.env.SUPABASE_URL;
-    const anonKey = process.env.SUPABASE_ANON_KEY;
+    const url = process.env.SUPABASE_URL || 'https://zsfimkuvapbyssjdhddh.supabase.co';
+    const anonKey = process.env.SUPABASE_ANON_KEY || 'sb_publishable_Kpkr1tKPJ1xPnoXtLM8H_w_xKvng6y_';
 
     if (!realPin) {
       return res.status(500).json({ error: "El servidor no tiene un PIN configurado." });
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
     // 2. Si falla porque el usuario no existe, LO CREAMOS AUTOMÁTICAMENTE por ti
     if (!authRes.ok) {
-        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_56bNy6Xcn5TJTmv_p-EzOw_-NyTvlvh';
         if (!serviceKey) throw new Error("Falta SUPABASE_SERVICE_ROLE_KEY para auto-crear la cuenta maestra.");
         
         await fetch(`${url}/auth/v1/admin/users`, {
