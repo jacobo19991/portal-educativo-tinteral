@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     };
 
     // Hacemos un JOIN directo en Supabase usando select relacional de PostgREST
-    const query = '/rest/v1/niveles?select=id,nombre,icono,clase_color,orden,grados(id,nombre,nombre_abreviado,icono,pin,orden,materias(id,nombre,folder_id,orden))&order=orden.asc,grados.orden.asc,grados.materias.orden.asc';
+    const query = '/rest/v1/niveles?select=id,nombre,icono,clase_color,orden,grados(id,nombre,nombre_abreviado,icono,pin,orden,materias(id,nombre,folder_id,orden))&order=orden.asc&grados.order=orden.asc&grados.materias.order=orden.asc';
     
     const dbRes = await fetch(`${url}${query}`, { headers });
     
