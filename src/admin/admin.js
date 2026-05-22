@@ -119,11 +119,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-function mostrarDashboard() {
+async function mostrarDashboard() {
     document.getElementById('loginScreen').classList.remove('visible');
     document.getElementById('loginScreen').classList.add('d-none');
     document.getElementById('adminDashboard').classList.remove('d-none');
     document.getElementById('adminDashboard').classList.add('visible');
+    
+    // Si es docente (o admin), inicializamos Google Picker API en el fondo
+    try {
+        const { initGoogleApis } = await import('./services/googlePicker.js');
+        initGoogleApis();
+    } catch (e) {
+        console.error("No se pudo cargar Google Picker", e);
+    }
     
     // Adaptación UI según el rol
     const badge = document.getElementById('roleBadge');

@@ -36,6 +36,34 @@ export function abrirModalMateria(gradoId, mat = null) {
         document.getElementById('btnGuardarMateria').innerHTML = '<i data-lucide="save"></i> Guardar Cambios';
     }
 
+    // Setup para Google Picker
+    const btnGooglePicker = document.getElementById('btnGooglePicker');
+    if (btnGooglePicker) {
+        // Para evitar múltiples event listeners, lo clonamos
+        const newBtn = btnGooglePicker.cloneNode(true);
+        btnGooglePicker.parentNode.replaceChild(newBtn, btnGooglePicker);
+        
+        newBtn.addEventListener('click', async () => {
+            newBtn.innerHTML = '<i data-lucide="loader" class="spinning"></i> Abriendo Drive...';
+            if (window.lucide) lucide.createIcons();
+            
+            const { openGooglePicker } = await import('../services/googlePicker.js');
+            openGooglePicker((folderId, folderName) => {
+                // Callback cuando se selecciona una carpeta
+                document.getElementById('matFolder').value = folderId; // Oculto o visible
+                
+                // Mostrar éxito visual
+                newBtn.innerHTML = '<i data-lucide="check-circle"></i> Carpeta Seleccionada';
+                newBtn.style.background = '#22c55e'; // Verde éxito
+                document.getElementById('selectedFolderName').textContent = folderName;
+                document.getElementById('selectedFolderName').style.color = '#22c55e';
+                document.getElementById('selectedFolderName').style.fontWeight = 'bold';
+                
+                if (window.lucide) lucide.createIcons();
+            });
+        });
+    }
+
     // Accesibilidad: Focus Trap y Escape
     document.addEventListener('keydown', handleModalKeydown);
     const firstInput = modal.querySelector('input');
