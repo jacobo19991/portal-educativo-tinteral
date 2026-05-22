@@ -98,11 +98,61 @@ function mostrarDashboard() {
         badge.innerHTML = `<i data-lucide="user" style="width:14px;height:14px;"></i> Perfil Docente`;
         badge.style.background = 'rgba(59, 130, 246, 0.2)';
         badge.style.color = '#93c5fd';
+        document.getElementById('btnGestionarUsuarios').classList.add('d-none');
     }
     if (window.lucide) lucide.createIcons();
 
     cargarYRenderizarCatalogo();
 }
+
+// 6. Lógica de Gestión de Usuarios
+document.getElementById('btnGestionarUsuarios').addEventListener('click', () => {
+    document.getElementById('usuariosModal').classList.remove('d-none');
+});
+
+document.getElementById('btnCerrarUsuariosModal').addEventListener('click', () => {
+    document.getElementById('usuariosModal').classList.add('d-none');
+});
+
+document.getElementById('btnCancelarUsuariosModal').addEventListener('click', () => {
+    document.getElementById('usuariosModal').classList.add('d-none');
+});
+
+document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('newUserEmail').value;
+    const password = document.getElementById('newUserPass').value;
+    
+    const btn = document.getElementById('btnCrearUsuario');
+    btn.innerHTML = `<i data-lucide="loader" class="spinning"></i> Creando...`;
+    if (window.lucide) lucide.createIcons();
+
+    try {
+        const { data: { session } } = await import('./services/supabase.js').then(m => m.supabase.auth.getSession());
+        if (!session) throw new Error("No hay sesión activa");
+
+        const res = await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Error desconocido');
+
+        alert(`¡Éxito! Docente creado. Ya puede iniciar sesión con:\nCorreo: ${email}\nClave: ${password}`);
+        document.getElementById('usuarioForm').reset();
+        document.getElementById('usuariosModal').classList.add('d-none');
+    } catch (err) {
+        alert("Error al crear usuario: " + err.message);
+    } finally {
+        btn.innerHTML = `<i data-lucide="user-plus"></i> Crear Docente`;
+        if (window.lucide) lucide.createIcons();
+    }
+});
 
 async function cargarYRenderizarCatalogo() {
     const container = document.getElementById('catalogoContainer');
