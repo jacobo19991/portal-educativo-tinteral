@@ -1,6 +1,11 @@
 export default async function handler(req, res) {
-  // CORS Headers
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigins = ['https://portal-educativo-tinteral.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:5500'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+      res.setHeader("Access-Control-Allow-Origin", "https://portal-educativo-tinteral.vercel.app"); // Default fallback
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 

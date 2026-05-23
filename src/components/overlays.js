@@ -106,7 +106,46 @@ window.OverlaysApp = (function() {
 
     if (semanaHist.length > 0) {
       histToggle.style.display = 'flex';
-      semanaHist.forEach(f => listaHist.appendChild(crearItemArchivo(f, false)));
+      listaHist.innerHTML = '';
+      
+      const PAGE_SIZE = 15;
+      let currentIndexHist = 0;
+      
+      const centinela = document.createElement('div');
+      centinela.className = 'centinela-scroll';
+      centinela.innerHTML = '<div class="spinner-wrap" style="padding: 10px 0;"><div class="spinner spinner-sm"></div><span class="spinner-text">Cargando más...</span></div>';
+      
+      const renderizarLote = () => {
+         const lote = semanaHist.slice(currentIndexHist, currentIndexHist + PAGE_SIZE);
+         if (lote.length === 0) {
+             centinela.style.display = 'none';
+             return;
+         }
+         
+         lote.forEach(f => {
+             listaHist.insertBefore(crearItemArchivo(f, false), centinela);
+         });
+         
+         currentIndexHist += PAGE_SIZE;
+         if (currentIndexHist >= semanaHist.length) {
+             centinela.style.display = 'none';
+         }
+      };
+
+      listaHist.appendChild(centinela);
+      renderizarLote();
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && currentIndexHist < semanaHist.length) {
+                // Pequeño timeout para fluidez de UI
+                setTimeout(renderizarLote, 200);
+            }
+        }, { rootMargin: '100px' });
+        observer.observe(centinela);
+      } else {
+        while(currentIndexHist < semanaHist.length) renderizarLote();
+      }
     }
     
     if (window.lucide) window.lucide.createIcons();
@@ -158,6 +197,11 @@ window.OverlaysApp = (function() {
     const btn = document.getElementById('pdfDescargarBtn');
     btn.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
     btn.setAttribute('download', `${nombre}.pdf`);
+
+    const btnDrive = document.getElementById('pdfAbrirDriveBtn');
+    if (btnDrive) {
+      btnDrive.href = `https://drive.google.com/file/d/${fileId}/view`;
+    }
 
     const loader = document.getElementById('pdfLoader');
     loader.classList.remove('oculto');

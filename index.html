@@ -3,16 +3,22 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Educativo - C.E. El Tinteral</title>
   
+  <!-- SEO & OpenGraph Meta Tags -->
+  <meta name="description" content="Portal Educativo Digital del Complejo Educativo El Tinteral">
+  <meta property="og:title" content="Portal Educativo - C.E. El Tinteral">
+  <meta property="og:description" content="Accede a recursos educativos, tareas y actividades escolares">
+  <meta property="og:type" content="website">
+
   <!-- PWA Meta Tags -->
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0d1b3e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="El Tinteral">
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
@@ -106,7 +112,7 @@
           <span class="icon" aria-hidden="true"><i data-lucide="folder-open"></i></span>
           <span class="text">Acceso para Docentes</span>
         </div>
-        <span class="subtext">Sube tareas y recursos en la carpeta correspondiente</span>
+        <span class="subtext">Ingresa al Drive institucional para subir recursos por grado y materia</span>
       </a>
     </div>
   </main>
@@ -204,6 +210,9 @@
         <h2 class="pdf-nombre" id="pdfNombre">Documento</h2>
       </div>
       <div class="pdf-header-btns">
+        <a class="pdf-descargar" id="pdfAbrirDriveBtn" href="#" target="_blank" rel="noopener noreferrer" style="margin-right: 8px;"><i
+            data-lucide="external-link" class="icon-md icon-align"></i>
+          Abrir en Drive</a>
         <a class="pdf-descargar" id="pdfDescargarBtn" href="#" download target="_blank" rel="noopener noreferrer"><i
             data-lucide="download" class="icon-md icon-align"></i>
           Descargar</a>
@@ -226,7 +235,7 @@
   </div>
 
   <!-- Scripts Modulares -->
-  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="https://unpkg.com/lucide@0.468.0" defer></script>
   <script type="module" src="./src/main.js?v=5"></script>
 </body>
 

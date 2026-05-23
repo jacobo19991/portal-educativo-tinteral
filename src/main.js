@@ -7,7 +7,7 @@ import './components/overlays.js';
 // Registro de Service Worker para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('./sw.js')
             .then(registration => {
                 console.log('✅ ServiceWorker registrado con éxito:', registration.scope);
             })
@@ -48,4 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
     fetchMateriasFromDB();
+});
+
+// Detectar cambios en la conexión de red (Caché Offline Sólido)
+window.addEventListener('offline', () => {
+    if (window.Toast) {
+        window.Toast.show('Sin conexión. Mostrando datos guardados en caché.', 'warning');
+    }
+    console.warn('[Network] Offline: Usando caché local.');
+});
+
+window.addEventListener('online', () => {
+    if (window.Toast) {
+        window.Toast.show('Conexión restaurada.', 'success');
+    }
+    console.log('[Network] Online: Conexión recuperada.');
 });
