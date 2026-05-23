@@ -187,12 +187,13 @@ window.OverlaysApp = (function() {
     return div;
   }
 
+  let pdfLoadTimeout;
+
   function abrirVisor(nombre, fileId) {
     if(window.Toast) window.Toast.show(`Abriendo documento...`, 'info');
     
     window.AppState.currentFileId = fileId;
     document.getElementById('pdfNombre').textContent = nombre;
-    document.getElementById('pdf-iframe').src = `https://drive.google.com/file/d/${fileId}/preview`;
     
     const btn = document.getElementById('pdfDescargarBtn');
     btn.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
@@ -204,18 +205,37 @@ window.OverlaysApp = (function() {
     }
 
     const loader = document.getElementById('pdfLoader');
+    const warning = document.getElementById('pdfTimeoutWarning');
+    const iframe = document.getElementById('pdf-iframe');
+    
     loader.classList.remove('oculto');
-    document.getElementById('pdf-iframe').onload = () => loader.classList.add('oculto');
+    if (warning) warning.style.display = 'none';
 
     document.getElementById('pdfOverlay').classList.add('visible');
     document.body.style.overflow = 'hidden';
+
+    // Mostrar modal primero, luego inyectar iframe para que sea instantáneo
+    setTimeout(() => {
+        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+        
+        iframe.onload = () => {
+            loader.classList.add('oculto');
+            clearTimeout(pdfLoadTimeout);
+        };
+
+        // Timeout de seguridad si el PDF tarda mucho
+        pdfLoadTimeout = setTimeout(() => {
+            if (warning) warning.style.display = 'block';
+        }, 8000);
+    }, 100);
   }
 
   function cerrarVisor() {
     document.getElementById('pdfOverlay').classList.remove('visible');
-    document.getElementById('pdf-iframe').src = '';
+    document.getElementById('pdf-iframe').src = ''; // Prevenir consumo de RAM
     document.body.style.overflow = '';
     window.AppState.currentFileId = "";
+    clearTimeout(pdfLoadTimeout); // Cancelar timers si se cierra rápido
   }
 
   function compartirWhatsApp() {

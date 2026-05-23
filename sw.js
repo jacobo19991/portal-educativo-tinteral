@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     // ESTRATEGIA: NETWORK ONLY para Drive (Evita romper visor PDF y desbordar caché con archivos pesados)
-    if (url.hostname.includes('drive.google.com')) {
+    if (url.hostname.includes('drive.google.com') || url.hostname.includes('docs.google.com')) {
         event.respondWith(fetch(event.request));
         return;
     }

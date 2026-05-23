@@ -26,6 +26,10 @@
   <!-- Preconexión DNS (Fase 4: Optimización) -->
   <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://zsfimkuvapbyssjdhddh.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://drive.google.com">
+  <link rel="preconnect" href="https://docs.google.com">
+  <link rel="dns-prefetch" href="https://drive.google.com">
+  <link rel="dns-prefetch" href="https://docs.google.com">
 
   <link rel="stylesheet" href="main.css?v=2">
 </head>
@@ -224,6 +228,7 @@
       <div class="pdf-loader" id="pdfLoader">
         <div class="spinner"></div>
         <p>Cargando documento…<br>no se descargará en su celular</p>
+        <p id="pdfTimeoutWarning" class="warning-text" style="display:none; margin-top: 10px; font-size: 0.9em; color: var(--text-muted);">Google Drive está tardando en cargar.<br>Puedes abrir el documento directamente usando el botón de arriba.</p>
       </div>
       <iframe id="pdf-iframe" src="" allow="autoplay" loading="lazy" title="Visor de PDF"></iframe>
     </div>
