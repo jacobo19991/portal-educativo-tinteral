@@ -1,8 +1,8 @@
-const CACHE_NAME = 'tinteral-pwa-cache-v4';
+const CACHE_NAME = 'tinteral-pwa-cache-v5';
 const STATIC_ASSETS = [
     './',
     './index.html',
-    './main.css',
+    './assets/css/main.css',
     './src/main.js',
     './src/config/globals.js',
     './src/data/materiasData.js',

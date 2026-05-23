@@ -31,7 +31,7 @@
   <link rel="dns-prefetch" href="https://drive.google.com">
   <link rel="dns-prefetch" href="https://docs.google.com">
 
-  <link rel="stylesheet" href="main.css?v=2">
+  <link rel="stylesheet" href="assets/css/main.css?v=2">
 </head>
 
 <body>
@@ -214,14 +214,18 @@
         <h2 class="pdf-nombre" id="pdfNombre">Documento</h2>
       </div>
       <div class="pdf-header-btns">
-        <a class="pdf-descargar" id="pdfAbrirDriveBtn" href="#" target="_blank" rel="noopener noreferrer" style="margin-right: 8px;"><i
-            data-lucide="external-link" class="icon-md icon-align"></i>
-          Abrir en Drive</a>
-        <a class="pdf-descargar" id="pdfDescargarBtn" href="#" download target="_blank" rel="noopener noreferrer"><i
-            data-lucide="download" class="icon-md icon-align"></i>
-          Descargar</a>
-        <button class="pdf-cerrar btn-cerrar-visor" aria-label="Cerrar visor PDF"><i data-lucide="x"
-            class="icon-md icon-align"></i> Cerrar</button>
+        <a class="pdf-descargar btn-drive" id="pdfAbrirDriveBtn" href="#" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="external-link" class="icon-md icon-align"></i>
+          <span class="btn-text">Abrir en Drive</span>
+        </a>
+        <a class="pdf-descargar btn-down" id="pdfDescargarBtn" href="#" download target="_blank" rel="noopener noreferrer">
+          <i data-lucide="download" class="icon-md icon-align"></i>
+          <span class="btn-text">Descargar</span>
+        </a>
+        <button class="pdf-cerrar btn-cerrar-visor" aria-label="Cerrar visor PDF">
+          <i data-lucide="x" class="icon-md icon-align"></i>
+          <span class="btn-text-close">Cerrar</span>
+        </button>
       </div>
     </div>
     <div class="pdf-viewer-wrap">
