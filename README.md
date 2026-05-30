@@ -72,6 +72,15 @@ Al usar Vanilla JS y Serverless, no requieres un proceso de "build" complejo.
    vercel dev
    ```
 
+### 🐳 Alternativa: Contenedor Docker (Solo Frontend)
+Para entornos de nube privada o VPS, puedes containerizar la interfaz gráfica usando Nginx:
+
+```bash
+docker build -t portal-tinteral .
+docker run -p 8080:80 -d portal-tinteral
+```
+*El frontend estará disponible en `http://localhost:8080`.*
+
 ## 👨‍💻 Autor y Mantenimiento
 
 Desarrollado y consolidado mediante refactorización incremental segura.
