@@ -166,6 +166,39 @@ function fallbackBackgroundSupabase(cacheKey) {
 }
 
 function adaptarAppsScriptASupabase(tree) {
+    // 1. Ordenar Niveles por el número inicial (ej. "1-INICIAL" -> 1)
+    tree.sort((a, b) => {
+        const numA = parseInt(a.nivel.split('-')[0]) || 99;
+        const numB = parseInt(b.nivel.split('-')[0]) || 99;
+        return numA - numB;
+    });
+
+    // 2. Orden lógico de grados
+    const ordenGrados = [
+        "Inicial", "Parvularia 5 años", "Parvularia 6 años", "Primer Grado",
+        "Segundo Grado", "Tercer Grado", "Cuarto Grado", "Quinto Grado",
+        "Sexto Grado", "Séptimo Grado", "Octavo Grado", "Noveno Grado",
+        "Primer Año", "Segundo Año", "Tercer Año"
+    ];
+
+    tree.forEach(nivel => {
+        // Ordenar grados según el arreglo ordenGrados
+        nivel.grados.sort((a, b) => {
+            const idxA = ordenGrados.indexOf(a.grado);
+            const idxB = ordenGrados.indexOf(b.grado);
+            if (idxA === -1 && idxB === -1) return a.grado.localeCompare(b.grado);
+            if (idxA === -1) return 1;
+            if (idxB === -1) return -1;
+            return idxA - idxB;
+        });
+
+        // 3. Ordenar materias alfabéticamente
+        nivel.grados.forEach(grado => {
+            if (grado.materias) {
+                grado.materias.sort((a, b) => a.materia.localeCompare(b.materia));
+            }
+        });
+    });
     const configNiveles = [
         { name: 'parvularia', icono: '🌱', cls: 'n1' },
         { name: 'primer ciclo', icono: '📗', cls: 'n2' },
