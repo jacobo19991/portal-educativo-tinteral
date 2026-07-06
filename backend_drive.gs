@@ -37,14 +37,20 @@ function getFolderTree() {
       var gradoFolder = gradosFolders.next();
       var gradoObj = { grado: gradoFolder.getName(), materias: [] };
       
-      // Materias
-      var materiasFolders = gradoFolder.getFolders();
-      while (materiasFolders.hasNext()) {
-        var materiaFolder = materiasFolders.next();
-        gradoObj.materias.push({
-          materia: materiaFolder.getName(),
-          id: materiaFolder.getId()
-        });
+      // Buscar la carpeta "MATERIAS"
+      var materiasDirIter = gradoFolder.getFoldersByName("MATERIAS");
+      if (materiasDirIter.hasNext()) {
+        var materiasDir = materiasDirIter.next();
+        var materiasFolders = materiasDir.getFolders();
+        while (materiasFolders.hasNext()) {
+          var materiaFolder = materiasFolders.next();
+          gradoObj.materias.push({
+            materia: materiaFolder.getName(),
+            id: materiaFolder.getId()
+          });
+        }
+      } else {
+        warnings.push("Grado " + gradoFolder.getName() + " no tiene carpeta MATERIAS.");
       }
       nivelObj.grados.push(gradoObj);
     }
