@@ -73,6 +73,8 @@ async function fetchMateriasFromDB(forceRefresh = false) {
             localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: dbData }));
             aplicarDatosMaterias(dbData);
             console.log("✅ Datos frescos cargados desde Supabase (Base de Datos)");
+        } else {
+            throw new Error("Supabase devolvió datos inválidos o vacíos (ej. faltan credenciales)");
         }
     } catch (error) {
         // Riesgo Cero: Si falla Supabase o el internet, el portal ya está usando materiasData.js (Fallback local)
@@ -80,6 +82,8 @@ async function fetchMateriasFromDB(forceRefresh = false) {
         const cachedFallbackStr = localStorage.getItem(CACHE_KEY);
         if (cachedFallbackStr) {
              aplicarDatosMaterias(JSON.parse(cachedFallbackStr).data);
+        } else if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
+             aplicarDatosMaterias(window.MATERIAS_DATA);
         }
     }
 }
