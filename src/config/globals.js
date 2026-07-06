@@ -7,7 +7,7 @@ window.AppConfig = {
   SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs',
   USAR_APPS_SCRIPT: true,
   // IMPORTANTE: La URL de Apps Script debe terminar en "/exec"
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx4CwdPIHa2y9Xgq0k4U607KX5OzNJ1a01guEro-2VxbCkCi7xjJhE6ehQS9h0cDE9w/exec'
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx4CwdPlHa2y9Xgq0k4lJ607KX5OzNJ1a01guEro-2VxbCkCi7xjIJhE6ehQS9h0cDE9w/exec'
 };
 
 window.AppState = {
