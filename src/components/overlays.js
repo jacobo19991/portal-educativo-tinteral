@@ -106,7 +106,9 @@ window.OverlaysApp = (function() {
 
     if (!usedCache) {
       try {
-        const url = `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}${forzarFresco ? '&refresh=true' : ''}`;
+        const url = (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL)
+            ? `${window.AppConfig.APPS_SCRIPT_URL}?folderId=${encodeURIComponent(folderId)}`
+            : `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}${forzarFresco ? '&refresh=true' : ''}`;
 
         // Usar fetchWithTimeout (Fase 2)
         const resp = await fetchWithTimeout(url, {}, 10000); // 10s timeout max
