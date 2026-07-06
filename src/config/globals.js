@@ -4,7 +4,10 @@ window.AppConfig = {
   LINK_PORTAL: 'https://portal-educativo-tinteral.vercel.app',
   NUMERO_WHATSAPP: '50363097679',
   DRIVE_API_ENDPOINT: '/api/drive',
-  SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs'
+  SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs',
+  USAR_APPS_SCRIPT: true,
+  // IMPORTANTE: La URL de Apps Script debe terminar en "/exec"
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx4CwdPIHa2y9Xgq0k4U607KX5OzNJ1a01guEro-2VxbCkCi7xjJhE6ehQS9h0cDE9w/exec'
 };
 
 window.AppState = {

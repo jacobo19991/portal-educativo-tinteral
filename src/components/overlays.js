@@ -1,14 +1,26 @@
+import { fetchWithTimeout } from '../utils/fetchUtils.js';
+
 window.OverlaysApp = (function() {
+  let elementBeforeModal; // Para guardar el foco anterior (Accesibilidad)
+
   function abrirSheet() {
+    elementBeforeModal = document.activeElement;
     document.getElementById('sTitulo').textContent = window.AppState.materia;
     document.getElementById('sSub').textContent = window.AppState.gradoAbreviada;
-    document.getElementById('overlay').classList.add('visible');
+    const overlay = document.getElementById('overlay');
+    overlay.classList.add('visible');
     document.body.style.overflow = 'hidden';
+    
+    // Mover foco al modal
+    const btnCerrar = overlay.querySelector('.btn-cerrar-sheet');
+    if (btnCerrar) btnCerrar.focus();
   }
 
   function cerrarSheet() {
     document.getElementById('overlay').classList.remove('visible');
     document.body.style.overflow = '';
+    // Restaurar foco (Accesibilidad)
+    if (elementBeforeModal) elementBeforeModal.focus();
   }
 
   function abrirSubTareas() {
@@ -20,11 +32,18 @@ window.OverlaysApp = (function() {
     }
 
     renderizarTareas();
-    document.getElementById('overlay2').classList.add('visible');
+    const overlay2 = document.getElementById('overlay2');
+    overlay2.classList.add('visible');
+    // Mover foco
+    const btnCerrar2 = overlay2.querySelector('.btn-cerrar-sheet2');
+    if (btnCerrar2) btnCerrar2.focus();
   }
 
   function cerrarSheet2() {
     document.getElementById('overlay2').classList.remove('visible');
+    // El foco regresa al botón de abrir tareas
+    const btnAbrir = document.getElementById('btnAbrirTareas');
+    if (btnAbrir) btnAbrir.focus();
   }
 
   function abrirDrive(tipo) {
@@ -33,7 +52,7 @@ window.OverlaysApp = (function() {
     window.open(folderUrl, '_blank', 'noopener,noreferrer');
   }
 
-  async function renderizarTareas() {
+  async function renderizarTareas(forzarFresco = false) {
     const listaSemana = document.getElementById('lista-semana-actual');
     const listaHist = document.getElementById('lista-historico');
     const histToggle = document.getElementById('histToggle');
@@ -48,40 +67,60 @@ window.OverlaysApp = (function() {
       return;
     }
 
-    const CACHE_MINUTES = 1;
+    const CACHE_MINUTES = 15; // Aumentado a 15 mins para mejor rendimiento (Fase 3)
     const cacheKey = 'drive_cache_' + folderId;
     const cached = sessionStorage.getItem(cacheKey);
 
     let data = null;
     let usedCache = false;
 
-    if (cached) {
+    // 1. Intentar buscar en la memoria pre-cargada de Apps Script (Prioridad 1)
+    if (window.AppConfig.USAR_APPS_SCRIPT && !forzarFresco) {
+      try {
+        const preloadedStr = sessionStorage.getItem('drive_files_cache');
+        if (preloadedStr) {
+          const preloaded = JSON.parse(preloadedStr);
+          if (preloaded.data && Array.isArray(preloaded.data[folderId])) {
+            data = { files: preloaded.data[folderId] };
+            usedCache = true;
+            console.log("📂 Usando archivos pre-cargados por Apps Script");
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 2. Si no hay Apps Script, intentar caché individual de /api/drive (Prioridad 2)
+    if (!usedCache && cached && !forzarFresco) {
       try {
         const parsed = JSON.parse(cached);
-        if (Date.now() - parsed.timestamp < CACHE_MINUTES * 60 * 1000) {
+        // Validar caché (Fase 4)
+        if (parsed && parsed.data && Array.isArray(parsed.data.files) && Date.now() - parsed.timestamp < CACHE_MINUTES * 60 * 1000) {
           data = parsed.data;
           usedCache = true;
+          console.log("📂 Usando datos cacheados de Drive");
+        } else {
+          sessionStorage.removeItem(cacheKey);
         }
       } catch (e) { sessionStorage.removeItem(cacheKey); }
     }
 
     if (!usedCache) {
       try {
-        const url = `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}`;
+        const url = `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}${forzarFresco ? '&refresh=true' : ''}`;
 
-        const resp = await fetch(url);
+        // Usar fetchWithTimeout (Fase 2)
+        const resp = await fetchWithTimeout(url, {}, 10000); // 10s timeout max
         data = await resp.json();
 
-        if (!resp.ok) {
-          listaSemana.innerHTML = `<div class="error-banner">❌ Error ${resp.status}: ${window.escapeHtml(data?.error?.message || 'Error desconocido')}</div>`;
-          if(window.Toast) window.Toast.show("Error de conexión con Google Drive", "error");
-          return;
+        if (!data || !Array.isArray(data.files)) {
+           throw new Error("Estructura de datos de Drive no válida");
         }
 
         sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
       } catch (error) {
-        listaSemana.innerHTML = `<div class="error-banner">❌ Error de conexión con Google Drive.</div>`;
-        if(window.Toast) window.Toast.show("Error de red cargando recursos", "error");
+        console.error("Error cargando recursos:", error);
+        listaSemana.innerHTML = `<div class="error-banner">❌ No pudimos cargar los recursos en este momento. Revisa tu conexión o intenta de nuevo en unos segundos.</div>`;
+        if(window.Toast) window.Toast.show("No pudimos cargar los recursos en este momento. Revisa tu conexión o intenta de nuevo en unos segundos.", "error");
         return;
       }
     }
@@ -200,9 +239,11 @@ window.OverlaysApp = (function() {
     btn.setAttribute('download', `${nombre}.pdf`);
 
     const btnDrive = document.getElementById('pdfAbrirDriveBtn');
-    if (btnDrive) {
-      btnDrive.href = `https://drive.google.com/file/d/${fileId}/view`;
-    }
+    const btnFallback = document.getElementById('pdfFallbackBtn');
+    const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
+    
+    if (btnDrive) btnDrive.href = driveUrl;
+    if (btnFallback) btnFallback.href = driveUrl;
 
     const loader = document.getElementById('pdfLoader');
     const warning = document.getElementById('pdfTimeoutWarning');
@@ -223,19 +264,48 @@ window.OverlaysApp = (function() {
             clearTimeout(pdfLoadTimeout);
         };
 
-        // Timeout de seguridad si el PDF tarda mucho
+        // Timeout de seguridad si el PDF tarda mucho (revertido a 3s para evitar falsos positivos)
         pdfLoadTimeout = setTimeout(() => {
-            if (warning) warning.style.display = 'block';
-        }, 8000);
+            if (warning) {
+              warning.style.display = 'block';
+              if (btnFallback) btnFallback.focus(); // Accesibilidad: Mover foco al fallback
+            }
+        }, 3000);
     }, 100);
   }
 
   function cerrarVisor() {
     document.getElementById('pdfOverlay').classList.remove('visible');
-    document.getElementById('pdf-iframe').src = ''; // Prevenir consumo de RAM
+    const iframe = document.getElementById('pdf-iframe');
+    
+    // Fase 5: Evitar consumo de RAM y liberar memoria efectivamente
+    iframe.src = 'about:blank';
+    setTimeout(() => {
+        iframe.removeAttribute('src'); 
+    }, 100);
+
     document.body.style.overflow = '';
     window.AppState.currentFileId = "";
     clearTimeout(pdfLoadTimeout); // Cancelar timers si se cierra rápido
+  }
+
+  function refrescarCache() {
+    const folderId = window.AppState.folderId;
+    if (folderId) {
+      sessionStorage.removeItem('drive_cache_' + folderId);
+      
+      if (window.AppConfig.USAR_APPS_SCRIPT && window.refrescarMenuYArchivos) {
+        if (window.Toast) window.Toast.show("Reconstruyendo menú y archivos desde Drive...", "info");
+        window.refrescarMenuYArchivos().then(() => {
+            renderizarTareas(true);
+        });
+      } else {
+        // Fase 3: Limpiar también el caché global de materias al pedir recarga manual
+        localStorage.removeItem('materias_cache_v1');
+        if (window.Toast) window.Toast.show("Actualizando...", "info");
+        renderizarTareas(true);
+      }
+    }
   }
 
   function compartirWhatsApp() {
@@ -306,6 +376,9 @@ window.OverlaysApp = (function() {
 
     // WhatsApp
     document.getElementById('waBtnTareas')?.addEventListener('click', compartirWhatsApp);
+    
+    // Refrescar caché
+    document.getElementById('btnRefrescarCache')?.addEventListener('click', refrescarCache);
   });
 
   return { abrirSheet };

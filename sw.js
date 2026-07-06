@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tinteral-pwa-cache-v5';
+const CACHE_NAME = 'portal-educativo-v8';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -9,7 +9,6 @@ const STATIC_ASSETS = [
     './src/components/materias.js',
     './src/components/buscador.js',
     './src/components/overlays.js',
-    './src/utils/debounce.js',
     'https://unpkg.com/lucide@0.468.0',
     'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap'
 ];
@@ -42,12 +41,12 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
+                cacheNames
+                    .filter((cacheName) => cacheName !== CACHE_NAME)
+                    .map((cacheName) => {
                         console.log('[Service Worker] Limpiando caché antiguo:', cacheName);
                         return caches.delete(cacheName);
-                    }
-                })
+                    })
             );
         })
     );
@@ -79,11 +78,15 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request)
                 .then((response) => {
                     if (event.request.method === 'GET' && response.status === 200) {
-                        const responseClone = response.clone();
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, responseClone);
-                            limitCacheSize(CACHE_NAME, 50); // Limpiar caché si excede 50 items
-                        });
+                        const isBypass = url.searchParams.get('refresh') === 'true' || url.searchParams.get('admin') === 'true';
+                        
+                        if (!isBypass) {
+                            const responseClone = response.clone();
+                            caches.open(CACHE_NAME).then((cache) => {
+                                cache.put(event.request, responseClone);
+                                limitCacheSize(CACHE_NAME, 50); // Limpiar caché si excede 50 items
+                            });
+                        }
                     }
                     return response;
                 })
