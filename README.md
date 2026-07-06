@@ -17,6 +17,7 @@ Después de un exhaustivo análisis UX, se determinó que la mejor interfaz para
 *   **♿ Accesibilidad (WCAG):** Navegación completa por teclado, etiquetas ARIA, Focus Traps para ventanas emergentes y cierre con `ESC`.
 *   **☁️ Edge Computing & Backend Seguro:** Las consultas a la base de datos están protegidas por funciones *Serverless* en Vercel (`api/materias.js`), blindando las API Keys de Supabase.
 *   **🔄 Sincronización Automática:** Integración transparente con Google Drive para visualización de PDFs sin descargas forzadas en móviles.
+    *   *Nota de Rendimiento:* La acción de actualizar recursos puede tomar alrededor de 15 segundos en reflejar cambios nuevos, ya que el sistema realiza un escaneo exhaustivo y en tiempo real de toda la estructura de Google Drive para asegurar precisión.
 
 ## 🛠️ Stack Tecnológico
 
