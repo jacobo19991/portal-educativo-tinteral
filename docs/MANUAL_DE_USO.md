@@ -23,21 +23,33 @@ El Panel Administrativo es la "sala de maestros" secreta. Solo las personas con 
 
 ### Paso a paso para entrar:
 1. Abre tu navegador web y entra a la dirección normal de tu portal.
-2. Al final de la dirección, escribe `/admin.html` (Ejemplo: `tusitio.com/admin.html`) y presiona Enter.
+   > ![Paso 1: Abrir navegador](../assets/images/manual-paso1.png)
+2. Accede a la URL de administración secreta proporcionada por el equipo técnico.
+   > ![Paso 2: Ingresar al panel de administración](../assets/images/manual-paso2.png)
 3. Verás una pantalla oscura pidiendo una contraseña.
+   > ![Paso 3: Pantalla de bloqueo](../assets/images/manual-paso3.png)
 4. Escribe tu **Contraseña Maestra** (la que configuraste en Vercel) y haz clic en "Desbloquear Sistema".
+   > ![Paso 4: Ingreso de contraseña](../assets/images/manual-paso4.png)
 
 ### Paso a paso para agregar una Materia Nueva:
 1. Una vez dentro del panel, busca el Grado donde quieres agregar la materia (Por ejemplo: "Primer Grado").
+   > ![Paso 1: Buscar grado](../assets/images/manual-paso5.png)
 2. Haz clic en el botón azul que dice **"+ Añadir Materia"**.
+   > ![Paso 2: Botón Añadir Materia](../assets/images/manual-paso6.png)
 3. Se abrirá una pequeña ventana. Escribe el nombre de la materia (Ej: "Ciencias Naturales").
+   > ![Paso 3: Escribir nombre](../assets/images/manual-paso7.png)
 4. En la casilla "ID de Carpeta", debes pegar el código secreto de la carpeta de Google Drive donde el maestro subirá las tareas. *(En la siguiente sección te enseñamos cómo obtener ese código)*.
+   > ![Paso 4: Pegar ID de Carpeta](../assets/images/manual-paso8.png)
 5. Haz clic en **"Guardar Cambios"**. ¡Listo! En menos de 1 minuto, todos los alumnos verán la materia nueva en sus celulares.
+   > ![Paso 5: Guardar cambios](../assets/images/manual-paso9.png)
 
 ### Paso a paso para Eliminar o Editar una Materia:
 1. En el panel, busca la materia que quieres modificar.
+   > ![Paso 1: Seleccionar materia a editar](../assets/images/manual-paso10.png)
 2. Al lado derecho de la materia verás dos íconos: un **Lápiz** (para editar el nombre o la carpeta) y un **Basurero** (para eliminarla).
+   > ![Paso 2: Iconos de Lápiz y Basurero](../assets/images/manual-paso11.png)
 3. Haz clic en el basurero y confirma si deseas borrarla. ¡Ojo, esto no borra los archivos de Google Drive, solo borra la materia del portal!
+   > ![Paso 3: Confirmación de borrado](../assets/images/manual-paso12.png)
 
 ---
 
@@ -46,12 +58,17 @@ El Panel Administrativo es la "sala de maestros" secreta. Solo las personas con 
 Para que el portal sepa de dónde sacar las tareas, necesita el "ID" (el código de identidad) de la carpeta de Google Drive.
 
 1. Entra a tu Google Drive.
+   > ![Paso 1: Google Drive](../assets/images/manual-paso13.png)
 2. Haz doble clic en la carpeta de la materia (Ej: la carpeta "Matemáticas 1er Grado").
+   > ![Paso 2: Abrir carpeta](../assets/images/manual-paso14.png)
 3. Mira la barra de direcciones de arriba en tu navegador web. Verás un enlace parecido a este:
    `https://drive.google.com/drive/folders/1A2b3c4D5e6F7g8H9i0J`
+   > ![Paso 3: URL en el navegador](../assets/images/manual-paso15.png)
 4. El **ID de la Carpeta** es **SOLAMENTE** el texto largo y raro que está al final, después de la palabra `folders/`. 
    *(En el ejemplo de arriba, el ID es `1A2b3c4D5e6F7g8H9i0J`)*.
+   > ![Paso 4: Identificar ID](../assets/images/manual-paso16.png)
 5. Copia ese código largo y pégalo en tu Panel Administrativo cuando crees la materia.
+   > ![Paso 5: Copiar y pegar](../assets/images/manual-paso17.png)
 
 ---
 

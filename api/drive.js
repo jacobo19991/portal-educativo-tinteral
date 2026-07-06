@@ -2,15 +2,19 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  // Fase 4: Optimización Extrema de Caché Edge (Vercel CDN) - Reducido a 1 minuto
-  res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
-
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   try {
-    const { folderId } = req.query;
+    const { folderId, admin, refresh } = req.query;
+
+    // Caché inteligente: Evadir caché si es docente (admin o refresh = true)
+    if (admin === "true" || refresh === "true") {
+      res.setHeader("Cache-Control", "no-store");
+    } else {
+      res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+    }
 
     if (!folderId) {
       return res.status(400).json({ error: "Falta folderId" });

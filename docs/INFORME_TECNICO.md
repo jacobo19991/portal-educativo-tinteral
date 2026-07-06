@@ -28,7 +28,7 @@ Este documento detalla la transformación arquitectónica de la plataforma educa
 ## FASE 3: Panel Administrativo y de Control
 **Problema original:** Para modificar las materias, un desarrollador debía entrar al código fuente, alterar el JSON, guardar y hacer despliegues manuales en GitHub. Esto no era viable para directores o maestros.
 **Solución implementada:**
-1. **Dashboard Visual (`admin.html`):** Se creó una interfaz gráfica secreta protegida mediante variables de entorno en Vercel, utilizando diseño "Glassmorphism" y un esquema de colores "Dark Mode" para una apariencia Premium.
+1. **Dashboard Visual:** Se creó una interfaz gráfica secreta protegida mediante variables de entorno en Vercel, utilizando diseño "Glassmorphism" y un esquema de colores "Dark Mode" para una apariencia Premium.
 2. **Endpoint Seguro de Escritura (`api/admin.js`):** Se desarrolló una API que recibe peticiones del panel, verifica si la contraseña es correcta y, si lo es, utiliza la **Llave Secreta** de Supabase para modificar la Base de Datos.
 3. **Operaciones CRUD Visuales:** El usuario ahora puede ver el catálogo completo de grados y niveles, con botones para "Añadir Materia", "Editar" y "Eliminar". Los cambios se sincronizan en la nube sin tocar código.
 

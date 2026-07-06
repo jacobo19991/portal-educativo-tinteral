@@ -35,24 +35,61 @@ function getFolderTree() {
     var gradosFolders = nivelFolder.getFolders();
     while (gradosFolders.hasNext()) {
       var gradoFolder = gradosFolders.next();
-      var gradoObj = { grado: gradoFolder.getName(), materias: [] };
       
-      // Buscar la carpeta "MATERIAS"
-      var materiasDirIter = gradoFolder.getFoldersByName("MATERIAS");
-      if (materiasDirIter.hasNext()) {
-        var materiasDir = materiasDirIter.next();
-        var materiasFolders = materiasDir.getFolders();
-        while (materiasFolders.hasNext()) {
-          var materiaFolder = materiasFolders.next();
-          gradoObj.materias.push({
-            materia: materiaFolder.getName(),
-            id: materiaFolder.getId()
-          });
+      // 1. Buscar si hay Secciones
+      var gradoFoldersIter = gradoFolder.getFolders();
+      var hasSecciones = false;
+      var secciones = [];
+      
+      while (gradoFoldersIter.hasNext()) {
+        var sf = gradoFoldersIter.next();
+        if (sf.getName().indexOf("Sección") === 0) {
+           hasSecciones = true;
+           secciones.push(sf);
+        }
+      }
+      
+      if (hasSecciones) {
+        // Modo con Secciones
+        for (var s = 0; s < secciones.length; s++) {
+          var seccionFolder = secciones[s];
+          var gradoObj = { grado: gradoFolder.getName() + " - " + seccionFolder.getName(), materias: [] };
+          
+          var materiasDirIter = seccionFolder.getFoldersByName("MATERIAS");
+          if (materiasDirIter.hasNext()) {
+            var materiasDir = materiasDirIter.next();
+            var materiasFolders = materiasDir.getFolders();
+            while (materiasFolders.hasNext()) {
+              var materiaFolder = materiasFolders.next();
+              gradoObj.materias.push({
+                materia: materiaFolder.getName(),
+                id: materiaFolder.getId()
+              });
+            }
+          } else {
+            warnings.push("La " + seccionFolder.getName() + " del Grado " + gradoFolder.getName() + " no tiene carpeta MATERIAS.");
+          }
+          nivelObj.grados.push(gradoObj);
         }
       } else {
-        warnings.push("Grado " + gradoFolder.getName() + " no tiene carpeta MATERIAS.");
+        // Modo SIN Secciones (comportamiento original)
+        var gradoObj = { grado: gradoFolder.getName(), materias: [] };
+        var materiasDirIter = gradoFolder.getFoldersByName("MATERIAS");
+        if (materiasDirIter.hasNext()) {
+          var materiasDir = materiasDirIter.next();
+          var materiasFolders = materiasDir.getFolders();
+          while (materiasFolders.hasNext()) {
+            var materiaFolder = materiasFolders.next();
+            gradoObj.materias.push({
+              materia: materiaFolder.getName(),
+              id: materiaFolder.getId()
+            });
+          }
+        } else {
+          warnings.push("Grado " + gradoFolder.getName() + " no tiene carpeta MATERIAS ni Secciones.");
+        }
+        nivelObj.grados.push(gradoObj);
       }
-      nivelObj.grados.push(gradoObj);
     }
     tree.push(nivelObj);
   }

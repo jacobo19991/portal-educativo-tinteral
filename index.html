@@ -24,6 +24,8 @@
     rel="stylesheet">
   
   <!-- Preconexión DNS (Fase 4: Optimización) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://zsfimkuvapbyssjdhddh.supabase.co" crossorigin>
   <link rel="preconnect" href="https://drive.google.com">
@@ -32,12 +34,30 @@
   <link rel="dns-prefetch" href="https://docs.google.com">
 
   <link rel="stylesheet" href="assets/css/main.css?v=2">
+
+  <!-- Script rápido para leer caché y evitar repintados (Fase 3 y 6) -->
+  <script>
+    (function() {
+      try {
+        const cachedStr = localStorage.getItem('materias_cache_v1');
+        if (cachedStr) {
+          const cached = JSON.parse(cachedStr);
+          if (Date.now() - cached.timestamp < 60 * 60 * 1000) {
+            window.MATERIAS_DATA = cached.data;
+          }
+        }
+      } catch(e) {}
+    })();
+  </script>
 </head>
 
 <body>
 
   <!-- BANNER DE AVISOS DEL DIRECTOR -->
-  <div id="bannerAvisos" class="banner-urgente d-none" aria-live="assertive" role="alert"></div>
+  <div id="bannerAvisos" class="banner-urgente" aria-live="assertive" role="alert">
+    📢 <strong>Aviso Importante</strong><br>
+    Entrega de tareas: Viernes 10 de junio
+  </div>
 
   <!-- NAVEGACIÓN SUPERIOR (NUEVO) -->
   <nav class="top-nav">
@@ -75,7 +95,12 @@
   </div>
 
   <main class="content">
-    <p class="seccion-label">Selecciona tu nivel y grado</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <p class="seccion-label" style="margin-bottom: 0;">Selecciona tu nivel y grado</p>
+      <a href="ayuda.html" class="link-ayuda" aria-label="Página de ayuda para estudiantes" role="button" style="color: var(--color-primary); font-size: 14px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+        <i data-lucide="help-circle" class="icon-sm"></i> Ayuda
+      </a>
+    </div>
 
     <!-- Buscador Inteligente -->
     <div class="buscador-wrap">
@@ -104,21 +129,44 @@
       </div>
     </div>
 
-    <!-- Botón de Acceso para Docentes -->
-    <div class="acceso-docente-wrap">
-      <a href="https://drive.google.com/drive/folders/1T1rYmRMQ8rkQi5JxhFPv-tY2sdpotUdx"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="btn-admin-premium"
-         aria-label="Acceso para Docentes">
-        <div class="btn-admin-glow"></div>
-        <div class="btn-admin-content">
-          <span class="icon" aria-hidden="true"><i data-lucide="folder-open"></i></span>
-          <span class="text">Acceso para Docentes</span>
-        </div>
-        <span class="subtext">Ingresa al Drive institucional para subir recursos por grado y materia</span>
-      </a>
+    <!-- Estadísticas Básicas -->
+    <div class="stats-panel" aria-label="Estadísticas del sistema" role="region">
+      <div class="stat-item">
+        <span class="stat-val">05/06/2026</span>
+        <span class="stat-lbl">Última actualización</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">42</span>
+        <span class="stat-lbl">Materias</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">318</span>
+        <span class="stat-lbl">Archivos</span>
+      </div>
     </div>
+
+    <!-- Panel de Herramientas Docentes -->
+    <section class="docentes-panel" aria-label="Herramientas para docentes" role="region">
+      <h3 class="docentes-panel-titulo"><i data-lucide="settings" class="icon-sm icon-align"></i> Herramientas Docentes</h3>
+      <div class="docentes-grid">
+        <a href="https://drive.google.com/drive/folders/1T1rYmRMQ8rkQi5JxhFPv-tY2sdpotUdx" target="_blank" rel="noopener noreferrer" class="btn-docente" aria-label="Abrir Google Drive" role="button">
+          <i data-lucide="folder-open"></i>
+          <span>Abrir Drive</span>
+        </a>
+        <a href="./docs/MANUAL_DE_USO.md" class="btn-docente" aria-label="Ver manual de uso" role="button">
+          <i data-lucide="book-open"></i>
+          <span>Manual de uso</span>
+        </a>
+        <a href="mailto:soporte@eltinteral.edu.sv" class="btn-docente btn-docente-outline" aria-label="Reportar un problema por correo" role="button">
+          <i data-lucide="alert-triangle"></i>
+          <span>Reportar problema</span>
+        </a>
+        <button id="btnActualizarGlobal" class="btn-docente btn-docente-outline" aria-label="Actualizar todo el contenido" role="button" onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload();">
+          <i data-lucide="refresh-cw"></i>
+          <span>Actualizar contenido</span>
+        </button>
+      </div>
+    </section>
   </main>
 
   <!-- ═══════════════════════════════════════
@@ -169,7 +217,12 @@
             y Actividades</h2>
           <p class="sheet2-sub" id="sSub2">Elige qué sección necesitas</p>
         </div>
-        <button class="cerrar btn-cerrar-sheet2" aria-label="Cerrar modal">✕</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-refrescar" id="btnRefrescarCache" aria-label="Actualizar datos" title="Actualizar datos">
+            <i data-lucide="refresh-cw" class="icon-md icon-align"></i>
+          </button>
+          <button class="cerrar btn-cerrar-sheet2" aria-label="Cerrar modal">✕</button>
+        </div>
       </div>
 
       <div id="lista-semana-actual" class="pdf-lista" aria-live="polite"></div>
@@ -232,7 +285,12 @@
       <div class="pdf-loader" id="pdfLoader">
         <div class="spinner"></div>
         <p>Cargando documento…<br>no se descargará en su celular</p>
-        <p id="pdfTimeoutWarning" class="warning-text" style="display:none; margin-top: 10px; font-size: 0.9em; color: var(--text-muted);">Google Drive está tardando en cargar.<br>Puedes abrir el documento directamente usando el botón de arriba.</p>
+        <div id="pdfTimeoutWarning" style="display:none; margin-top: 15px; text-align: center;">
+          <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 8px;">El PDF está tardando más de lo habitual. Puedes esperar unos segundos o abrirlo directamente en Google Drive.</p>
+          <a class="btn-drive-fallback" id="pdfFallbackBtn" href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: var(--color-primary); color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600;">
+            <i data-lucide="external-link" class="icon-sm"></i> Abrir en Google Drive
+          </a>
+        </div>
       </div>
       <iframe id="pdf-iframe" src="" allow="autoplay" loading="lazy" title="Visor de PDF"></iframe>
     </div>
@@ -246,6 +304,7 @@
   <!-- Scripts Modulares -->
   <script src="https://unpkg.com/lucide@0.468.0" defer></script>
   <script type="module" src="./src/main.js?v=5"></script>
+  <script src="./src/demo.js"></script>
 </body>
 
 </html>
