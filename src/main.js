@@ -175,8 +175,12 @@ function adaptarAppsScriptASupabase(tree) {
 
     // 2. Orden lógico de grados
     const ordenGrados = [
-        "Inicial", "Parvularia 5 años", "Parvularia 6 años", "Primer Grado",
-        "Segundo Grado", "Tercer Grado", "Cuarto Grado", "Quinto Grado",
+        "Inicial", "Parvularia 5 años", "Parvularia 6 años", 
+        "Primer Grado - Sección A", "Primer Grado - Sección B", "Primer Grado",
+        "Segundo Grado - Sección A", "Segundo Grado - Sección B", "Segundo Grado",
+        "Tercer Grado - Sección A", "Tercer Grado - Sección B", "Tercer Grado",
+        "Cuarto Grado - Sección A", "Cuarto Grado - Sección B", "Cuarto Grado",
+        "Quinto Grado - Sección A", "Quinto Grado - Sección B", "Quinto Grado",
         "Sexto Grado", "Séptimo Grado", "Octavo Grado", "Noveno Grado",
         "Primer Año", "Segundo Año", "Tercer Año"
     ];
