@@ -46,6 +46,23 @@ El código está estructurado en módulos bajo el Principio de Responsabilidad �
 └── main.css               # Sistema de diseño, tokens y animaciones
 ```
 
+## 🤖 Automatizaciones Actuales
+
+El portal funciona de manera autónoma gracias a las siguientes integraciones:
+
+1. **Google Drive como Panel de Control:** El portal usa Drive como fuente de verdad, eliminando la necesidad de paneles administrativos complejos.
+2. **Lectura Dinámica:** Detecta y construye automáticamente el árbol completo de Niveles, Grados, Secciones, Materias y sus recursos (PDFs).
+3. **Sincronización Forzada:** El botón "Actualizar recursos" obliga al sistema a re-escanear Drive en tiempo real para traer el contenido más fresco.
+4. **Validación de Estructura:** El backend detecta archivos o carpetas mal ubicadas y emite *warnings* (advertencias) en consola para facilitar la corrección.
+5. **Sistema de Respaldo Híbrido:** Supabase y los endpoints como `/api/drive` actúan como una sólida red de seguridad (Fallback) en caso de que Drive no responda.
+6. **Script Clonador:** Existe un script auxiliar administrativo en Apps Script para generar rápidamente la estructura de carpetas (Nuevos Grados/Secciones) manteniendo la exactitud de los nombres.
+
+### 💡 Recomendaciones de Mantenimiento
+
+* **Respetar la Jerarquía en Drive:** Para que el portal lea el contenido, siempre debe seguir el orden estricto: `Carpeta del Grado/Sección` > Carpeta literal llamada `MATERIAS` > `Carpetas de cada materia`.
+* **Uso de la Consola (F12):** Si algo no aparece, el primer paso de mantenimiento es abrir la Consola del navegador, donde el portal reportará cualquier anomalía detectada en Drive.
+* **Preservar el Código Actual:** El portal se encuentra en un estado sumamente estable; cualquier futura mejora de rendimiento debe probarse exhaustivamente en local para no romper el sistema de *fallback*.
+
 ## 👩‍🏫 Guía Rápida para Docentes
 
 El proceso de actualización del portal es extremadamente sencillo:
