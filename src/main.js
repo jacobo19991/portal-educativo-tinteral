@@ -52,7 +52,7 @@ async function fetchMateriasFromDB(forceRefresh = false) {
         // Si no hay caché, intentamos obtener los datos
         if (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL) {
             try {
-                const asRes = await fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 10000);
+                const asRes = await fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 30000);
                 const asData = await asRes.json();
                 
                 if (asData && asData.tree) {

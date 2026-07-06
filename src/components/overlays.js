@@ -110,8 +110,8 @@ window.OverlaysApp = (function() {
             ? `${window.AppConfig.APPS_SCRIPT_URL}?folderId=${encodeURIComponent(folderId)}`
             : `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}${forzarFresco ? '&refresh=true' : ''}`;
 
-        // Usar fetchWithTimeout (Fase 2)
-        const resp = await fetchWithTimeout(url, {}, 10000); // 10s timeout max
+        // Usar fetchWithTimeout con 30s max
+        const resp = await fetchWithTimeout(url, {}, 30000); 
         data = await resp.json();
 
         if (!data || !Array.isArray(data.files)) {
