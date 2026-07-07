@@ -187,6 +187,15 @@ function aplicarDatosMaterias(dbData) {
         if (contenedor) {
             renderNiveles(dbData.niveles, contenedor);
         }
+        
+        // Actualizar la fecha visual
+        const lblFecha = document.getElementById('fecha-actualizacion');
+        if (lblFecha) {
+            lblFecha.innerText = new Date().toLocaleString('es-ES', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+            });
+        }
     }
 }
 

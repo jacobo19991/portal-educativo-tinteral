@@ -129,12 +129,10 @@
       </div>
     </div>
 
-    <!-- Estadísticas Básicas (Pie de página) -->
-    <div class="stats-panel" aria-label="Estadísticas del sistema" role="region" style="background: transparent; box-shadow: none; padding: 10px; margin-top: -10px;">
-      <div class="stat-item" style="opacity: 0.6; margin: 0 auto; flex-direction: row; gap: 6px; justify-content: center; align-items: center;">
-        <span class="stat-lbl" style="font-size: 0.75rem; text-transform: uppercase;">Última actualización:</span>
-        <span class="stat-val" style="font-size: 0.8rem; color: #64748b;">05/06/2026</span>
-      </div>
+    <!-- Fecha de Actualización Flotante -->
+    <div id="lbl-ultima-actualizacion" aria-label="Última actualización" role="region" style="position: fixed; bottom: 15px; right: 15px; z-index: 90; opacity: 0.7; background: var(--color-surface, #ffffff); border: 1px solid var(--color-border, #e2e8f0); padding: 4px 8px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 4px; pointer-events: none; transition: opacity 0.3s;">
+        <span style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted, #64748b);">Actualizado:</span>
+        <span id="fecha-actualizacion" style="font-size: 0.7rem; color: var(--text-color, #1e293b); font-weight: 500;">...</span>
     </div>
 
     <!-- Panel de Herramientas Docentes -->
