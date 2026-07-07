@@ -50,14 +50,8 @@ if ('serviceWorker' in navigator) {
                     newWorker.addEventListener('statechange', () => {
                         // Si hay un nuevo SW instalado y ya había un controlador previo
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🔄 Nueva versión del portal disponible. Actualizando...');
-                            if (window.Toast) {
-                                window.Toast.show('Actualizando a la nueva versión...', 'info');
-                            }
-                            // Recargar automáticamente una vez para aplicar cambios
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
+                            console.log('🔄 Nueva versión del portal disponible.');
+                            mostrarAvisoActualizacionSW();
                         }
                     });
                 });
@@ -130,7 +124,9 @@ async function fetchMateriasFromDB(forceRefresh = false) {
             }
         }
 
-        console.warn("⚠️ Apps Script falló completamente. Intentando con Supabase/API...");
+        console.warn("⚠️ Apps Script falló completamente.");
+        /*
+        // [MEJORA FUTURA] Supabase desactivado temporalmente para eliminar espera inútil de 8s.
         const res = await fetchWithTimeout('/api/materias', {}, 8000);
         const dbData = await res.json();
         
@@ -142,6 +138,8 @@ async function fetchMateriasFromDB(forceRefresh = false) {
         } else {
             throw new Error("Supabase devolvió datos inválidos o vacíos (ej. faltan credenciales)");
         }
+        */
+        throw new Error("Saltando directamente a Fallback local (Supabase deshabilitado)");
     } catch (error) {
         // Riesgo Cero: Si falla Supabase o el internet, el portal ya está usando materiasData.js (Fallback local)
         console.warn("⚠️ Fallo total: Usando Fallback local. Razón:", error.message);
@@ -335,5 +333,57 @@ function adaptarAppsScriptASupabase(tree) {
                 };
             })
         };
+    });
+}
+
+function mostrarAvisoActualizacionSW() {
+    if (document.getElementById('sw-update-banner')) return;
+    
+    const banner = document.createElement('div');
+    banner.id = 'sw-update-banner';
+    banner.style.position = 'fixed';
+    banner.style.bottom = '20px';
+    banner.style.left = '50%';
+    banner.style.transform = 'translateX(-50%)';
+    banner.style.backgroundColor = '#1e293b'; 
+    banner.style.color = '#f8fafc';
+    banner.style.padding = '10px 16px';
+    banner.style.borderRadius = '30px';
+    banner.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    banner.style.zIndex = '99999';
+    banner.style.display = 'flex';
+    banner.style.alignItems = 'center';
+    banner.style.gap = '12px';
+    banner.style.fontSize = '13px';
+    banner.style.fontWeight = '500';
+    
+    banner.innerHTML = `
+        <span>Nueva versión disponible.</span>
+        <button id="sw-update-btn" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-size:12px; transition: background 0.2s;">
+            Actualizar
+        </button>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    document.getElementById('sw-update-btn').addEventListener('click', () => {
+        const btn = document.getElementById('sw-update-btn');
+        btn.innerText = 'Actualizando...';
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'wait';
+        
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.getRegistration().then(reg => {
+                if (reg && reg.waiting) {
+                    reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+            });
+        }
+        
+        setTimeout(() => {
+            localStorage.removeItem('materias_cache_v2');
+            localStorage.removeItem('materias_cache_v1');
+            window.location.reload(true);
+        }, 300);
     });
 }

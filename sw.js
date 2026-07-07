@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-educativo-v10';
+const CACHE_NAME = 'portal-educativo-v11';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -174,4 +174,11 @@ self.addEventListener('fetch', (event) => {
             });
         })
     );
+});
+
+// Permitir actualización forzada desde el navegador
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
