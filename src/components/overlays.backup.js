@@ -74,23 +74,7 @@ window.OverlaysApp = (function() {
     let data = null;
     let usedCache = false;
 
-    // 1. Intentar buscar en la memoria pre-cargada de Apps Script (Prioridad 1)
-    if (window.AppConfig.USAR_APPS_SCRIPT && !forzarFresco) {
-      try {
-        const preloadedStr = sessionStorage.getItem('drive_files_cache');
-        if (preloadedStr) {
-          const preloaded = JSON.parse(preloadedStr);
-          if (preloaded.data && Array.isArray(preloaded.data[folderId])) {
-            data = { files: preloaded.data[folderId] };
-            usedCache = true;
-            console.log("📂 Usando archivos pre-cargados por Apps Script");
-          }
-        }
-      } catch (e) {}
-    }
-
-    // 2. Si no hay Apps Script, intentar caché individual de /api/drive (Prioridad 2)
-    if (!usedCache && cached && !forzarFresco) {
+    if (cached && !forzarFresco) {
       try {
         const parsed = JSON.parse(cached);
         // Validar caché (Fase 4)
@@ -106,12 +90,10 @@ window.OverlaysApp = (function() {
 
     if (!usedCache) {
       try {
-        const url = (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL)
-            ? `${window.AppConfig.APPS_SCRIPT_URL}?folderId=${encodeURIComponent(folderId)}`
-            : `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}${forzarFresco ? '&refresh=true' : ''}`;
+        const url = `${window.AppConfig.DRIVE_API_ENDPOINT}?folderId=${encodeURIComponent(folderId)}${forzarFresco ? '&refresh=true' : ''}`;
 
-        // Usar fetchWithTimeout con 30s max
-        const resp = await fetchWithTimeout(url, {}, 30000); 
+        // Usar fetchWithTimeout (Fase 2)
+        const resp = await fetchWithTimeout(url, {}, 10000); // 10s timeout max
         data = await resp.json();
 
         if (!data || !Array.isArray(data.files)) {
@@ -291,42 +273,14 @@ window.OverlaysApp = (function() {
     clearTimeout(pdfLoadTimeout); // Cancelar timers si se cierra rápido
   }
 
-  async function refrescarCache() {
+  function refrescarCache() {
     const folderId = window.AppState.folderId;
-    if (!folderId) return;
-
-    const btnRefrescar = document.getElementById('btnRefrescarCache');
-    // Evita doble clic mientras hay una actualización en curso
-    if (btnRefrescar) {
-      if (btnRefrescar.dataset.cargando === '1') return;
-      btnRefrescar.dataset.cargando = '1';
-      btnRefrescar.disabled = true;
-      btnRefrescar.classList.add('is-loading');
-    }
-
-    sessionStorage.removeItem('drive_cache_' + folderId);
-
-    try {
-      if (window.AppConfig.USAR_APPS_SCRIPT && window.refrescarMenuYArchivos) {
-        if (window.Toast) window.Toast.show("Reconstruyendo menú y archivos desde Drive...", "info");
-        await window.refrescarMenuYArchivos();
-      } else {
-        // Fase 3: Limpiar también el caché global de materias al pedir recarga manual
-        localStorage.removeItem('materias_cache_v1');
-        if (window.Toast) window.Toast.show("Actualizando...", "info");
-      }
-      await renderizarTareas(true);
-    } catch (error) {
-      // Antes este error se perdía en silencio y el botón quedaba "trabado"
-      // (sin feedback, sin volver a habilitarse).
-      console.error('❌ Error al refrescar contenido:', error);
-      if (window.Toast) window.Toast.show("No se pudo actualizar. Intenta de nuevo.", "error");
-    } finally {
-      if (btnRefrescar) {
-        btnRefrescar.dataset.cargando = '0';
-        btnRefrescar.disabled = false;
-        btnRefrescar.classList.remove('is-loading');
-      }
+    if (folderId) {
+      sessionStorage.removeItem('drive_cache_' + folderId);
+      // Fase 3: Limpiar también el caché global de materias al pedir recarga manual
+      localStorage.removeItem('materias_cache_v1');
+      if (window.Toast) window.Toast.show("Actualizando...", "info");
+      renderizarTareas(true);
     }
   }
 

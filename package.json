@@ -1,0 +1,26 @@
+{
+  "name": "portal-educativo",
+  "version": "1.0.0",
+  "description": "![Estado](https://img.shields.io/badge/Estado-Producci%C3%B3n-success?style=for-the-badge) ![Arquitectura](https://img.shields.io/badge/Arquitectura-Serverless-blue?style=for-the-badge) ![UI](https://img.shields.io/badge/UI-Vanilla_JS_%2B_CSS3-orange?style=for-the-badge)",
+  "main": "sw.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacobo19991/portal-educativo-tinteral.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jacobo19991/portal-educativo-tinteral/issues"
+  },
+  "homepage": "https://github.com/jacobo19991/portal-educativo-tinteral#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.1"
+  }
+}

@@ -153,7 +153,7 @@
           <i data-lucide="alert-triangle"></i>
           <span>Reportar problema</span>
         </a>
-        <button id="btnActualizarGlobal" class="btn-docente btn-docente-outline" aria-label="Actualizar todo el contenido" role="button" onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload();">
+        <button id="btnActualizarGlobal" class="btn-docente btn-docente-outline" aria-label="Actualizar todo el contenido" role="button" onclick="window.actualizarContenidoTotal && window.actualizarContenidoTotal(this)">
           <i data-lucide="refresh-cw"></i>
           <span>Actualizar contenido</span>
         </button>

@@ -6,6 +6,37 @@ import './components/overlays.js';
 
 import { fetchWithTimeout } from './utils/fetchUtils.js';
 
+// Reseteo TOTAL del contenido: borra localStorage, sessionStorage y,
+// crucialmente, el Cache Storage del Service Worker (que "Actualizar
+// contenido" antes NO tocaba, por lo que el JS/CSS viejo seguía sirviéndose).
+window.actualizarContenidoTotal = async function (btn) {
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('is-loading');
+    }
+    if (window.Toast) window.Toast.show('Actualizando contenido…', 'info');
+
+    try {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        if ('caches' in window) {
+            const nombres = await caches.keys();
+            await Promise.all(nombres.map((nombre) => caches.delete(nombre)));
+        }
+
+        if ('serviceWorker' in navigator) {
+            const registros = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registros.map((reg) => reg.unregister()));
+        }
+    } catch (error) {
+        console.error('❌ Error al limpiar caché/Service Worker:', error);
+    } finally {
+        // Recarga forzada desde el servidor (bypassa la caché HTTP del navegador)
+        window.location.reload(true);
+    }
+};
+
 // Registro de Service Worker para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

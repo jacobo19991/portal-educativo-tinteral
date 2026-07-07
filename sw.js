@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-educativo-v9';
+const CACHE_NAME = 'portal-educativo-v10';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -12,6 +12,15 @@ const STATIC_ASSETS = [
     'https://unpkg.com/lucide@0.468.0',
     'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap'
 ];
+
+// Extensiones propias del proyecto que cambian con frecuencia durante el
+// desarrollo (JS/CSS del portal). Para estos NO usamos "cache first": si lo
+// hiciéramos, una vez cacheado un archivo, el navegador seguiría sirviendo
+// la versión vieja indefinidamente hasta que cambiara sw.js (y eso solo pasa
+// cuando se toca este mismo archivo). Por eso van con Network First.
+function esArchivoPropioDelProyecto(url) {
+    return url.origin === self.location.origin && /\.(js|css)$/i.test(url.pathname);
+}
 
 // Función para limitar el número de elementos en caché dinámica
 function limitCacheSize(name, size) {
@@ -119,7 +128,29 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // ESTRATEGIA: CACHE FIRST para recursos estáticos (CSS, JS, Fuentes, Imágenes)
+    // ESTRATEGIA: NETWORK FIRST para el JS/CSS propio del portal
+    // (Garantiza que un cambio en materias.js, overlays.js, etc. se vea
+    // en el siguiente refresco, sin depender de que sw.js también cambie)
+    if (esArchivoPropioDelProyecto(url)) {
+        event.respondWith(
+            fetch(event.request)
+                .then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                    }
+                    return networkResponse;
+                })
+                .catch(() => {
+                    console.warn('[Service Worker] Red falló, sirviendo JS/CSS desde caché:', event.request.url);
+                    return caches.match(event.request);
+                })
+        );
+        return;
+    }
+
+    // ESTRATEGIA: CACHE FIRST para recursos verdaderamente estáticos
+    // (Fuentes, íconos, imágenes, librerías de terceros con versión fija en la URL)
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
