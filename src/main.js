@@ -17,8 +17,10 @@ window.actualizarContenidoTotal = async function (btn) {
     if (window.Toast) window.Toast.show('Actualizando contenido…', 'info');
 
     try {
-        localStorage.clear();
-        sessionStorage.clear();
+        // Eliminar solo las cachés de datos, preservando el tema (dark mode) y el historial de búsqueda
+        localStorage.removeItem('materias_cache_v2');
+        localStorage.removeItem('materias_cache_v1');
+        sessionStorage.removeItem('drive_files_cache');
 
         if ('caches' in window) {
             const nombres = await caches.keys();
