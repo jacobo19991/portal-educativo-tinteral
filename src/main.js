@@ -253,7 +253,7 @@ function adaptarAppsScriptASupabase(tree) {
         });
     });
     const configNiveles = [
-        { name: 'parvularia', icono: '🌱', cls: 'n1' },
+        { name: 'inicial', icono: '🌱', cls: 'n1' },
         { name: 'primer ciclo', icono: '📗', cls: 'n2' },
         { name: 'segundo ciclo', icono: '📙', cls: 'n3' },
         { name: 'tercer ciclo', icono: '📕', cls: 'n4' },

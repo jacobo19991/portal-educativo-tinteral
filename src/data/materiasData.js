@@ -1,9 +1,9 @@
-﻿window.MATERIAS_DATA = {
+window.MATERIAS_DATA = {
     "niveles": [
         {
             "claseColor": "n1",
             "icono": "🌱",
-            "nombre": "Parvularia",
+            "nombre": "INICIAL",
             "id": "parv",
             "grados": [
                 {
@@ -98,7 +98,7 @@
         {
             "claseColor": "n2",
             "icono": "📗",
-            "nombre": "Primer Ciclo",
+            "nombre": "PRIMER CICLO",
             "id": "pc",
             "grados": [
                 {
@@ -205,7 +205,7 @@
         {
             "claseColor": "n3",
             "icono": "📙",
-            "nombre": "Segundo Ciclo",
+            "nombre": "SEGUNDO CICLO",
             "id": "sc",
             "grados": [
                 {
@@ -304,7 +304,7 @@
         {
             "claseColor": "n4",
             "icono": "📕",
-            "nombre": "Tercer Ciclo",
+            "nombre": "TERCER CICLO",
             "id": "tc",
             "grados": [
                 {
@@ -399,7 +399,7 @@
         {
             "claseColor": "n5",
             "icono": "🎓",
-            "nombre": "Bachillerato",
+            "nombre": "BACHILLERATO",
             "id": "bach",
             "grados": [
                 {
