@@ -1,584 +1,869 @@
-window.MATERIAS_DATA = {
+export const MATERIAS_DATA = {
     "niveles": [
         {
-            "claseColor": "n1",
-            "icono": "🌱",
+            "id": "as_n_0",
             "nombre": "INICIAL",
-            "id": "parv",
+            "icono": "🌱",
+            "claseColor": "n1",
             "grados": [
                 {
-                    "id": "p5",
-                    "nombre": "Parvularia 5 años",
-                    "pin": "2222",
-                    "icono": "👧",
-                    "nombreAbreviado": "Parvularia 5 años",
+                    "id": "as_g_0_0",
+                    "nombre": "Inicial",
+                    "nombreAbreviado": "Inicial",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
-                            "nombre": "Cuerpo, movimiento y bienestar físico",
-                            "folderId": "1H2sC0zwsBJ-1DQGaSZ-FJqE33veVsqs2"
-                        },
-                        {
-                            "nombre": "Exploración y experimentación",
-                            "folderId": "1aE4NqNJ-z8owx9kIhNX4BtZ7pRAWyNbO"
-                        },
-                        {
-                            "nombre": "Expresión estética y creativa",
-                            "folderId": "1ox6a1KoNo9PLWa_pk4C7A-Ymr3Tq3KEz"
-                        },
-                        {
-                            "nombre": "Lenguaje, comunicación y expresión",
-                            "folderId": "1xpIP_wWUKIWYsKcaiW-yGfb7oZ16x-Ey"
-                        },
-                        {
-                            "nombre": "Relaciones sociales y afectivas",
-                            "folderId": "1c_ciGpyGaqGcO7r5JZud5YEeUgihCwY6"
-                        }
-                    ]
-                },
-                {
-                    "id": "p6",
-                    "nombre": "Parvularia 6 años",
-                    "pin": "3333",
-                    "icono": "🧒",
-                    "nombreAbreviado": "Parvularia 6 años",
-                    "materias": [
-                        {
-                            "nombre": "Cuerpo, movimiento y bienestar físico",
-                            "folderId": "1gDT2Rxm-k6rLa7IXxX8j4vqNlLVBFjN7"
-                        },
-                        {
-                            "nombre": "Exploración y experimentación",
-                            "folderId": "1_af9h_q9K0enwTyDHkZjUJ52iDUkBy5y"
-                        },
-                        {
-                            "nombre": "Expresión estética y creativa",
-                            "folderId": "1okBvKvlKtJqiItV9Ug4WNDwXQ1vDTGta"
-                        },
-                        {
-                            "nombre": "Lenguaje, comunicación y expresión",
-                            "folderId": "1HL7z5JYBWHBQRPH7_61TTr0P8ynzjy7r"
-                        },
-                        {
-                            "nombre": "Relaciones sociales y afectivas",
-                            "folderId": "1JQ85R3pWOnFUN7e-2K3adaVU4htll1fp"
-                        }
-                    ]
-                },
-                {
-                    "id": "p4",
-                    "nombre": "Parvularia 4 años",
-                    "pin": "1111",
-                    "icono": "👶",
-                    "nombreAbreviado": "Parvularia 4 años",
-                    "materias": [
-                        {
+                            "id": "as_m_0_0_0",
                             "nombre": "Cuerpo, movimiento y bienestar físico",
                             "folderId": "1OVzcYKSaUba3i8nSfOH0NLxuw3toDEZn"
                         },
                         {
-                            "nombre": "Exploración y experimentación",
-                            "folderId": "1dN51N4Mh6KGfU-FxsI2k6p6Rp_2vSfPk"
+                            "id": "as_m_0_0_1",
+                            "nombre": "Exploración y experimentación con el mundo",
+                            "folderId": "13lok5v-D6vkRbUhbMToyGhlGJyYsYvEB"
                         },
                         {
+                            "id": "as_m_0_0_2",
                             "nombre": "Expresión estética y creativa",
-                            "folderId": "1ldsADMZU_izZdjNxKoqgEP2d2HeFfjYt"
+                            "folderId": "1WHzO4AeLolhSBKnZfHLkQfVgEhOykSYh"
                         },
                         {
+                            "id": "as_m_0_0_3",
                             "nombre": "Lenguaje, comunicación y expresión",
-                            "folderId": "1NyKYz6fzFfD9-aDvuSBbzPM0hFnetEgN"
+                            "folderId": "1hye1Ldl8FDDTNdybuhwyIqIYvJbvqpKB"
                         },
                         {
+                            "id": "as_m_0_0_4",
                             "nombre": "Relaciones sociales y afectivas",
-                            "folderId": "1pyw6QjA5WwbwvfHd3qciRwbNNc0o360C"
+                            "folderId": "1eNmbD60eW_UJcMpntersuytzU3KS8B06"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_0_1",
+                    "nombre": "Parvularia 5 años",
+                    "nombreAbreviado": "Parvularia 5 años",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_0_1_0",
+                            "nombre": "Cuerpo, movimiento y bienestar físico",
+                            "folderId": "1_g0OCU8aoMj-I4OiVxNXIBFkMoMfkdEg"
+                        },
+                        {
+                            "id": "as_m_0_1_1",
+                            "nombre": "Exploración y experimentación con el mundo",
+                            "folderId": "1dJysmX5AeGWRxBKkq1KUZc3OOfyY3ueT"
+                        },
+                        {
+                            "id": "as_m_0_1_2",
+                            "nombre": "Expresión estética y creativa",
+                            "folderId": "13qcStrQPpyalIN7rasW6_1koQjHUwcbG"
+                        },
+                        {
+                            "id": "as_m_0_1_3",
+                            "nombre": "Lenguaje, comunicación y expresión",
+                            "folderId": "12aS_Qjin0tp7S-SCC57X2oLo_msJ1ueg"
+                        },
+                        {
+                            "id": "as_m_0_1_4",
+                            "nombre": "Relaciones sociales y afectivas",
+                            "folderId": "14YS7M939OZOvdP2_uw4fLbMiGmnNGU8X"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_0_2",
+                    "nombre": "Parvularia 6 años",
+                    "nombreAbreviado": "Parvularia 6 años",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_0_2_0",
+                            "nombre": "Cuerpo, movimiento y bienestar físico",
+                            "folderId": "142TSodUIw5Ck2zWAeC0hEi1uZWtKgJ8Y"
+                        },
+                        {
+                            "id": "as_m_0_2_1",
+                            "nombre": "Exploración y experimentación con el mundo",
+                            "folderId": "1cH11o7MHg10j6qxbc3vQORkzWIFtnSFM"
+                        },
+                        {
+                            "id": "as_m_0_2_2",
+                            "nombre": "Expresión estética y creativa",
+                            "folderId": "1-bYBGGI68HTbBRikqqN1vZF3eIy1JiyO"
+                        },
+                        {
+                            "id": "as_m_0_2_3",
+                            "nombre": "Lenguaje, comunicación y expresión",
+                            "folderId": "1Eajp4TOphLdMEJOiImCR1fxsCleecpsn"
+                        },
+                        {
+                            "id": "as_m_0_2_4",
+                            "nombre": "Relaciones sociales y afectivas",
+                            "folderId": "1VaTQMrDii9o_VSXDEyh00wHFVk1Xjic-"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_0_3",
+                    "nombre": "Primer Grado - Sección A",
+                    "nombreAbreviado": "Primer Grado - Sección A",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_0_3_0",
+                            "nombre": "Artes",
+                            "folderId": "10QnDwt_NyJORfyWJtM6IEq5m2_8hBjxd"
+                        },
+                        {
+                            "id": "as_m_0_3_1",
+                            "nombre": "Ciencia y Tecnología",
+                            "folderId": "1pZ3pLuOwe04ELhYIMm2ihTzOWVIla9Ad"
+                        },
+                        {
+                            "id": "as_m_0_3_2",
+                            "nombre": "Ciudadanía y Valores",
+                            "folderId": "1gy7iqH5lj3ItrpYc-wnl2Ll73Wjv4gEb"
+                        },
+                        {
+                            "id": "as_m_0_3_3",
+                            "nombre": "Comunicación",
+                            "folderId": "1riSyt4eXTh-sRJwfTn7TY__XyKOYitKv"
+                        },
+                        {
+                            "id": "as_m_0_3_4",
+                            "nombre": "Desarrollo Corporal",
+                            "folderId": "1S0Dts5SN2rBfT7vHnINkTXQF-MkXE5rj"
+                        },
+                        {
+                            "id": "as_m_0_3_5",
+                            "nombre": "Números y Formas",
+                            "folderId": "1aZ3hlHJO-gGp-m97VYYYiPFNcQNSTm5o"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_0_4",
+                    "nombre": "Primer Grado - Sección B",
+                    "nombreAbreviado": "Primer Grado - Sección B",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_0_4_0",
+                            "nombre": "Artes",
+                            "folderId": "1io9_ZI6LG8Y0hhWbynx4raFU8CWp2H0Q"
+                        },
+                        {
+                            "id": "as_m_0_4_1",
+                            "nombre": "Ciencia y Tecnología",
+                            "folderId": "17siFAGXaTs-n1XcZWFPq6mMzIO0dxON9"
+                        },
+                        {
+                            "id": "as_m_0_4_2",
+                            "nombre": "Ciudadanía y Valores",
+                            "folderId": "1iOk7qxp_b6MzOlpZJ0BTiSU6D4Ba973Z"
+                        },
+                        {
+                            "id": "as_m_0_4_3",
+                            "nombre": "Comunicación",
+                            "folderId": "1WPaotybN0hU01AF0EfwPnZ-F15yh2VKo"
+                        },
+                        {
+                            "id": "as_m_0_4_4",
+                            "nombre": "Desarrollo Corporal",
+                            "folderId": "17xPa57jA7Icd9S34mvhBJrB281o-gqMe"
+                        },
+                        {
+                            "id": "as_m_0_4_5",
+                            "nombre": "Números y Formas",
+                            "folderId": "1mnQ232VdrCkObktbWgSmNr7P6O06HXbr"
                         }
                     ]
                 }
             ]
         },
         {
-            "claseColor": "n2",
-            "icono": "📗",
+            "id": "as_n_1",
             "nombre": "PRIMER CICLO",
-            "id": "pc",
+            "icono": "📗",
+            "claseColor": "n2",
             "grados": [
                 {
-                    "id": "g1",
-                    "nombre": "Primer Grado",
-                    "pin": "1001",
+                    "id": "as_g_1_0",
+                    "nombre": "Segundo Grado - Sección A",
+                    "nombreAbreviado": "Segundo Grado - Sección A",
                     "icono": "📘",
-                    "nombreAbreviado": "Primer Grado",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_1_0_0",
                             "nombre": "Artes",
-                            "folderId": "1SmSrEAa-cMW8RDSVZALlvhHJywKNp8Rp"
+                            "folderId": "1O9T28u-Sy5gTQGG9yNx9XU-KjbP98L53"
                         },
                         {
+                            "id": "as_m_1_0_1",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1akSvd2S6MTV9L8rIghGJ3kskqeC9izvV"
+                            "folderId": "1Y4aatJ8vj39mrkzfCWLPKBrDyPsjui9N"
                         },
                         {
+                            "id": "as_m_1_0_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1vNztuXsQETQvAsWeDEi4HU4hcqceVXmn"
+                            "folderId": "1HqGv2bOf1uUgTtNEYkNljGtFigUwigZp"
                         },
                         {
+                            "id": "as_m_1_0_3",
                             "nombre": "Comunicación",
-                            "folderId": "1MUPK87sWuZpHwLHAhy6Lg91K7soplSkp"
+                            "folderId": "1m3NgrhzmJPY3KZ0tKMrl8KM_VDRM1YDF"
                         },
                         {
+                            "id": "as_m_1_0_4",
                             "nombre": "Desarrollo Corporal",
-                            "folderId": "1_r_VokAeKJVSAV14SOTJ6dv2RruC8B9h"
+                            "folderId": "1uKcZUyWUI0WYWryZUvQG5xbh9kPolIQb"
                         },
                         {
+                            "id": "as_m_1_0_5",
                             "nombre": "Números y Formas",
-                            "folderId": "1KuiPiqfJxfi4VZau1hYsRRrDkawqrBAY"
+                            "folderId": "1Ot9Ce0BfwGfZQQVte5xD7nKPKBuULbGc"
                         }
                     ]
                 },
                 {
-                    "id": "g2",
-                    "nombre": "Segundo Grado",
-                    "pin": "1002",
+                    "id": "as_g_1_1",
+                    "nombre": "Segundo Grado - Sección B",
+                    "nombreAbreviado": "Segundo Grado - Sección B",
                     "icono": "📘",
-                    "nombreAbreviado": "Segundo Grado",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_1_1_0",
                             "nombre": "Artes",
-                            "folderId": "14Yw56EXu2Nf08aYUM7gbEZrxCMquc7J-"
+                            "folderId": "1gpFz-c91MgDQVY38Z9dSxfszPwxIYzL_"
                         },
                         {
+                            "id": "as_m_1_1_1",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1uEZ9xNK3X3clS1iv9JMAp7z-tM9v-FgJ"
+                            "folderId": "1KBfZxoX06Sx_DE566TdYQpbtraPgJMev"
                         },
                         {
+                            "id": "as_m_1_1_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1uoSMaJtbRLbq8v_R988GrFEVc6q5_y0a"
+                            "folderId": "1iQ0_HtOlqlF6eAM5a7UI7NqsX9W3R26n"
                         },
                         {
+                            "id": "as_m_1_1_3",
                             "nombre": "Comunicación",
-                            "folderId": "1XoMfhdMfCBi_HBLznweaQ_XqI3Oh-P8Q"
+                            "folderId": "1a_Q9IwA99qVFzCQrID_ibVY6d4szdu3N"
                         },
                         {
+                            "id": "as_m_1_1_4",
                             "nombre": "Desarrollo Corporal",
-                            "folderId": "16C52kJfyFen3zSQPcPWk3cCPIXTEQcmB"
+                            "folderId": "175rSDLrBR99VERCR2e2iq7NQwlc43sag"
                         },
                         {
+                            "id": "as_m_1_1_5",
                             "nombre": "Números y Formas",
-                            "folderId": "1EVsyCEF_tp-DZuerM9ERv608bgr9T-OI"
+                            "folderId": "17gHiN5XNyfQt58yQP4X4ifAJ9NB1TML1"
                         }
                     ]
                 },
                 {
-                    "id": "g3",
-                    "nombre": "Tercer Grado",
-                    "pin": "1003",
+                    "id": "as_g_1_2",
+                    "nombre": "Tercer Grado - Sección A",
+                    "nombreAbreviado": "Tercer Grado - Sección A",
                     "icono": "📘",
-                    "nombreAbreviado": "Tercer Grado",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_1_2_0",
                             "nombre": "Artes",
-                            "folderId": "1IdiO9ufBi3S1438Cx4IkG-F1Mowu3OBR"
+                            "folderId": "1FyLU9TR3tDCJacGIwDHMtoAwK0T48qAL"
                         },
                         {
+                            "id": "as_m_1_2_1",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1quLdltpJJKDG1BgZAJdCeHJXakf78JiP"
+                            "folderId": "1-oRNYnCnl-jYYGuzx0HHmDnbRBZEbehP"
                         },
                         {
+                            "id": "as_m_1_2_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1hzvCJFgu9xzGg1OyuDMw1oSSJKaoYIgV"
+                            "folderId": "1mMvQUodjsLfvkHZ0SOWN2qIGE7IhuKlP"
                         },
                         {
+                            "id": "as_m_1_2_3",
                             "nombre": "Comunicación",
-                            "folderId": "1grsolvJbv28Yf0xTb2zDMldXbaE_vLRo"
+                            "folderId": "1qDhdUJC21kp9bH_6WnuyMvznphgq1Jj_"
                         },
                         {
+                            "id": "as_m_1_2_4",
                             "nombre": "Desarrollo Corporal",
-                            "folderId": "1e1B9Io6d496PTeIqoEs4C4uy_Mk1BpMj"
+                            "folderId": "17Wl3KsTyp0bMyAqgAUifEu9MDm5YUraN"
                         },
                         {
+                            "id": "as_m_1_2_5",
                             "nombre": "Números y Formas",
-                            "folderId": "1tiCde5l3dEf6IQ5jhzQm1KPs99oV0cP1"
+                            "folderId": "1eqX7yBGcnzOsO4xZS6iB1ZdvC6oDuhhi"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_1_3",
+                    "nombre": "Tercer Grado - Sección B",
+                    "nombreAbreviado": "Tercer Grado - Sección B",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_1_3_0",
+                            "nombre": "Artes",
+                            "folderId": "12cgXCcbi5EtKL1AG5ZRDBykpV4Ly2bY0"
+                        },
+                        {
+                            "id": "as_m_1_3_1",
+                            "nombre": "Ciencia y Tecnología",
+                            "folderId": "1Mwv0h821bBw72XuGhiTiI1wA1w7iVNll"
+                        },
+                        {
+                            "id": "as_m_1_3_2",
+                            "nombre": "Ciudadanía y Valores",
+                            "folderId": "1j2bvjhCNVWVhyHdWW6Nz9gh-qzQXrSu2"
+                        },
+                        {
+                            "id": "as_m_1_3_3",
+                            "nombre": "Comunicación",
+                            "folderId": "1CroVsdF0xMzOxAxZn4WCs1s8WplEEbXq"
+                        },
+                        {
+                            "id": "as_m_1_3_4",
+                            "nombre": "Desarrollo Corporal",
+                            "folderId": "1ilDla7LX1UjWfA4oGCtReT8cDnvCMHnP"
+                        },
+                        {
+                            "id": "as_m_1_3_5",
+                            "nombre": "Números y Formas",
+                            "folderId": "1_1bsFWTmvcrHHll3JwpXsgN4Gwt5KQzR"
                         }
                     ]
                 }
             ]
         },
         {
-            "claseColor": "n3",
-            "icono": "📙",
+            "id": "as_n_2",
             "nombre": "SEGUNDO CICLO",
-            "id": "sc",
+            "icono": "📙",
+            "claseColor": "n3",
             "grados": [
                 {
-                    "id": "g4",
-                    "nombre": "Cuarto Grado",
-                    "pin": "2004",
-                    "icono": "📒",
-                    "nombreAbreviado": "Cuarto Grado",
+                    "id": "as_g_2_0",
+                    "nombre": "Cuarto Grado - Sección A",
+                    "nombreAbreviado": "Cuarto Grado - Sección A",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_2_0_0",
                             "nombre": "Aritmética y Finanzas",
-                            "folderId": "1SYkEU88TnKaOh4tv9PYqFIirsaIQSQCu"
+                            "folderId": "1ZguF1PVClJ3Z8MlfYUCv7qLbpPYGE-ng"
                         },
                         {
+                            "id": "as_m_2_0_1",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1Z75s2_oPct7umwDxAvQh2uE4l9WNd5LR"
+                            "folderId": "1WpZL2WSHoI8GMvYwKc-lDyGjy3N6QoHs"
                         },
                         {
+                            "id": "as_m_2_0_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1sbTjlwoFIXvsRyL1-u4iXliQJ7d548J4"
+                            "folderId": "11tcQT6yTZTI7bUCroECbpV7o45uN8_VV"
                         },
                         {
+                            "id": "as_m_2_0_3",
                             "nombre": "Desarrollo Corporal",
-                            "folderId": "14wdmmWTgz7bW4x30z3ulyN9i_vXmi6rF"
+                            "folderId": "1Bz5ZDcuXfAnIeBEwO02tsaOZ2ZgUXKNT"
                         },
                         {
+                            "id": "as_m_2_0_4",
                             "nombre": "Lenguaje y Literatura",
-                            "folderId": "1mxhXDtALVOf0qMTCQ2VVlAwFrRn4PX6_"
+                            "folderId": "1eC5vXZIPRqLlYeAXAeks8n2BsDq-fUWl"
                         }
                     ]
                 },
                 {
-                    "id": "g5",
-                    "nombre": "Quinto Grado",
-                    "pin": "2005",
-                    "icono": "📒",
-                    "nombreAbreviado": "Quinto Grado",
+                    "id": "as_g_2_1",
+                    "nombre": "Cuarto Grado - Sección B",
+                    "nombreAbreviado": "Cuarto Grado - Sección B",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_2_1_0",
                             "nombre": "Aritmética y Finanzas",
-                            "folderId": "1aZws1UcJjbwl88R1TSD1BO3Ai_6_5opB"
+                            "folderId": "1-CEUVZGfu_RyoEfdV9bMgev-pMTGxA26"
                         },
                         {
+                            "id": "as_m_2_1_1",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1Oxr5EoXBD_1S-DXQeepltCPK-I4zJIRa"
+                            "folderId": "1v4zPbLA9cMrde0EgwUWhHiROoCXt5QcD"
                         },
                         {
+                            "id": "as_m_2_1_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "10AuitQADWcJm2kzN2DbPMQ8aZDhhJmiE"
+                            "folderId": "1k3F3suvCpw2Y_SPRQB3ZdQNu0Z3Y9645"
                         },
                         {
+                            "id": "as_m_2_1_3",
                             "nombre": "Desarrollo Corporal",
-                            "folderId": "1t2yFqcyU7vsZjHW_X9VBC4XpFoDbne9U"
+                            "folderId": "11t4MgNZehC2-MWolRpS8OZNyohRy15mz"
                         },
                         {
+                            "id": "as_m_2_1_4",
                             "nombre": "Lenguaje y Literatura",
-                            "folderId": "1ra5RtYJAmy2dFC8XGcBHA7uhBbf_I1BQ"
+                            "folderId": "1u16QdBKXR9ZW6iJ3-ZlBs1IxDkYpkC4S"
                         }
                     ]
                 },
                 {
-                    "id": "g6",
+                    "id": "as_g_2_2",
+                    "nombre": "Quinto Grado - Sección A",
+                    "nombreAbreviado": "Quinto Grado - Sección A",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_2_2_0",
+                            "nombre": "Aritmética y Finanzas",
+                            "folderId": "1mNg_rxKTrqI71AybkondI2KQnaKSfK6y"
+                        },
+                        {
+                            "id": "as_m_2_2_1",
+                            "nombre": "Ciencia y Tecnología",
+                            "folderId": "1-jra-xLEYr_D09lF_en29RyplA-LG2iu"
+                        },
+                        {
+                            "id": "as_m_2_2_2",
+                            "nombre": "Ciudadanía y Valores",
+                            "folderId": "1xI7r9EFUsE6UNmJLcerFEg2w2YdLtIqs"
+                        },
+                        {
+                            "id": "as_m_2_2_3",
+                            "nombre": "Desarrollo Corporal",
+                            "folderId": "1st1pLQwyZyTe_a2je9CeekqGmyah9oSp"
+                        },
+                        {
+                            "id": "as_m_2_2_4",
+                            "nombre": "Lenguaje y Literatura",
+                            "folderId": "1eSCZAUCIJFqezuRv1uKkmDNQoYdGF4Oj"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_2_3",
+                    "nombre": "Quinto Grado - Sección B",
+                    "nombreAbreviado": "Quinto Grado - Sección B",
+                    "icono": "📘",
+                    "pin": "",
+                    "materias": [
+                        {
+                            "id": "as_m_2_3_0",
+                            "nombre": "Aritmética y Finanzas",
+                            "folderId": "1Z2e-Rq9bugMaTcs25_S_VC7zd9EJ40Ej"
+                        },
+                        {
+                            "id": "as_m_2_3_1",
+                            "nombre": "Ciencia y Tecnología",
+                            "folderId": "13IZ3cBz5oZkYHRCl_-ZQRij_ro5K-vne"
+                        },
+                        {
+                            "id": "as_m_2_3_2",
+                            "nombre": "Ciudadanía y Valores",
+                            "folderId": "1ZATxCICz7DLlPEy2En3EngRPJoLrSzWO"
+                        },
+                        {
+                            "id": "as_m_2_3_3",
+                            "nombre": "Desarrollo Corporal",
+                            "folderId": "1l0LsiQrh9gchBI47WN0KwOOz83uE2-v2"
+                        },
+                        {
+                            "id": "as_m_2_3_4",
+                            "nombre": "Lenguaje y Literatura",
+                            "folderId": "1oGS2tQV4Co5bykwUR9yQzI6CB7IHrtp8"
+                        }
+                    ]
+                },
+                {
+                    "id": "as_g_2_4",
                     "nombre": "Sexto Grado",
-                    "pin": "2006",
-                    "icono": "📒",
                     "nombreAbreviado": "Sexto Grado",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_2_4_0",
                             "nombre": "Aritmética y Finanzas",
-                            "folderId": "1Igm_qmmxqPG1bH0IjbK3afyqC99UKpuo"
+                            "folderId": "1SkIr-MFkV_QLQA4JBB_u0i0lO_Ci7L7J"
                         },
                         {
+                            "id": "as_m_2_4_1",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1KvnATphXGUxVMiiFQVyK7IDzVnKPbtpT"
+                            "folderId": "1wI5StTmPcT3beola69q_og0RNy2oLEJh"
                         },
                         {
+                            "id": "as_m_2_4_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1Fn4OA-dXy05zgJlNxA9S_u2kEjZFNQgx"
+                            "folderId": "1p_AyyCfBgh0SZ4msL_1Z4fUD7MwbwTqL"
                         },
                         {
+                            "id": "as_m_2_4_3",
                             "nombre": "Desarrollo Corporal",
-                            "folderId": "18_6_YYs2adGLuytq45qHVVY8xfQRntYj"
+                            "folderId": "1_g2_7sVGAjp9QtP83WBpdgUSXwnWfrE9"
                         },
                         {
+                            "id": "as_m_2_4_4",
                             "nombre": "Inglés",
-                            "folderId": "1bPqLDQH3RLIHOI0hLxoWkqB_Ik2AYCmD"
+                            "folderId": "1kgXREkPaa7ZMKvP7MlJZ-ZglZtsnCJrL"
                         },
                         {
+                            "id": "as_m_2_4_5",
                             "nombre": "Lenguaje y Literatura",
-                            "folderId": "1qDOSVgHWP-l6hkVwVrt3TvxYFpiRSBA4"
+                            "folderId": "14wSLOekMaDYV_lJ9LV-8fEUI9zWlwic2"
                         }
                     ]
                 }
             ]
         },
         {
-            "claseColor": "n4",
-            "icono": "📕",
+            "id": "as_n_3",
             "nombre": "TERCER CICLO",
-            "id": "tc",
+            "icono": "📕",
+            "claseColor": "n4",
             "grados": [
                 {
-                    "id": "g7",
+                    "id": "as_g_3_0",
                     "nombre": "Séptimo Grado",
-                    "pin": "3007",
-                    "icono": "📓",
                     "nombreAbreviado": "Séptimo Grado",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_3_0_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1ptHm-ZIt36RDSrQzpWUwHP2SQ4iJRB65"
+                            "folderId": "1n_-aXaFk_KXwxwHzkIo6sBmHpaMG5wL-"
                         },
                         {
+                            "id": "as_m_3_0_1",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1XM4lawXQnLzt_mFIvjm6c6HNmS7Q0mUK"
+                            "folderId": "1K8rpTQ1_OzAeYCus-FnNS5-R1gDYkcDb"
                         },
                         {
+                            "id": "as_m_3_0_2",
                             "nombre": "Inglés",
-                            "folderId": "15lxsU8gylzXj-XkdL6YWk3beQiq2-d7_"
+                            "folderId": "10Eo6uCriZZKtIgPGwERNpBP_cY6gqAYi"
                         },
                         {
+                            "id": "as_m_3_0_3",
                             "nombre": "Lenguaje y Literatura",
-                            "folderId": "19bn3sb9PWjLsJIbpohMIr7P3Ik_wcg8J"
+                            "folderId": "1ugEEhrPXfD8xpJRNz-XTikrPs_qG5vLN"
                         },
                         {
+                            "id": "as_m_3_0_4",
                             "nombre": "Matemática y Datos",
-                            "folderId": "1Bug9ip8_Ma2lLfCLF0yDOzHq0DZe1gwS"
+                            "folderId": "1xHT-HUHcBume7Jm84dfyT-zr6q7Fi0ZW"
                         }
                     ]
                 },
                 {
-                    "id": "g8",
+                    "id": "as_g_3_1",
                     "nombre": "Octavo Grado",
-                    "pin": "3008",
-                    "icono": "📓",
                     "nombreAbreviado": "Octavo Grado",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_3_1_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1F5C5yO5E9nRVr7KgmlQEPdMtsS3NEF5N"
+                            "folderId": "1ajzp90Dc5Jq7qDW-F_tu2l3TjtnX6cYv"
                         },
                         {
+                            "id": "as_m_3_1_1",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "10R2NCZ5tu9ZuLgiP0Jxfp5h9-KbJ7wsM"
+                            "folderId": "1mw0rrK0neBRpkR4J_mfXP9P12743gJrW"
                         },
                         {
+                            "id": "as_m_3_1_2",
                             "nombre": "Inglés",
-                            "folderId": "19kGYK-3U8C7ZklZH6OEnEk_eByf2aG8v"
+                            "folderId": "1B36yChGJl4Gg_kKpR1EFxEf0P1CMbXuC"
                         },
                         {
+                            "id": "as_m_3_1_3",
                             "nombre": "Lenguaje y Literatura",
-                            "folderId": "18kE44LcFcsz9rfBQdLErcKKd3RjBhNbT"
+                            "folderId": "1b0KPgdPx2O-REbavYW775QV8AhrA1xiv"
                         },
                         {
+                            "id": "as_m_3_1_4",
                             "nombre": "Matemática y Datos",
-                            "folderId": "1lTGNFg6apaDipAK16Xz5cNTW2blIxmcj"
+                            "folderId": "1LewTbbPjV76k0JkbdmxMpVYDlM8Wc7xL"
                         }
                     ]
                 },
                 {
-                    "id": "g9",
+                    "id": "as_g_3_2",
                     "nombre": "Noveno Grado",
-                    "pin": "3009",
-                    "icono": "📓",
                     "nombreAbreviado": "Noveno Grado",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_3_2_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1LiEHearrPhugrcFTJGrdnuGpGfKHqKp2"
+                            "folderId": "1SRXN1o6Bz5oCHiSdubevMZ59F6ZbYobV"
                         },
                         {
+                            "id": "as_m_3_2_1",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1iRlnPu3QgirQAJ-sxzP9NU-AUR9uYUch"
+                            "folderId": "1fAkgsNnBX7HUMMXjxBxAUrSXgCMC7t7G"
                         },
                         {
+                            "id": "as_m_3_2_2",
                             "nombre": "Inglés",
-                            "folderId": "1xnBPErUkF24NcuMCoUjhs-BKeAG_7yFF"
+                            "folderId": "1LSjErF7RfnLJZSXd1USiBb40Y2Jh_F1k"
                         },
                         {
+                            "id": "as_m_3_2_3",
                             "nombre": "Lenguaje y Literatura",
-                            "folderId": "1TaS4YKxgl35IpWiX3G7ZhqKuGg41dRPW"
+                            "folderId": "1Czylrs7FgOaojb-cbC5wwqbMhuhYqjkC"
                         },
                         {
+                            "id": "as_m_3_2_4",
                             "nombre": "Matemática y Datos",
-                            "folderId": "1FhTV4LSi8b-FJdAl1Xm8bMqCJO1VaQ5U"
+                            "folderId": "1FeY14yvRz4T_MqA3_PYTKDNrhD0N60mc"
                         }
                     ]
                 }
             ]
         },
         {
-            "claseColor": "n5",
-            "icono": "🎓",
+            "id": "as_n_4",
             "nombre": "BACHILLERATO",
-            "id": "bach",
+            "icono": "🎓",
+            "claseColor": "n5",
             "grados": [
                 {
-                    "id": "b1a",
-                    "nombre": "Primer Año — Sección A",
-                    "pin": "5010",
-                    "icono": "🏛️",
-                    "nombreAbreviado": "1° Año Sección A",
+                    "id": "as_g_4_0",
+                    "nombre": "Primer Año - Sección A",
+                    "nombreAbreviado": "Primer Año - Sección A",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_4_0_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1y7KmPypkQP59Lckl6JGOt4f5qvY81k0X"
+                            "folderId": "1CF3Eul_oPAL7Vpruaz_z4MDi2bIMDkbY"
                         },
                         {
+                            "id": "as_m_4_0_1",
                             "nombre": "Ciencias de la Computación",
-                            "folderId": "1jaobm2eAMEBcL8rDAR0vecvlRosQKiux"
+                            "folderId": "1aQXBZasr7ig36wkyHLjcXKzImlmdFr2D"
                         },
                         {
+                            "id": "as_m_4_0_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1hGF1O70rgC3EV_zKo2ixoc9wAg4FIg8r"
+                            "folderId": "1FcNBo4ALSIzKt65cLhgx6G_xQtKqE4FS"
                         },
                         {
-                            "nombre": "Educación Física",
-                            "folderId": "1fvUH2c8-Ek-FeumARW-DNSfYbLigfx1d"
+                            "id": "as_m_4_0_3",
+                            "nombre": "Educación Física ",
+                            "folderId": "1FveOWCEU2fKLeh7pA3dR16E51WoPRnvO"
                         },
                         {
-                            "nombre": "Finanzas y Economía",
-                            "folderId": "1--mvhIjJC8H4Qrvd6CAOJecfsDvlFT22"
+                            "id": "as_m_4_0_4",
+                            "nombre": "Finanzas y Economía ",
+                            "folderId": "1p34YzN3f-cM1RxtR2MOyfgIcGVewzX5Q"
                         },
                         {
+                            "id": "as_m_4_0_5",
                             "nombre": "Inglés",
-                            "folderId": "15QKjUKE5Us036ZFKP7qsrGl2wMcIdCAC"
+                            "folderId": "1XYLEfWUGEB4mo0nks44SOP9J2ArEDQdh"
                         },
                         {
+                            "id": "as_m_4_0_6",
                             "nombre": "Lengua y Literatura",
-                            "folderId": "1Kl2LufWQRGQjP9v5WpwibIBK_4s54Cen"
+                            "folderId": "1R2NxCaTqrfBCYTBLtmdUP9gAHCETjmgA"
                         },
                         {
+                            "id": "as_m_4_0_7",
                             "nombre": "Precálculo",
-                            "folderId": "1CzU8BRKrXcfAxPhrMd8uGd5_X0CYf1Bt"
+                            "folderId": "16smqBIpRzVfqFVTD6RondZoDnRpd27-s"
                         },
                         {
+                            "id": "as_m_4_0_8",
                             "nombre": "Proyecto de Vida y Carrera",
-                            "folderId": "1VkLvg85XLloSAbjcQ_Q57LlWOjyYwdn0"
+                            "folderId": "1ego6uYeGyJGJOLICTzL7z2ZLXiVNABOu"
                         }
                     ]
                 },
                 {
-                    "id": "b1b",
-                    "nombre": "Primer Año — Sección B",
-                    "pin": "5011",
-                    "icono": "🏛️",
-                    "nombreAbreviado": "1° Año Sección B",
+                    "id": "as_g_4_1",
+                    "nombre": "Primer Año - Sección B",
+                    "nombreAbreviado": "Primer Año - Sección B",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_4_1_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1y7KmPypkQP59Lckl6JGOt4f5qvY81k0X"
+                            "folderId": "1dMc4g8xLmUePV663GZe9SNEyqkbZN3Tx"
                         },
                         {
-                            "nombre": "Ciencias de la Computación",
-                            "folderId": "1jaobm2eAMEBcL8rDAR0vecvlRosQKiux"
+                            "id": "as_m_4_1_1",
+                            "nombre": "Ciencias de La Computacion",
+                            "folderId": "1FirYdVD6yS0VbuZUXhcuGXxX4quooyNl"
                         },
                         {
-                            "nombre": "Ciudadanía y Valores",
-                            "folderId": "1hGF1O70rgC3EV_zKo2ixoc9wAg4FIg8r"
+                            "id": "as_m_4_1_2",
+                            "nombre": "Ciudadania Y Valores",
+                            "folderId": "14V1hDkqTefzUJb13av9SaotuiO6zM6mQ"
                         },
                         {
-                            "nombre": "Educación Física",
-                            "folderId": "1fvUH2c8-Ek-FeumARW-DNSfYbLigfx1d"
+                            "id": "as_m_4_1_3",
+                            "nombre": "Educación Física ",
+                            "folderId": "1E3fOqcdkJi-JH7v3aMJ1qtw0ojvdh51F"
                         },
                         {
-                            "nombre": "Finanzas y Economía",
-                            "folderId": "1--mvhIjJC8H4Qrvd6CAOJecfsDvlFT22"
+                            "id": "as_m_4_1_4",
+                            "nombre": "Finanzas y Economía ",
+                            "folderId": "1RX8S7jwabfuW_wJ4ES9gLzYo8aDs6HYW"
                         },
                         {
+                            "id": "as_m_4_1_5",
                             "nombre": "Inglés",
-                            "folderId": "15QKjUKE5Us036ZFKP7qsrGl2wMcIdCAC"
+                            "folderId": "1l359Gxs4qEBRfq3-Ba5bzshxUwcun7bz"
                         },
                         {
+                            "id": "as_m_4_1_6",
                             "nombre": "Lengua y Literatura",
-                            "folderId": "1Kl2LufWQRGQjP9v5WpwibIBK_4s54Cen"
+                            "folderId": "1z5bjenczRA1j5YZBqlhWUF4-YOdGvwo1"
                         },
                         {
-                            "nombre": "Precálculo",
-                            "folderId": "1CzU8BRKrXcfAxPhrMd8uGd5_X0CYf1Bt"
+                            "id": "as_m_4_1_7",
+                            "nombre": "Precalculo",
+                            "folderId": "1_PKJcX1vTuiFPPwlgFjog4kuY_e7K_Zv"
                         },
                         {
+                            "id": "as_m_4_1_8",
                             "nombre": "Proyecto de Vida y Carrera",
-                            "folderId": "1VkLvg85XLloSAbjcQ_Q57LlWOjyYwdn0"
+                            "folderId": "11BC_Jf_R3a_L58cocsTKk8SzcdfueqbK"
                         }
                     ]
                 },
                 {
-                    "id": "b2a",
-                    "nombre": "Segundo Año — Sección A",
-                    "pin": "5012",
-                    "icono": "🏛️",
-                    "nombreAbreviado": "2° Año Sección A",
+                    "id": "as_g_4_2",
+                    "nombre": "Segundo Año - Sección A",
+                    "nombreAbreviado": "Segundo Año - Sección A",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_4_2_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1tC0JMSm7k-SXLInJ40GO0uFdoho2Np5A"
+                            "folderId": "1BLkmT4g8ZSza7fITn51FEVQn5nijTKSg"
                         },
                         {
+                            "id": "as_m_4_2_1",
                             "nombre": "Ciencias de la Computación",
-                            "folderId": "1uTig_Tyz-JlTIqHmKC1yggRc7iDrx-w2"
+                            "folderId": "1KMe-2vc18iGwANszW-rzE5-fBzWwZP74"
                         },
                         {
+                            "id": "as_m_4_2_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1TlH9xQIL-P11P9HHJ2zKuqNnRwBt8L83"
+                            "folderId": "1WgscVhmxhdGnWOXJgv9qP38M8wEzgiN5"
                         },
                         {
-                            "nombre": "Educación Física",
-                            "folderId": "1yG7XGG4d_oFfnfo2P_2QTyy_04sJmcep"
+                            "id": "as_m_4_2_3",
+                            "nombre": "Educación Física y Deportes",
+                            "folderId": "1HIGm8-6W_3gUrYvMhuXSg0bcEDk-AgF4"
                         },
                         {
+                            "id": "as_m_4_2_4",
                             "nombre": "Finanzas y Economía",
-                            "folderId": "1Fsi3_dVb8uBT-Ywa0EKPfBtbLW589uU5"
+                            "folderId": "1XxeffySuQGZLm0Jr3XAfIHliCizAGX18"
                         },
                         {
+                            "id": "as_m_4_2_5",
                             "nombre": "Inglés",
-                            "folderId": "17ThftgFgjtJi4kqNJCsJMx3gCWRK83oN"
+                            "folderId": "1LPkMJ0laufOqJRD4J1YjOLXI32XCVp5k"
                         },
                         {
+                            "id": "as_m_4_2_6",
                             "nombre": "Lengua y Literatura",
-                            "folderId": "1qcuDzkk8Es1ZSou_U77aKfRSoMuNcjlN"
+                            "folderId": "1d44sn1elThildbycKVcZuQEaDFAoOUtB"
                         },
                         {
+                            "id": "as_m_4_2_7",
                             "nombre": "Precálculo",
-                            "folderId": "1OrVtPiiAM6LdbTsO4bsFmX8LpUeh45Mi"
+                            "folderId": "13asFYGRvpB2anKx0vHlyS78v-x25IMyH"
                         },
                         {
+                            "id": "as_m_4_2_8",
                             "nombre": "Proyecto de Vida y Carrera",
-                            "folderId": "1gNl2Cta08r7hmEgBmU5mB1kJVXn9ajwk"
+                            "folderId": "1W19kvgezXcqLIXc9MmbTFD5pcfr0ZKzw"
                         }
                     ]
                 },
                 {
-                    "id": "b2b",
-                    "nombre": "Segundo Año — Sección B",
-                    "pin": "5013",
-                    "icono": "🏛️",
-                    "nombreAbreviado": "2° Año Sección B",
+                    "id": "as_g_4_3",
+                    "nombre": "Segundo Año - Sección B",
+                    "nombreAbreviado": "Segundo Año - Sección B",
+                    "icono": "📘",
+                    "pin": "",
                     "materias": [
                         {
+                            "id": "as_m_4_3_0",
                             "nombre": "Ciencia y Tecnología",
-                            "folderId": "1tC0JMSm7k-SXLInJ40GO0uFdoho2Np5A"
+                            "folderId": "1_8m_LSoFw22QWDBlHBsBQhXtv_laalWQ"
                         },
                         {
+                            "id": "as_m_4_3_1",
                             "nombre": "Ciencias de la Computación",
-                            "folderId": "1uTig_Tyz-JlTIqHmKC1yggRc7iDrx-w2"
+                            "folderId": "18i4i36xYESkBjgcz-_Uuas6AisSpKVcf"
                         },
                         {
+                            "id": "as_m_4_3_2",
                             "nombre": "Ciudadanía y Valores",
-                            "folderId": "1TlH9xQIL-P11P9HHJ2zKuqNnRwBt8L83"
+                            "folderId": "1Uz8nNfmZQVBTQiXzzKHHbxJOXiHT-Tl6"
                         },
                         {
-                            "nombre": "Educación Física",
-                            "folderId": "1yG7XGG4d_oFfnfo2P_2QTyy_04sJmcep"
+                            "id": "as_m_4_3_3",
+                            "nombre": "Educación Física y Deportes",
+                            "folderId": "1h5H6rdXuX38AQlCM35YPhHtWO-JNS-SC"
                         },
                         {
+                            "id": "as_m_4_3_4",
                             "nombre": "Finanzas y Economía",
-                            "folderId": "1Fsi3_dVb8uBT-Ywa0EKPfBtbLW589uU5"
+                            "folderId": "1iZavQ5j3TSw4jCLrSvcb9QNePLzxHFtI"
                         },
                         {
+                            "id": "as_m_4_3_5",
                             "nombre": "Inglés",
-                            "folderId": "17ThftgFgjtJi4kqNJCsJMx3gCWRK83oN"
+                            "folderId": "1ECZnx8SLBJMp14dJUZmsNO55zGNtJho7"
                         },
                         {
+                            "id": "as_m_4_3_6",
                             "nombre": "Lengua y Literatura",
-                            "folderId": "1qcuDzkk8Es1ZSou_U77aKfRSoMuNcjlN"
+                            "folderId": "1Zq8XO_aO3oPZLbKrYtSRCsqjMO_emrd6"
                         },
                         {
+                            "id": "as_m_4_3_7",
                             "nombre": "Precálculo",
-                            "folderId": "1OrVtPiiAM6LdbTsO4bsFmX8LpUeh45Mi"
+                            "folderId": "15uKR9gqz72ea1y57tZDJ61c34vJiTc3s"
                         },
                         {
+                            "id": "as_m_4_3_8",
                             "nombre": "Proyecto de Vida y Carrera",
-                            "folderId": "1gNl2Cta08r7hmEgBmU5mB1kJVXn9ajwk"
+                            "folderId": "13KYpJld3n2Ks6B5xvaP5pSi-pmdz9hDX"
                         }
                     ]
                 }
@@ -586,3 +871,7 @@ window.MATERIAS_DATA = {
         }
     ]
 };
+
+if (typeof window !== 'undefined') {
+    window.MATERIAS_DATA = MATERIAS_DATA;
+}
