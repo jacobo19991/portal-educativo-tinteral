@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-educativo-v8';
+const CACHE_NAME = 'portal-educativo-v9';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -98,7 +98,28 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // ESTRATEGIA: CACHE FIRST para recursos estáticos (HTML, CSS, JS, Fuentes, Imágenes)
+    // ESTRATEGIA: NETWORK FIRST para HTML (Asegura versión más reciente de Vercel)
+    if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
+        event.respondWith(
+            fetch(event.request)
+                .then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
+                    return networkResponse;
+                })
+                .catch(() => {
+                    console.warn('[Service Worker] Red falló, intentando servir HTML desde caché');
+                    return caches.match(event.request).then(cached => cached || caches.match('./index.html'));
+                })
+        );
+        return;
+    }
+
+    // ESTRATEGIA: CACHE FIRST para recursos estáticos (CSS, JS, Fuentes, Imágenes)
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {

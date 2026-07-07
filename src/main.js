@@ -12,6 +12,24 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
             .then(registration => {
                 console.log('✅ ServiceWorker registrado con éxito:', registration.scope);
+                
+                // Detectar actualización silenciosa del Service Worker
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        // Si hay un nuevo SW instalado y ya había un controlador previo
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('🔄 Nueva versión del portal disponible. Actualizando...');
+                            if (window.Toast) {
+                                window.Toast.show('Actualizando a la nueva versión...', 'info');
+                            }
+                            // Recargar automáticamente una vez para aplicar cambios
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    });
+                });
             })
             .catch(error => {
                 console.error('❌ Error al registrar el ServiceWorker:', error);
