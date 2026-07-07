@@ -70,7 +70,7 @@ if ('serviceWorker' in navigator) {
 
 // Conexión asíncrona a Supabase (vía Vercel Proxy) con Caché (Fase 3: Optimización)
 async function fetchMateriasFromDB(forceRefresh = false) {
-    const CACHE_KEY = 'materias_cache_v1';
+    const CACHE_KEY = 'materias_cache_v2';
     // Se redujo el TTL a 15 mins para desarrollo/producción dinámica
     const CACHE_TTL = 15 * 60 * 1000;
 
@@ -80,7 +80,7 @@ async function fetchMateriasFromDB(forceRefresh = false) {
         if (cachedStr && !forceRefresh) {
             const cached = JSON.parse(cachedStr);
             if (Date.now() - cached.timestamp < CACHE_TTL) {
-                console.log("⚡ Usando datos de materias desde caché local.");
+                console.log("⚡ Usando caché reciente generada desde Apps Script.");
                 aplicarDatosMaterias(cached.data);
                 
                 // Actualización en segundo plano
@@ -98,22 +98,39 @@ async function fetchMateriasFromDB(forceRefresh = false) {
             }
         }
 
-        // Si no hay caché, intentamos obtener los datos
+        console.info("Cargando datos desde Apps Script...");
+
+        // Si no hay caché, intentamos obtener los datos con REINTENTOS
         if (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL) {
-            try {
-                const asRes = await fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 30000);
-                const asData = await asRes.json();
-                
-                if (asData && asData.tree) {
-                    console.log("✅ Datos frescos cargados desde Apps Script (Drive Dinámico)");
-                    procesarDatosAppsScript(asData, CACHE_KEY);
-                    return; // Terminamos exitosamente con Apps Script
+            let success = false;
+            let asData = null;
+            const maxRetries = 3;
+            for (let i = 1; i <= maxRetries; i++) {
+                try {
+                    console.log(`[Intento ${i}/${maxRetries}] Consultando Apps Script...`);
+                    const asRes = await fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 20000);
+                    asData = await asRes.json();
+                    
+                    if (asData && asData.tree) {
+                        console.info("✅ Apps Script respondió correctamente");
+                        success = true;
+                        break;
+                    }
+                } catch (err) {
+                    console.warn(`⚠️ Intento ${i} de Apps Script falló: ${err.message}`);
+                    if (i < maxRetries) {
+                        await new Promise(res => setTimeout(res, 2000));
+                    }
                 }
-            } catch (err) {
-                console.warn("⚠️ Apps Script falló o tardó demasiado. Ejecutando fallback a Supabase.", err.message);
+            }
+
+            if (success && asData) {
+                procesarDatosAppsScript(asData, CACHE_KEY);
+                return; // Terminamos exitosamente con Apps Script
             }
         }
 
+        console.warn("⚠️ Apps Script falló completamente. Intentando con Supabase/API...");
         const res = await fetchWithTimeout('/api/materias', {}, 8000);
         const dbData = await res.json();
         
@@ -127,13 +144,39 @@ async function fetchMateriasFromDB(forceRefresh = false) {
         }
     } catch (error) {
         // Riesgo Cero: Si falla Supabase o el internet, el portal ya está usando materiasData.js (Fallback local)
-        console.warn("⚠️ Aviso: Usando datos locales (Fallback). Razón:", error.message);
+        console.warn("⚠️ Fallo total: Usando Fallback local. Razón:", error.message);
+        mostrarAvisoFallback();
+        
         const cachedFallbackStr = localStorage.getItem(CACHE_KEY);
         if (cachedFallbackStr) {
              aplicarDatosMaterias(JSON.parse(cachedFallbackStr).data);
         } else if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
              aplicarDatosMaterias(window.MATERIAS_DATA);
         }
+    }
+}
+
+function mostrarAvisoFallback() {
+    const contenedor = document.getElementById('contenedor-niveles');
+    // Prevenir duplicados
+    if (document.getElementById('aviso-fallback')) return;
+    
+    if (contenedor) {
+        const aviso = document.createElement('div');
+        aviso.id = 'aviso-fallback';
+        aviso.style.backgroundColor = '#fdf2f8'; // Rosa tenue/profesional
+        aviso.style.color = '#be185d';
+        aviso.style.padding = '12px 16px';
+        aviso.style.borderRadius = '8px';
+        aviso.style.marginBottom = '15px';
+        aviso.style.fontSize = '0.9rem';
+        aviso.style.display = 'flex';
+        aviso.style.alignItems = 'center';
+        aviso.style.justifyContent = 'center';
+        aviso.style.gap = '8px';
+        aviso.style.border = '1px solid #fbcfe8';
+        aviso.innerHTML = '<i>⚠️</i> <span>Mostrando estructura temporal. Pulsa <strong style="cursor:pointer; text-decoration:underline;" onclick="window.actualizarContenidoTotal && window.actualizarContenidoTotal(this)">Actualizar contenido</strong> para intentar cargar los datos desde Drive.</span>';
+        contenedor.parentNode.insertBefore(aviso, contenedor);
     }
 }
 
