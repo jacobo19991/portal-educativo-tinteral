@@ -234,7 +234,7 @@ function adaptarAppsScriptASupabase(tree) {
         
         return {
             id: `as_n_${i}`,
-            nombre: nivel.nivel,
+            nombre: nivel.nivel.replace(/^\d+-\s*/, ''),
             icono: confNivel.icono,
             claseColor: confNivel.cls,
             grados: (nivel.grados || []).map((grado, j) => {
