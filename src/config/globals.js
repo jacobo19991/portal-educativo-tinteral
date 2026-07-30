@@ -3,6 +3,7 @@ window.AppConfig = {
   SEMANA_ACTIVA: 4,
   LINK_PORTAL: 'https://portal-educativo-tinteral.vercel.app',
   NUMERO_WHATSAPP: '50363097679',
+  FORMULARIO_REPORTES_URL: 'https://forms.gle/eDrth5nJ2drQSfUC7',
   DRIVE_API_ENDPOINT: '/api/drive',
   SHEET_AVISOS_ID: '1wv5lCCkaB0NvHUDdHh5qNkpD3T6Q2ovmnT5T30hiMDs',
   USAR_APPS_SCRIPT: true,

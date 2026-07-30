@@ -7,6 +7,7 @@ import materiasHandler from './api/materias.js';
 import adminHandler from './api/admin.js';
 import validarPinHandler from './api/validar-pin.js';
 import validarPinDocenteHandler from './api/validar-pin-docente.js';
+import cambiarPinDocenteHandler from './api/cambiar-pin-docente.js';
 import usuariosHandler from './api/usuarios.js';
 import driveHandler from './api/drive.js';
 
@@ -14,7 +15,7 @@ process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'https://fake-supabase-pr
 process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'fake-anon-key';
 process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'fake-service-role-key';
 process.env.ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS || 'https://portal-educativo-tinteral.vercel.app,http://localhost:3000,http://127.0.0.1:5500';
-process.env.DOCENTES_PIN = process.env.DOCENTES_PIN || '1234';
+process.env.DOCENTES_PIN = process.env.DOCENTES_PIN || 'test-initial-docentes-pin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +63,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/admin') return adminHandler(req, res);
   if (pathname === '/api/validar-pin') return validarPinHandler(req, res);
   if (pathname === '/api/validar-pin-docente') return validarPinDocenteHandler(req, res);
+  if (pathname === '/api/cambiar-pin-docente') return cambiarPinDocenteHandler(req, res);
   if (pathname === '/api/usuarios') return usuariosHandler(req, res);
   if (pathname === '/api/drive') return driveHandler(req, res);
 

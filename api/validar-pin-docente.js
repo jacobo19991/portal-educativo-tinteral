@@ -1,3 +1,5 @@
+import { verifyPin } from './utils/cryptoUtils.js';
+
 export default async function handler(req, res) {
   const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
@@ -31,16 +33,50 @@ export default async function handler(req, res) {
       return res.status(200).json({ valid: false });
     }
 
-    const docentesPin = process.env.DOCENTES_PIN;
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!docentesPin) {
-      console.error("Configuración incompleta: DOCENTES_PIN no está configurada.");
-      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+    let dbRow = null;
+
+    if (url && key) {
+      try {
+        const dbRes = await fetch(`${url}/rest/v1/configuracion_portal?clave=eq.docentes_pin&select=valor_hash,updated_at`, {
+          headers: {
+            "apikey": key,
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (dbRes.ok) {
+          const data = await dbRes.json();
+          if (Array.isArray(data) && data.length > 0) {
+            dbRow = data[0];
+          }
+        }
+      } catch (dbErr) {
+        console.error("Error al consultar configuracion_portal en Supabase:", dbErr);
+      }
     }
 
-    const isValid = docentesPin === pin;
+    let isValid = false;
+    let version = dbRow?.updated_at || 'v1';
 
-    return res.status(200).json({ valid: isValid });
+    if (dbRow && dbRow.valor_hash) {
+      isValid = verifyPin(pin, dbRow.valor_hash);
+    } else {
+      const docentesPin = process.env.DOCENTES_PIN;
+      if (docentesPin) {
+        isValid = (docentesPin === pin);
+      } else {
+        console.error("Configuración incompleta: Ni configuracion_portal ni DOCENTES_PIN están configurados.");
+      }
+    }
+
+    return res.status(200).json({
+      valid: isValid,
+      version: isValid ? version : undefined
+    });
 
   } catch (error) {
     console.error("Error inesperado en validar-pin-docente:", error);
