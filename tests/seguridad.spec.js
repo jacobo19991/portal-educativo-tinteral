@@ -14,7 +14,7 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     checkNoPin(data);
   });
 
-  test('/api/admin sin Authorization devuelve 401', async ({ request }) => {
+  test('1. /api/admin sin Authorization devuelve 401', async ({ request }) => {
     const res = await request.post('/api/admin', {
       data: { action: 'createMateria', payload: { nombre: 'Test', grado_id: 1 } }
     });
@@ -23,7 +23,7 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     expect(data.error).toBe('Sesión inválida o expirada.');
   });
 
-  test('/api/admin con token inválido devuelve 401', async ({ request }) => {
+  test('2. /api/admin con token inválido y acción válida devuelve 401', async ({ request }) => {
     const res = await request.post('/api/admin', {
       headers: { Authorization: 'Bearer token-falso-123' },
       data: { action: 'createMateria', payload: { nombre: 'Test', grado_id: 1 } }
@@ -33,7 +33,7 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     expect(data.error).toBe('Sesión inválida o expirada.');
   });
 
-  test('/api/admin rechaza solicitudes sin token válido sin importar la acción enviada', async ({ request }) => {
+  test('3. /api/admin con token inválido y acción desconocida devuelve 401', async ({ request }) => {
     const res = await request.post('/api/admin', {
       headers: { Authorization: 'Bearer token-falso' },
       data: { action: 'ACCION_DESCONOCIDA', payload: {} }
@@ -42,6 +42,9 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     const data = await res.json();
     expect(data.error).toBe('Sesión inválida o expirada.');
   });
+
+  // Nota: Probar la respuesta HTTP 400 por acción desconocida requiere un token de sesión
+  // administrativa real en Supabase Auth con rol 'admin' asignado en la tabla perfiles.
 
   test('/api/validar-pin rechaza solicitudes inválidas', async ({ request }) => {
     const res = await request.post('/api/validar-pin', {
@@ -59,15 +62,26 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     expect(dataPinLargo.valid).toBe(false);
   });
 
-  test('/api/validar-pin nunca devuelve el PIN y las respuestas son opacas', async ({ request }) => {
+  test('/api/validar-pin: grado inexistente devuelve valid: false', async ({ request }) => {
     const res = await request.post('/api/validar-pin', {
-      data: { gradoId: 'grado-inexistente', pin: '0000' }
+      data: { gradoId: 'grado-inexistente-9999', pin: '1234' }
     });
     expect(res.status()).toBe(200);
     const data = await res.json();
+    expect(data.valid).toBe(false);
+  });
+
+  test('/api/validar-pin: respuesta sin PIN almacenado o PIN incorrecto devuelve valid: false y respuestas opacas', async ({ request }) => {
+    const res = await request.post('/api/validar-pin', {
+      data: { gradoId: 'grado-sin-pin', pin: '0000' }
+    });
+    expect(res.status()).toBe(200);
+    const data = await res.json();
+    expect(data.valid).toBe(false);
     expect(data).toHaveProperty('valid');
     expect(data).not.toHaveProperty('pin');
     expect(data).not.toHaveProperty('correctPin');
+    expect(data.valid).not.toBe('0000');
     expect(Object.keys(data)).toEqual(['valid']);
   });
 

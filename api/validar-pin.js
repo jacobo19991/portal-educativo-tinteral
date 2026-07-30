@@ -65,13 +65,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ valid: false });
     }
 
-    const correctPin = data[0].pin;
-    
-    if (correctPin === pin) {
-      return res.status(200).json({ valid: true });
+    const correctPin = data?.[0]?.pin;
+
+    if (
+      typeof correctPin !== "string" ||
+      correctPin.length === 0
+    ) {
+      return res.status(200).json({ valid: false });
     }
 
-    return res.status(200).json({ valid: false });
+    return res.status(200).json({
+      valid: correctPin === pin
+    });
 
   } catch (error) {
     console.error("Error inesperado en validar-pin:", error);
