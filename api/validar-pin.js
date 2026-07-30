@@ -67,7 +67,7 @@ export default async function handler(req, res) {
 
     const correctPin = data[0].pin;
     
-    if (!correctPin || correctPin === pin) {
+    if (correctPin === pin) {
       return res.status(200).json({ valid: true });
     }
 

@@ -33,14 +33,14 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     expect(data.error).toBe('Sesión inválida o expirada.');
   });
 
-  test('/api/admin rechaza acciones desconocidas con 400', async ({ request }) => {
+  test('/api/admin rechaza solicitudes sin token válido sin importar la acción enviada', async ({ request }) => {
     const res = await request.post('/api/admin', {
       headers: { Authorization: 'Bearer token-falso' },
       data: { action: 'ACCION_DESCONOCIDA', payload: {} }
     });
-    expect(res.status()).toBe(400);
+    expect(res.status()).toBe(401);
     const data = await res.json();
-    expect(data.error).toBe('Acción desconocida.');
+    expect(data.error).toBe('Sesión inválida o expirada.');
   });
 
   test('/api/validar-pin rechaza solicitudes inválidas', async ({ request }) => {

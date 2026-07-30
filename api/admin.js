@@ -21,6 +21,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    // 1. Validar Token JWT (Authorization header)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: "Sesión inválida o expirada." });
@@ -28,32 +29,6 @@ export default async function handler(req, res) {
     const userJwt = authHeader.split(' ')[1];
     if (!userJwt) {
       return res.status(401).json({ error: "Sesión inválida o expirada." });
-    }
-
-    if (!req.body || typeof req.body !== 'object') {
-      return res.status(400).json({ error: "Solicitud inválida." });
-    }
-
-    const { action, payload } = req.body;
-    
-    if (typeof action !== 'string') {
-      return res.status(400).json({ error: "Acción inválida." });
-    }
-    
-    const allowedActions = [
-      "createMateria",
-      "updateMateria",
-      "deleteMateria",
-      "createGrado",
-      "deleteGrado"
-    ];
-
-    if (!allowedActions.includes(action)) {
-      return res.status(400).json({ error: "Acción desconocida." });
-    }
-
-    if (!payload || typeof payload !== 'object') {
-      return res.status(400).json({ error: "Payload inválido." });
     }
 
     const url = process.env.SUPABASE_URL;
@@ -65,7 +40,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
     }
 
-    // 1. Validar JWT mediante Supabase Auth
     let userRes;
     try {
       userRes = await fetch(`${url}/auth/v1/user`, {
@@ -113,7 +87,34 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: "Acceso denegado." });
     }
 
-    // 3. Preparar mutación con payload estrictamente validado
+    // 3. Validar req.body y acción (solo para solicitudes autenticadas y autorizadas)
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: "Solicitud inválida." });
+    }
+
+    const { action, payload } = req.body;
+    
+    if (typeof action !== 'string') {
+      return res.status(400).json({ error: "Acción inválida." });
+    }
+    
+    const allowedActions = [
+      "createMateria",
+      "updateMateria",
+      "deleteMateria",
+      "createGrado",
+      "deleteGrado"
+    ];
+
+    if (!allowedActions.includes(action)) {
+      return res.status(400).json({ error: "Acción desconocida." });
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      return res.status(400).json({ error: "Payload inválido." });
+    }
+
+    // 4. Preparar mutación con payload estrictamente validado
     const supabaseHeaders = {
       "apikey": serviceRoleKey,
       "Authorization": `Bearer ${serviceRoleKey}`,
