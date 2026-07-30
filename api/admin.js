@@ -7,7 +7,7 @@ export default async function handler(req, res) {
       res.setHeader("Access-Control-Allow-Origin", "https://portal-educativo-tinteral.vercel.app"); // Default fallback
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -18,19 +18,57 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { password, action, payload } = req.body;
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: "Sesión inválida o expirada." });
+    }
+    const userJwt = authHeader.split(' ')[1];
 
-    // Validación de seguridad (Riesgo Cero)
-    if (!adminPassword || password !== adminPassword) {
-      return res.status(401).json({ error: "No autorizado. Contraseña incorrecta." });
+    if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ error: "Solicitud inválida." });
     }
 
+    const { action, payload } = req.body;
+    
+    if (typeof action !== 'string') {
+        return res.status(400).json({ error: "Acción inválida." });
+    }
+    
     const url = process.env.SUPABASE_URL;
-    const secretKey = process.env.SUPABASE_SECRET_KEY;
+    const anonKey = process.env.SUPABASE_ANON_KEY;
+    const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!url || !secretKey) {
-      return res.status(500).json({ error: "Faltan llaves de Supabase en Vercel (SUPABASE_SECRET_KEY)." });
+    if (!url || !secretKey || !anonKey) {
+      console.error("Configuración incompleta de Supabase.");
+      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+    }
+
+    // 1. Verificar Token
+    const userRes = await fetch(`${url}/auth/v1/user`, {
+        headers: {
+            "apikey": anonKey,
+            "Authorization": `Bearer ${userJwt}`
+        }
+    });
+    const userData = await userRes.json();
+    if (!userRes.ok || !userData?.id) {
+        return res.status(401).json({ error: "Sesión inválida o expirada." });
+    }
+
+    // 2. Verificar Rol Admin
+    const roleRes = await fetch(`${url}/rest/v1/perfiles?id=eq.${userData.id}&select=rol`, {
+        headers: {
+            "apikey": secretKey,
+            "Authorization": `Bearer ${secretKey}`,
+            "Content-Type": "application/json"
+        }
+    });
+    if (!roleRes.ok) {
+        return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+    }
+    const roles = await roleRes.json();
+    if (!roles || roles.length === 0 || roles[0].rol !== 'admin') {
+        return res.status(403).json({ error: "Acceso denegado." });
     }
 
     const supabaseHeaders = {

@@ -46,22 +46,25 @@ El código está estructurado en módulos bajo el Principio de Responsabilidad �
 └── main.css               # Sistema de diseño, tokens y animaciones
 ```
 
-## 🤖 Automatizaciones Actuales
+## 🤖 Automatizaciones y Arquitectura Híbrida
 
-El portal funciona de manera autónoma gracias a las siguientes integraciones:
+El portal funciona de manera autónoma gracias a las siguientes integraciones y flujos de seguridad:
 
-1. **Google Drive como Panel de Control:** El portal usa Drive como fuente de verdad, eliminando la necesidad de paneles administrativos complejos.
-2. **Lectura Dinámica:** Detecta y construye automáticamente el árbol completo de Niveles, Grados, Secciones, Materias y sus recursos (PDFs).
-3. **Sincronización Forzada:** El botón "Actualizar recursos" obliga al sistema a re-escanear Drive en tiempo real para traer el contenido más fresco.
-4. **Validación de Estructura:** El backend detecta archivos o carpetas mal ubicadas y emite *warnings* (advertencias) en consola para facilitar la corrección.
-5. **Sistema de Respaldo Híbrido:** Supabase y los endpoints como `/api/drive` actúan como una sólida red de seguridad (Fallback) en caso de que Drive no responda.
-6. **Script Clonador:** Existe un script auxiliar administrativo en Apps Script para generar rápidamente la estructura de carpetas (Nuevos Grados/Secciones) manteniendo la exactitud de los nombres.
+1. **Gestión Híbrida (Supabase + Drive):** El sistema utiliza **Supabase** exclusivamente para la autenticación de usuarios (JWT), control de roles (`admin`) y gestión del catálogo de materias. Por otro lado, **Google Drive** se mantiene como el sistema de almacenamiento de archivos y PDFs (la verdadera CMS para los docentes).
+2. **Seguridad por Roles (Cero Contraseñas Planas):** Se eliminaron las contraseñas globales. Toda la administración está protegida por Supabase Auth. Solo los usuarios con rol `admin` en la base de datos pueden modificar el catálogo o invocar funciones privilegiadas en los endpoints (validado vía JWT).
+3. **Caché Inteligente (Edge Caching):**
+    *   **Público:** Vercel Edge Network almacena las peticiones de materias y Drive (`s-maxage=60`, `s-maxage=300`) reduciendo el consumo de API y acelerando la carga.
+    *   **Docentes:** Al autenticarse o forzar la actualización, el sistema envía `Cache-Control: no-store` para evadir la caché y traer el contenido fresco de inmediato.
+4. **Validación de Pines Segura:** La validación de acceso a las carpetas privadas ocurre 100% del lado del servidor (`/api/validar-pin.js`), evitando fugas de información en el frontend.
+5. **Google Drive como Panel de Control:** El portal usa Drive como fuente de verdad, eliminando la necesidad de paneles administrativos complejos.
+6. **Sincronización Forzada:** El botón "Actualizar recursos" obliga al sistema a re-escanear Drive en tiempo real para traer el contenido más fresco.
 
 ### 💡 Recomendaciones de Mantenimiento
 
-* **Respetar la Jerarquía en Drive:** Para que el portal lea el contenido, siempre debe seguir el orden estricto: `Carpeta del Grado/Sección` > Carpeta literal llamada `MATERIAS` > `Carpetas de cada materia`.
-* **Uso de la Consola (F12):** Si algo no aparece, el primer paso de mantenimiento es abrir la Consola del navegador, donde el portal reportará cualquier anomalía detectada en Drive.
-* **Preservar el Código Actual:** El portal se encuentra en un estado sumamente estable; cualquier futura mejora de rendimiento debe probarse exhaustivamente en local para no romper el sistema de *fallback*.
+* **Seguridad de Tokens:** Nunca exponer las llaves de Supabase (especialmente la `SERVICE_ROLE_KEY`) en el frontend ni en archivos estáticos. 
+* **Control de Orígenes (CORS):** Todos los endpoints en `/api` están protegidos mediante una variable `ALLOWED_ORIGINS` para prevenir ataques externos o embebidos no autorizados.
+* **Uso de la Consola (F12):** Si algo no aparece, el primer paso de mantenimiento es abrir la Consola del navegador, donde el portal reportará cualquier anomalía detectada.
+* **Preservar el Código Actual:** El portal se encuentra en un estado sumamente estable; cualquier futura mejora de rendimiento debe probarse exhaustivamente en local y pasar las pruebas de Playwright (`npm run test`).
 
 ## 👩‍🏫 Guía Rápida para Docentes
 

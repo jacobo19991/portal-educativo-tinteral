@@ -342,7 +342,6 @@ function adaptarAppsScriptASupabase(tree) {
                     nombre: grado.grado,
                     nombreAbreviado: abreviado,
                     icono: gIcon,
-                    pin: "0000",
                     materias: (grado.materias || []).map((mat, k) => ({
                         id: `as_m_${i}_${j}_${k}`,
                         nombre: mat.materia,

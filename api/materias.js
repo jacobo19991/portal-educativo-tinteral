@@ -1,6 +1,14 @@
 export default async function handler(req, res) {
-  // CORS Headers
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',') 
+    : ['https://portal-educativo-tinteral.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:5500'];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+      res.setHeader("Access-Control-Allow-Origin", "https://portal-educativo-tinteral.vercel.app");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   // Fase 4: Optimización Extrema de Caché Edge (Vercel CDN) - Reducido a 1 minuto
@@ -15,7 +23,8 @@ export default async function handler(req, res) {
     const key = process.env.SUPABASE_ANON_KEY;
 
     if (!url || !key) {
-      return res.status(500).json({ error: "Faltan variables de entorno SUPABASE_URL o SUPABASE_ANON_KEY" });
+      console.error("Faltan variables de entorno en materias.js");
+      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
     }
 
     const headers = {
@@ -25,12 +34,13 @@ export default async function handler(req, res) {
     };
 
     // Hacemos un JOIN directo en Supabase usando select relacional de PostgREST
-    const query = '/rest/v1/niveles?select=id,nombre,icono,clase_color,orden,grados(id,nombre,nombre_abreviado,icono,pin,orden,materias(id,nombre,folder_id,orden))&order=orden.asc&grados.order=orden.asc&grados.materias.order=orden.asc';
+    const query = '/rest/v1/niveles?select=id,nombre,icono,clase_color,orden,grados(id,nombre,nombre_abreviado,icono,orden,materias(id,nombre,folder_id,orden))&order=orden.asc&grados.order=orden.asc&grados.materias.order=orden.asc';
     
     const dbRes = await fetch(`${url}${query}`, { headers });
     
     if (!dbRes.ok) {
-        throw new Error(await dbRes.text());
+        console.error("Error consultando BD en materias.js");
+        return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
     }
     
     const data = await dbRes.json();
@@ -46,7 +56,6 @@ export default async function handler(req, res) {
             nombre: grado.nombre,
             nombreAbreviado: grado.nombre_abreviado,
             icono: grado.icono,
-            pin: grado.pin,
             materias: (grado.materias || []).map(mat => ({
                 id: mat.id,
                 nombre: mat.nombre,
@@ -57,6 +66,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ niveles });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error inesperado en materias.js:", error);
+    res.status(500).json({ error: "El servicio no está disponible temporalmente." });
   }
 }

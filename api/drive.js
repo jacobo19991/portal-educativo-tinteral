@@ -1,5 +1,14 @@
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',') 
+    : ['https://portal-educativo-tinteral.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:5500'];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+      res.setHeader("Access-Control-Allow-Origin", "https://portal-educativo-tinteral.vercel.app");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") {
@@ -16,14 +25,15 @@ export default async function handler(req, res) {
       res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
     }
 
-    if (!folderId) {
-      return res.status(400).json({ error: "Falta folderId" });
+    if (!folderId || typeof folderId !== 'string') {
+      return res.status(400).json({ error: "Solicitud inválida." });
     }
 
     const apiKey = process.env.DRIVE_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: "DRIVE_API_KEY no está configurada" });
+      console.error("DRIVE_API_KEY no está configurada");
+      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
     }
 
     // ==========================================================
@@ -33,6 +43,10 @@ export default async function handler(req, res) {
     const paramsNivel1 = new URLSearchParams({ q: queryNivel1, fields: "files(id,name)", key: apiKey });
 
     const resNivel1 = await fetch(`https://www.googleapis.com/drive/v3/files?${paramsNivel1.toString()}`);
+    if (!resNivel1.ok) {
+        console.error("Error consultando Drive API (Nivel 1)");
+        return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+    }
     const dataNivel1 = await resNivel1.json();
 
     let idNivel2 = folderId; // Por defecto se queda en la materia
@@ -47,6 +61,10 @@ export default async function handler(req, res) {
     const paramsNivel2 = new URLSearchParams({ q: queryNivel2, fields: "files(id,name)", key: apiKey });
 
     const resNivel2 = await fetch(`https://www.googleapis.com/drive/v3/files?${paramsNivel2.toString()}`);
+    if (!resNivel2.ok) {
+        console.error("Error consultando Drive API (Nivel 2)");
+        return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+    }
     const dataNivel2 = await resNivel2.json();
 
     let idFinalParaBuscar = idNivel2; // Por defecto se queda en el nivel 2
@@ -68,21 +86,18 @@ export default async function handler(req, res) {
 
     const driveUrl = `https://www.googleapis.com/drive/v3/files?${paramsArchivos.toString()}`;
     const response = await fetch(driveUrl);
-    const data = await response.json();
-
+    
     if (!response.ok) {
-      return res.status(response.status).json({
-        error: "Google Drive API rechazó la petición",
-        googleError: data
-      });
+      console.error("Error consultando Drive API (Archivos finales)");
+      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
     }
+    
+    const data = await response.json();
 
     return res.status(200).json(data);
 
   } catch (error) {
-    return res.status(500).json({
-      error: "Error interno en api/drive.js",
-      message: error.message
-    });
+    console.error("Error interno en api/drive.js:", error);
+    return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
   }
 }
