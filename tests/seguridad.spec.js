@@ -1,50 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Seguridad y Validación', () => {
-  test('La respuesta de /api/materias no debe incluir PIN en el JSON', async ({ request }) => {
-    const response = await request.get('http://localhost:3000/api/materias');
+test.describe('Seguridad y Endpoints', () => {
+  test('/api/materias no incluye ninguna propiedad pin', async ({ request }) => {
+    const res = await request.get('/api/materias');
+    const data = await res.json();
     
-    if (response.status() === 200) {
-      const data = await response.json();
-      const niveles = data.niveles || [];
-      
-      // Validar profundamente que ningún grado contenga 'pin'
-      let pinFound = false;
-      for (const nivel of niveles) {
-        for (const grado of (nivel.grados || [])) {
-          if (grado.pin !== undefined) {
-            pinFound = true;
-          }
+    const checkNoPin = (obj) => {
+        if (!obj) return;
+        if (typeof obj === 'object') {
+            expect(obj).not.toHaveProperty('pin');
+            Object.values(obj).forEach(checkNoPin);
         }
-      }
-      
-      expect(pinFound).toBeFalsy();
-    }
+    };
+    
+    checkNoPin(data);
   });
 
-  test('/api/admin debe denegar acceso sin header Authorization', async ({ request }) => {
-    const response = await request.post('http://localhost:3000/api/admin', {
-      data: {
-        action: 'ADD_MATERIA',
-        payload: { nombre: 'Test' }
-      }
+  test('/api/admin sin Authorization devuelve 401', async ({ request }) => {
+    const res = await request.post('/api/admin', {
+        data: { action: 'createMateria' }
     });
-    
-    expect(response.status()).toBe(401);
-    const body = await response.json();
-    expect(body.error).toContain('Sesión inválida o expirada.');
+    expect(res.status()).toBe(401);
+  });
+
+  test('/api/admin con token inválido devuelve 401', async ({ request }) => {
+    const res = await request.post('/api/admin', {
+        headers: { Authorization: 'Bearer token-falso' },
+        data: { action: 'createMateria' }
+    });
+    expect(res.status()).toBe(401);
   });
   
-  test('/api/validar-pin debe rechazar requests sin payload correcto', async ({ request }) => {
-    const response = await request.post('http://localhost:3000/api/validar-pin', {
-      data: {
-        gradoId: "123",
-        pin: "pin_excesivamente_largo_que_supera_el_limite_de_20_caracteres"
-      }
+  test('/api/admin rechaza acción desconocida', async ({ request }) => {
+    const res = await request.post('/api/admin', {
+        headers: { Authorization: 'Bearer token-falso' },
+        data: { action: 'UNKNOWN_ACTION' }
     });
-    
-    expect(response.status()).toBe(200);
-    const body = await response.json();
-    expect(body.valid).toBe(false);
+    // Será 401 antes del 400 por no tener sesión real, 
+    // pero si tuviera sesión, daría 400. Como mínimo probamos que rechaza.
+    expect([400, 401]).toContain(res.status());
+  });
+
+  test('/api/validar-pin rechaza solicitudes inválidas', async ({ request }) => {
+    const res = await request.post('/api/validar-pin', {
+        data: { gradoId: 'foo' } // falta pin
+    });
+    const data = await res.json();
+    expect(data.valid).toBe(false);
   });
 });

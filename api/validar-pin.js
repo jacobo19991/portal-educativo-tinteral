@@ -6,8 +6,10 @@ export default async function handler(req, res) {
   
   if (allowedOrigins.includes(origin)) {
       res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
   } else {
       res.setHeader("Access-Control-Allow-Origin", "https://portal-educativo-tinteral.vercel.app");
+      res.setHeader("Vary", "Origin");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -37,11 +39,11 @@ export default async function handler(req, res) {
     }
 
     const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_ANON_KEY;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!url || !key) {
       console.error("Configuración incompleta de Supabase en validar-pin.");
-      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+      return res.status(500).json({ error: "No fue posible validar el acceso." });
     }
 
     const headers = {
@@ -56,7 +58,7 @@ export default async function handler(req, res) {
     
     if (!dbRes.ok) {
         console.error("Error interno al consultar DB.");
-        return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+        return res.status(500).json({ error: "No fue posible validar el acceso." });
     }
     
     const data = await dbRes.json();
@@ -74,7 +76,7 @@ export default async function handler(req, res) {
     }
 
   } catch (error) {
-    console.error("Error inesperado en validar-pin.");
-    return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
+    console.error("Error inesperado en validar-pin:", error);
+    return res.status(500).json({ error: "No fue posible validar el acceso." });
   }
 }

@@ -1,14 +1,16 @@
 {
   "name": "portal-educativo",
   "version": "1.0.0",
-  "description": "![Estado](https://img.shields.io/badge/Estado-Producci%C3%B3n-success?style=for-the-badge) ![Arquitectura](https://img.shields.io/badge/Arquitectura-Serverless-blue?style=for-the-badge) ![UI](https://img.shields.io/badge/UI-Vanilla_JS_%2B_CSS3-orange?style=for-the-badge)",
+  "description": "Portal educativo para consultar niveles, grados, materias y recursos académicos mediante Supabase y Google Drive.",
   "main": "sw.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
   },
   "repository": {
     "type": "git",

@@ -8,7 +8,7 @@ Una plataforma web de alto rendimiento, escalable y segura, diseñada específic
 
 ## 🎯 Filosofía del Proyecto: "Simple para Docentes, Profesional Internamente"
 
-Después de un exhaustivo análisis UX, se determinó que la mejor interfaz para los docentes es la que ya conocen. Por ello, el portal elimina cualquier complejidad administrativa (paneles, logins, tokens) y actúa como un **puente directo hacia Google Drive**, permitiendo a los profesores subir tareas en sus carpetas habituales, las cuales se reflejan automáticamente en el portal de los estudiantes.
+Los estudiantes y docentes acceden a los recursos mediante una interfaz sencilla. Las funciones internas de gestión están protegidas mediante Supabase Auth, tokens JWT y validación de roles administrativos. El portal actúa también como un **puente directo hacia Google Drive**, permitiendo a los profesores subir tareas en sus carpetas habituales, las cuales se reflejan automáticamente en el portal de los estudiantes.
 
 ## ✨ Características Principales
 
