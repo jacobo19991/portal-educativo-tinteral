@@ -1,16 +1,13 @@
 export default async function handler(req, res) {
   const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',') 
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
     : ['https://portal-educativo-tinteral.vercel.app', 'http://localhost:3000', 'http://127.0.0.1:5500'];
   const origin = req.headers.origin;
   
-  if (allowedOrigins.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-      res.setHeader("Vary", "Origin");
-  } else {
-      res.setHeader("Access-Control-Allow-Origin", "https://portal-educativo-tinteral.vercel.app");
-      res.setHeader("Vary", "Origin");
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
+  res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Cache-Control", "no-store");
@@ -24,18 +21,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { gradoId, pin } = req.body;
-
-    if (!gradoId || !pin) {
+    if (!req.body || typeof req.body !== 'object') {
       return res.status(200).json({ valid: false });
     }
 
-    if (typeof gradoId !== 'string' && typeof gradoId !== 'number') {
-        return res.status(200).json({ valid: false });
+    const { gradoId, pin } = req.body;
+
+    if (!gradoId || (typeof gradoId !== 'string' && typeof gradoId !== 'number')) {
+      return res.status(200).json({ valid: false });
     }
 
-    if (typeof pin !== 'string' || pin.length > 20) {
-        return res.status(200).json({ valid: false });
+    if (!pin || typeof pin !== 'string' || pin.trim() === '' || pin.length > 20) {
+      return res.status(200).json({ valid: false });
     }
 
     const url = process.env.SUPABASE_URL;
@@ -43,7 +40,7 @@ export default async function handler(req, res) {
 
     if (!url || !key) {
       console.error("Configuración incompleta de Supabase en validar-pin.");
-      return res.status(500).json({ error: "No fue posible validar el acceso." });
+      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
     }
 
     const headers = {
@@ -52,31 +49,32 @@ export default async function handler(req, res) {
       "Content-Type": "application/json"
     };
 
-    const query = `/rest/v1/grados?id=eq.${gradoId}&select=pin`;
+    const query = `/rest/v1/grados?id=eq.${encodeURIComponent(gradoId)}&select=pin`;
     
-    const dbRes = await fetch(`${url}${query}`, { headers });
-    
-    if (!dbRes.ok) {
-        console.error("Error interno al consultar DB.");
-        return res.status(500).json({ error: "No fue posible validar el acceso." });
+    let data = [];
+    try {
+      const dbRes = await fetch(`${url}${query}`, { headers });
+      if (dbRes.ok) {
+        data = await dbRes.json();
+      }
+    } catch (dbErr) {
+      console.error("Error al consultar la base de datos en validar-pin:", dbErr);
     }
     
-    const data = await dbRes.json();
-    
-    if (!data || data.length === 0) {
-        return res.status(200).json({ valid: false });
+    if (!Array.isArray(data) || data.length === 0) {
+      return res.status(200).json({ valid: false });
     }
 
     const correctPin = data[0].pin;
     
     if (!correctPin || correctPin === pin) {
-        return res.status(200).json({ valid: true });
-    } else {
-        return res.status(200).json({ valid: false });
+      return res.status(200).json({ valid: true });
     }
+
+    return res.status(200).json({ valid: false });
 
   } catch (error) {
     console.error("Error inesperado en validar-pin:", error);
-    return res.status(500).json({ error: "No fue posible validar el acceso." });
+    return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
   }
 }

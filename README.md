@@ -1,108 +1,60 @@
 # 🏫 Portal Educativo - C.E. El Tinteral
 
-![Estado](https://img.shields.io/badge/Estado-Producci%C3%B3n-success?style=for-the-badge)
-![Arquitectura](https://img.shields.io/badge/Arquitectura-Serverless-blue?style=for-the-badge)
-![UI](https://img.shields.io/badge/UI-Vanilla_JS_%2B_CSS3-orange?style=for-the-badge)
+Una plataforma web de alto rendimiento, escalable y segura, diseñada para gestionar recursos educativos mediante una interfaz amigable y un backend serverless robusto.
 
-Una plataforma web de alto rendimiento, escalable y segura, diseñada específicamente para gestionar recursos educativos. Construida bajo el paradigma "Mobile-First" y arquitectura Serverless, enfocada en la simplicidad máxima para los docentes y la excelencia técnica interna.
+## 🎯 Descripción General
 
-## 🎯 Filosofía del Proyecto: "Simple para Docentes, Profesional Internamente"
+Los estudiantes y docentes acceden a los recursos mediante una interfaz sencilla. Las funciones internas de gestión están protegidas mediante Supabase Auth, tokens JWT y validación de roles administrativos. El portal integra Google Drive para la consulta y visualización de recursos educativos de forma eficiente.
 
-Los estudiantes y docentes acceden a los recursos mediante una interfaz sencilla. Las funciones internas de gestión están protegidas mediante Supabase Auth, tokens JWT y validación de roles administrativos. El portal actúa también como un **puente directo hacia Google Drive**, permitiendo a los profesores subir tareas en sus carpetas habituales, las cuales se reflejan automáticamente en el portal de los estudiantes.
+## ✨ Funciones e Implementaciones Clave
 
-## ✨ Características Principales
+*   **Autenticación y Autorización:** Implementada mediante Supabase Auth y JSON Web Tokens (JWT). Validación estricta de rol `admin` consultando la tabla `perfiles` en el servidor.
+*   **Endpoints Administrativos Protégetes (`/api/admin.js`):** Requiere encabezado `Authorization: Bearer <TOKEN>`, valida usuario y rol antes de realizar operaciones de administración del catálogo (materias y grados).
+*   **Validación Segura de PIN (`/api/validar-pin.js`):** Endpoint serverless que recibe `gradoId` y `pin`, valida los datos en servidor con `SUPABASE_SERVICE_ROLE_KEY` y devuelve respuestas opacas (`{ "valid": true }` o `{ "valid": false }`), sin retornar jamás el PIN.
+*   **Control Estricto de Orígenes (CORS):** Todos los endpoints filtran peticiones mediante la variable de entorno `ALLOWED_ORIGINS`, aplicando encabezados `Vary: Origin` y rechazando el uso de `Access-Control-Allow-Origin: *`.
+*   **Manejo de Errores e Inocuidad:** Los errores técnicos se registran únicamente con `console.error` en el servidor y nunca devuelven detalles o trazas al cliente, entregando mensajes genéricos y seguros.
+*   **Pruebas Automatizadas con Playwright:** Suite completa de pruebas end-to-end e integración (`tests/portal-publico.spec.js` y `tests/seguridad.spec.js`) para verificar carga pública, filtrado en buscador, vista móvil y barreras de seguridad en endpoints.
+*   **Caché Optimizado:** Encabezados `Cache-Control` adaptados por endpoint (no-store en peticiones sensibles y s-maxage en recursos públicos).
 
-*   **📱 Diseño Mobile-First & Glassmorphism:** Interfaz de usuario premium optimizada para teléfonos móviles, con efectos translúcidos, animaciones fluidas y modales tipo "Bottom Sheet".
-*   **🚀 Carga Ultrarrápida (Zero-Config):** Sin empaquetadores complejos. HTML semántico, CSS puro y módulos ES6 nativos, respaldados por la caché de Vercel Edge Network.
-*   **♿ Accesibilidad (WCAG):** Navegación completa por teclado, etiquetas ARIA, Focus Traps para ventanas emergentes y cierre con `ESC`.
-*   **☁️ Edge Computing & Backend Seguro:** Las consultas a la base de datos están protegidas por funciones *Serverless* en Vercel (`api/materias.js`), blindando las API Keys de Supabase.
-*   **🔄 Sincronización Automática:** Integración transparente con Google Drive para visualización de PDFs sin descargas forzadas en móviles.
-    *   *Nota de Rendimiento:* La acción de actualizar recursos puede tomar alrededor de 15 segundos en reflejar cambios nuevos, ya que el sistema realiza un escaneo exhaustivo y en tiempo real de toda la estructura de Google Drive para asegurar precisión.
+## 🛠️ Variables de Entorno
 
-## 🛠️ Stack Tecnológico
+El backend utiliza las siguientes variables de entorno:
 
-*   **Frontend:** Vanilla JavaScript (ES Modules), CSS3 Puro, HTML5 Semántico.
-*   **Backend / API:** Vercel Edge Functions (Serverless Node.js).
-*   **Base de Datos:** Supabase (PostgreSQL + PostgREST).
-*   **Iconografía:** Lucide Icons.
-*   **Almacenamiento:** Google Drive.
+*   `SUPABASE_URL`: URL principal de Supabase.
+*   `SUPABASE_ANON_KEY`: Clave pública de Supabase para consultas anónimas.
+*   `SUPABASE_SERVICE_ROLE_KEY`: Clave del servidor (Service Role) para operaciones privilegiadas.
+*   `ALLOWED_ORIGINS`: Lista separada por comas de dominios autorizados para CORS.
+*   `GOOGLE_DRIVE_FOLDER_ID`: Identificador de la carpeta raíz en Google Drive.
+*   `GOOGLE_SERVICE_ACCOUNT_EMAIL`: Email de la cuenta de servicio de Google.
+*   `GOOGLE_PRIVATE_KEY`: Clave privada de la cuenta de servicio.
 
-## 📂 Arquitectura del Proyecto
+## 📜 Scripts Disponibles (`package.json`)
 
-El código está estructurado en módulos bajo el Principio de Responsabilidad Única (SOLID) y Clean Code:
+*   `npm test`: Ejecuta las pruebas de Playwright (`playwright test`).
+*   `npm run test:ui`: Ejecuta Playwright en modo UI interactivo.
+*   `npm run test:headed`: Ejecuta las pruebas con navegador visible.
+*   `npm run test:report`: Muestra el reporte HTML de Playwright.
+
+## 📂 Estructura del Proyecto
 
 ```text
 /
-├── api/                   # Backend Serverless (Vercel)
-│   ├── drive.js           # Proxy seguro de lectura de Google Drive
-│   └── materias.js        # Endpoint de carga del catálogo desde Supabase
-├── src/                   # Frontend Modular
-│   ├── components/        # Componentes UI (Buscador, Modales, Catálogo)
-│   ├── config/            # Variables globales (AppState)
-│   ├── data/              # Datos locales de fallback
-│   ├── utils/             # Funciones de ayuda (Debounce, Fetchers)
-│   └── main.js            # Orquestador público principal
-├── index.html             # Punto de entrada único del portal
-└── main.css               # Sistema de diseño, tokens y animaciones
+├── api/
+│   ├── admin.js           # Endpoint administrativo protegido por JWT y rol admin
+│   ├── drive.js           # Proxy seguro de consulta a Google Drive
+│   ├── materias.js        # Consulta del catálogo de materias y niveles
+│   ├── usuarios.js        # Creación de usuarios administrativos
+│   └── validar-pin.js     # Validador serverless de PIN para grados
+├── src/                   # Módulos frontend Vanilla JS
+│   ├── components/        # Buscador, catálogo y modales
+│   ├── config/            # Configuración y estado global
+│   ├── data/              # Fallback local de datos
+│   ├── utils/             # Utilidades de red
+│   └── main.js            # Orquestador del cliente
+├── tests/
+│   ├── portal-publico.spec.js # Pruebas e2e de interfaz pública
+│   └── seguridad.spec.js      # Pruebas de seguridad y endpoints
+├── index.html             # Interfaz principal
+├── package.json           # Dependencias y scripts de prueba
+└── README.md              # Documentación del proyecto
 ```
-
-## 🤖 Automatizaciones y Arquitectura Híbrida
-
-El portal funciona de manera autónoma gracias a las siguientes integraciones y flujos de seguridad:
-
-1. **Gestión Híbrida (Supabase + Drive):** El sistema utiliza **Supabase** exclusivamente para la autenticación de usuarios (JWT), control de roles (`admin`) y gestión del catálogo de materias. Por otro lado, **Google Drive** se mantiene como el sistema de almacenamiento de archivos y PDFs (la verdadera CMS para los docentes).
-2. **Seguridad por Roles (Cero Contraseñas Planas):** Se eliminaron las contraseñas globales. Toda la administración está protegida por Supabase Auth. Solo los usuarios con rol `admin` en la base de datos pueden modificar el catálogo o invocar funciones privilegiadas en los endpoints (validado vía JWT).
-3. **Caché Inteligente (Edge Caching):**
-    *   **Público:** Vercel Edge Network almacena las peticiones de materias y Drive (`s-maxage=60`, `s-maxage=300`) reduciendo el consumo de API y acelerando la carga.
-    *   **Docentes:** Al autenticarse o forzar la actualización, el sistema envía `Cache-Control: no-store` para evadir la caché y traer el contenido fresco de inmediato.
-4. **Validación de Pines Segura:** La validación de acceso a las carpetas privadas ocurre 100% del lado del servidor (`/api/validar-pin.js`), evitando fugas de información en el frontend.
-5. **Google Drive como Panel de Control:** El portal usa Drive como fuente de verdad, eliminando la necesidad de paneles administrativos complejos.
-6. **Sincronización Forzada:** El botón "Actualizar recursos" obliga al sistema a re-escanear Drive en tiempo real para traer el contenido más fresco.
-
-### 💡 Recomendaciones de Mantenimiento
-
-* **Seguridad de Tokens:** Nunca exponer las llaves de Supabase (especialmente la `SERVICE_ROLE_KEY`) en el frontend ni en archivos estáticos. 
-* **Control de Orígenes (CORS):** Todos los endpoints en `/api` están protegidos mediante una variable `ALLOWED_ORIGINS` para prevenir ataques externos o embebidos no autorizados.
-* **Uso de la Consola (F12):** Si algo no aparece, el primer paso de mantenimiento es abrir la Consola del navegador, donde el portal reportará cualquier anomalía detectada.
-* **Preservar el Código Actual:** El portal se encuentra en un estado sumamente estable; cualquier futura mejora de rendimiento debe probarse exhaustivamente en local y pasar las pruebas de Playwright (`npm run test`).
-
-## 👩‍🏫 Guía Rápida para Docentes
-
-El proceso de actualización del portal es extremadamente sencillo:
-
-1. Ingresar a `https://portal-educativo-tinteral.vercel.app`.
-2. Bajar hasta el final de la página y presionar el botón **"Acceso para Docentes"**.
-3. Se abrirá la carpeta institucional en Google Drive.
-4. Navegar al grado y materia correspondiente.
-5. Subir o modificar los archivos PDF.
-6. **¡Listo!** El portal de los alumnos se actualizará automáticamente.
-
-## 🚀 Instalación y Despliegue Local
-
-Al usar Vanilla JS y Serverless, no requieres un proceso de "build" complejo.
-
-1. **Clonar el repositorio:**
-   ```bash
-   git clone https://github.com/jacobo19991/portal-educativo-tinteral.git
-   cd portal-educativo-tinteral
-   ```
-2. **Ejecución Local:**
-   Puedes usar la CLI de Vercel para simular el backend localmente y cargar los datos de Supabase:
-   ```bash
-   npm i -g vercel
-   vercel dev
-   ```
-
-### 🐳 Alternativa: Contenedor Docker (Solo Frontend)
-Para entornos de nube privada o VPS, puedes containerizar la interfaz gráfica usando Nginx:
-
-```bash
-docker build -t portal-tinteral .
-docker run -p 8080:80 -d portal-tinteral
-```
-*El frontend estará disponible en `http://localhost:8080`.*
-
-## 👨‍💻 Autor y Mantenimiento
-
-Desarrollado y consolidado mediante refactorización incremental segura.
-El proyecto ha sido despojado de cualquier sobreingeniería, resultando en una base de código limpia, robusta y fácil de mantener a largo plazo por cualquier desarrollador Frontend.

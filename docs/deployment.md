@@ -7,9 +7,9 @@ Debes configurar las siguientes variables en el dashboard de Vercel (Settings ->
 
 - `SUPABASE_URL`: La URL base de tu proyecto en Supabase (ej: `https://[ID].supabase.co`).
 - `SUPABASE_ANON_KEY`: La llave pública (Publishable) para acceso de lectura del frontend a las materias.
-- `SUPABASE_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY`: Llave secreta (Service Role) utilizada **EXCLUSIVAMENTE** por el backend para ignorar RLS en operaciones administrativas. Jamás se envía al cliente.
+- `SUPABASE_SERVICE_ROLE_KEY`: Llave secreta (Service Role) utilizada **EXCLUSIVAMENTE** por el backend para la consulta de perfiles de administración y operaciones seguras en servidor. Jamás se envía al cliente.
 - `DRIVE_API_KEY`: Clave de la API de Google Drive para la consulta de carpetas.
-- `ADMIN_PASSWORD`: La contraseña configurada para proteger el acceso administrativo de Vercel a través de la API.
+- `ALLOWED_ORIGINS`: Lista separada por comas de los orígenes autorizados para peticiones CORS.
 
 ## 2. Archivos y Carpetas Restringidas
 Las siguientes ubicaciones **JAMÁS** deben subirse a repositorios públicos:

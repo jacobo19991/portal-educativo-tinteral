@@ -1,16 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Seguridad y Endpoints', () => {
-  test('/api/materias no incluye ninguna propiedad pin', async ({ request }) => {
+test.describe('Pruebas de Seguridad y Endpoints', () => {
+  test('/api/materias no incluye ninguna propiedad pin, ni siquiera de forma anidada', async ({ request }) => {
     const res = await request.get('/api/materias');
     const data = await res.json();
     
     const checkNoPin = (obj) => {
-        if (!obj) return;
-        if (typeof obj === 'object') {
-            expect(obj).not.toHaveProperty('pin');
-            Object.values(obj).forEach(checkNoPin);
-        }
+      if (!obj || typeof obj !== 'object') return;
+      expect(obj).not.toHaveProperty('pin');
+      Object.values(obj).forEach(checkNoPin);
     };
     
     checkNoPin(data);
@@ -18,34 +16,88 @@ test.describe('Seguridad y Endpoints', () => {
 
   test('/api/admin sin Authorization devuelve 401', async ({ request }) => {
     const res = await request.post('/api/admin', {
-        data: { action: 'createMateria' }
+      data: { action: 'createMateria', payload: { nombre: 'Test', grado_id: 1 } }
     });
     expect(res.status()).toBe(401);
+    const data = await res.json();
+    expect(data.error).toBe('Sesión inválida o expirada.');
   });
 
   test('/api/admin con token inválido devuelve 401', async ({ request }) => {
     const res = await request.post('/api/admin', {
-        headers: { Authorization: 'Bearer token-falso' },
-        data: { action: 'createMateria' }
+      headers: { Authorization: 'Bearer token-falso-123' },
+      data: { action: 'createMateria', payload: { nombre: 'Test', grado_id: 1 } }
     });
     expect(res.status()).toBe(401);
+    const data = await res.json();
+    expect(data.error).toBe('Sesión inválida o expirada.');
   });
-  
-  test('/api/admin rechaza acción desconocida', async ({ request }) => {
+
+  test('/api/admin rechaza acciones desconocidas con 400', async ({ request }) => {
     const res = await request.post('/api/admin', {
-        headers: { Authorization: 'Bearer token-falso' },
-        data: { action: 'UNKNOWN_ACTION' }
+      headers: { Authorization: 'Bearer token-falso' },
+      data: { action: 'ACCION_DESCONOCIDA', payload: {} }
     });
-    // Será 401 antes del 400 por no tener sesión real, 
-    // pero si tuviera sesión, daría 400. Como mínimo probamos que rechaza.
-    expect([400, 401]).toContain(res.status());
+    expect(res.status()).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBe('Acción desconocida.');
   });
 
   test('/api/validar-pin rechaza solicitudes inválidas', async ({ request }) => {
     const res = await request.post('/api/validar-pin', {
-        data: { gradoId: 'foo' } // falta pin
+      data: { gradoId: 'g1' }
     });
+    expect(res.status()).toBe(200);
     const data = await res.json();
     expect(data.valid).toBe(false);
+
+    const resPinLargo = await request.post('/api/validar-pin', {
+      data: { gradoId: 'g1', pin: '123456789012345678901' }
+    });
+    expect(resPinLargo.status()).toBe(200);
+    const dataPinLargo = await resPinLargo.json();
+    expect(dataPinLargo.valid).toBe(false);
+  });
+
+  test('/api/validar-pin nunca devuelve el PIN y las respuestas son opacas', async ({ request }) => {
+    const res = await request.post('/api/validar-pin', {
+      data: { gradoId: 'grado-inexistente', pin: '0000' }
+    });
+    expect(res.status()).toBe(200);
+    const data = await res.json();
+    expect(data).toHaveProperty('valid');
+    expect(data).not.toHaveProperty('pin');
+    expect(data).not.toHaveProperty('correctPin');
+    expect(Object.keys(data)).toEqual(['valid']);
+  });
+
+  test('Los endpoints administrativos y de PIN no usan CORS abierto (*)', async ({ request }) => {
+    const resAdmin = await request.fetch('/api/admin', {
+      method: 'OPTIONS',
+      headers: { Origin: 'http://sitio-malicioso.com' }
+    });
+    const corsAdmin = resAdmin.headers()['access-control-allow-origin'];
+    expect(corsAdmin).not.toBe('*');
+    expect(corsAdmin).not.toBe('http://sitio-malicioso.com');
+
+    const resPin = await request.fetch('/api/validar-pin', {
+      method: 'OPTIONS',
+      headers: { Origin: 'http://sitio-malicioso.com' }
+    });
+    const corsPin = resPin.headers()['access-control-allow-origin'];
+    expect(corsPin).not.toBe('*');
+    expect(corsPin).not.toBe('http://sitio-malicioso.com');
+  });
+
+  test('Los errores no exponen detalles internos técnicos', async ({ request }) => {
+    const res = await request.post('/api/admin', {
+      headers: { Authorization: 'Bearer token-invalid' },
+      data: { action: 'createMateria', payload: { nombre: 'Test', grado_id: 1 } }
+    });
+    const text = await res.text();
+    expect(text).not.toContain('stack');
+    expect(text).not.toContain('PostgREST');
+    expect(text).not.toContain('TypeError');
+    expect(text).not.toContain('SUPABASE_');
   });
 });
