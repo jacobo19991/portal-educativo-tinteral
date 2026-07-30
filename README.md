@@ -4,17 +4,16 @@ Una plataforma web de alto rendimiento, escalable y segura, diseñada para gesti
 
 ## 🎯 Descripción General
 
-Los estudiantes y docentes acceden a los recursos mediante una interfaz sencilla. Las funciones internas de gestión están protegidas mediante Supabase Auth, tokens JWT y validación de roles administrativos. El portal integra Google Drive para la consulta y visualización de recursos educativos de forma eficiente.
+El portal es completamente público para estudiantes y padres de familia, permitiendo consultar niveles, grados, materias, guías y horarios de forma libre y rápida. Unicamente las opciones de la sección **“Herramientas Docentes”** (*Abrir Drive* y *Manual de uso*) están protegidas por un PIN docente validado exclusivamente en el backend (`/api/validar-pin-docente.js`). Las funciones administrativas internas están protegidas mediante Supabase Auth, tokens JWT y validación de roles.
 
 ## ✨ Funciones e Implementaciones Clave
 
-*   **Autenticación y Autorización:** Implementada mediante Supabase Auth y JSON Web Tokens (JWT). Validación estricta de rol `admin` consultando la tabla `perfiles` en el servidor.
-*   **Endpoints Administrativos Protégetes (`/api/admin.js`):** Requiere encabezado `Authorization: Bearer <TOKEN>`, valida usuario y rol antes de realizar operaciones de administración del catálogo (materias y grados).
-*   **Validación Segura de PIN (`/api/validar-pin.js`):** Endpoint serverless que recibe `gradoId` y `pin`, valida los datos en servidor con `SUPABASE_SERVICE_ROLE_KEY` y devuelve respuestas opacas (`{ "valid": true }` o `{ "valid": false }`), sin retornar jamás el PIN.
+*   **Acceso Público para Alumnos:** Todo el catálogo académico, materias, asignaturas y recursos semanales son de acceso libre.
+*   **Protección de Herramientas Docentes (`/api/validar-pin-docente.js`):** Las opciones "Abrir Drive" y "Manual de uso" requieren ingresar el PIN docente. La validación se realiza exclusivamente en servidor consultando la variable `DOCENTES_PIN`, respondiendo `{ "valid": true }` o `{ "valid": false }` sin exponer secretos al cliente.
+*   **Autenticación y Autorización Administrativa:** Implementada mediante Supabase Auth y JSON Web Tokens (JWT). Validación estricta de rol `admin` consultando la tabla `perfiles` en el servidor (`/api/admin.js`).
 *   **Control Estricto de Orígenes (CORS):** Todos los endpoints filtran peticiones mediante la variable de entorno `ALLOWED_ORIGINS`, aplicando encabezados `Vary: Origin` y rechazando el uso de `Access-Control-Allow-Origin: *`.
 *   **Manejo de Errores e Inocuidad:** Los errores técnicos se registran únicamente con `console.error` en el servidor y nunca devuelven detalles o trazas al cliente, entregando mensajes genéricos y seguros.
-*   **Pruebas Automatizadas con Playwright:** Suite completa de pruebas end-to-end e integración (`tests/portal-publico.spec.js` y `tests/seguridad.spec.js`) para verificar carga pública, filtrado en buscador, vista móvil y barreras de seguridad en endpoints.
-*   **Caché Optimizado:** Encabezados `Cache-Control` adaptados por endpoint (no-store en peticiones sensibles y s-maxage en recursos públicos).
+*   **Pruebas Automatizadas con Playwright:** Suite completa de pruebas end-to-end e integración (`tests/portal-publico.spec.js` y `tests/seguridad.spec.js`) para verificar carga pública, filtrado en buscador, vista móvil, validación de PIN docente y barreras de seguridad en endpoints.
 
 ## 🛠️ Variables de Entorno
 
@@ -24,6 +23,7 @@ El backend utiliza las siguientes variables de entorno:
 *   `SUPABASE_ANON_KEY`: Clave pública de Supabase para consultas anónimas.
 *   `SUPABASE_SERVICE_ROLE_KEY`: Clave del servidor (Service Role) para operaciones privilegiadas.
 *   `ALLOWED_ORIGINS`: Lista separada por comas de dominios autorizados para CORS.
+*   `DOCENTES_PIN`: PIN de seguridad para acceso a las herramientas docentes.
 *   `GOOGLE_DRIVE_FOLDER_ID`: Identificador de la carpeta raíz en Google Drive.
 *   `GOOGLE_SERVICE_ACCOUNT_EMAIL`: Email de la cuenta de servicio de Google.
 *   `GOOGLE_PRIVATE_KEY`: Clave privada de la cuenta de servicio.
@@ -40,21 +40,22 @@ El backend utiliza las siguientes variables de entorno:
 ```text
 /
 ├── api/
-│   ├── admin.js           # Endpoint administrativo protegido por JWT y rol admin
-│   ├── drive.js           # Proxy seguro de consulta a Google Drive
-│   ├── materias.js        # Consulta del catálogo de materias y niveles
-│   ├── usuarios.js        # Creación de usuarios administrativos
-│   └── validar-pin.js     # Validador serverless de PIN para grados
-├── src/                   # Módulos frontend Vanilla JS
-│   ├── components/        # Buscador, catálogo y modales
-│   ├── config/            # Configuración y estado global
-│   ├── data/              # Fallback local de datos
-│   ├── utils/             # Utilidades de red
-│   └── main.js            # Orquestador del cliente
+│   ├── admin.js                 # Endpoint administrativo protegido por JWT y rol admin
+│   ├── drive.js                 # Proxy seguro de consulta a Google Drive
+│   ├── materias.js              # Consulta del catálogo de materias y niveles
+│   ├── usuarios.js              # Creación de usuarios administrativos
+│   ├── validar-pin.js           # Validador serverless de PIN para grados
+│   └── validar-pin-docente.js   # Validador serverless de PIN para herramientas docentes
+├── src/                         # Módulos frontend Vanilla JS
+│   ├── components/              # Buscador, catálogo, modales y PIN docente
+│   ├── config/                  # Configuración y estado global
+│   ├── data/                    # Fallback local de datos
+│   ├── utils/                   # Utilidades de red
+│   └── main.js                  # Orquestador del cliente
 ├── tests/
-│   ├── portal-publico.spec.js # Pruebas e2e de interfaz pública
-│   └── seguridad.spec.js      # Pruebas de seguridad y endpoints
-├── index.html             # Interfaz principal
-├── package.json           # Dependencias y scripts de prueba
-└── README.md              # Documentación del proyecto
+│   ├── portal-publico.spec.js   # Pruebas e2e de interfaz pública
+│   └── seguridad.spec.js        # Pruebas de seguridad y endpoints
+├── index.html                   # Interfaz principal
+├── package.json                 # Dependencias y scripts de prueba
+└── README.md                    # Documentación del proyecto
 ```

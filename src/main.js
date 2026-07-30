@@ -3,6 +3,7 @@ import './data/materiasData.js';
 import { renderNiveles } from './components/materias.js';
 import './components/buscador.js';
 import './components/overlays.js';
+import './components/docentesPinModal.js';
 
 import { fetchWithTimeout } from './utils/fetchUtils.js';
 

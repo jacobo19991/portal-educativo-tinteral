@@ -85,6 +85,24 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     expect(Object.keys(data)).toEqual(['valid']);
   });
 
+  test('/api/validar-pin-docente valida PIN docente en servidor de forma segura', async ({ request }) => {
+    const resBad = await request.post('/api/validar-pin-docente', {
+      data: { pin: '0000' }
+    });
+    expect(resBad.status()).toBe(200);
+    const dataBad = await resBad.json();
+    expect(dataBad.valid).toBe(false);
+    expect(Object.keys(dataBad)).toEqual(['valid']);
+
+    const resGood = await request.post('/api/validar-pin-docente', {
+      data: { pin: '1234' }
+    });
+    expect(resGood.status()).toBe(200);
+    const dataGood = await resGood.json();
+    expect(dataGood.valid).toBe(true);
+    expect(Object.keys(dataGood)).toEqual(['valid']);
+  });
+
   test('Los endpoints administrativos y de PIN no usan CORS abierto (*)', async ({ request }) => {
     const resAdmin = await request.fetch('/api/admin', {
       method: 'OPTIONS',
@@ -94,7 +112,7 @@ test.describe('Pruebas de Seguridad y Endpoints', () => {
     expect(corsAdmin).not.toBe('*');
     expect(corsAdmin).not.toBe('http://sitio-malicioso.com');
 
-    const resPin = await request.fetch('/api/validar-pin', {
+    const resPin = await request.fetch('/api/validar-pin-docente', {
       method: 'OPTIONS',
       headers: { Origin: 'http://sitio-malicioso.com' }
     });

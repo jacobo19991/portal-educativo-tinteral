@@ -37,6 +37,30 @@ test.describe('Portal Público', () => {
     await expect(header).toBeVisible();
   });
 
+  test('Herramientas Docentes: Abrir Drive y Manual de uso solicitan PIN docente', async ({ page }) => {
+    await page.goto('/');
+    
+    const btnDrive = page.locator('#btn-docente-drive');
+    await expect(btnDrive).toBeVisible();
+    await btnDrive.click();
+
+    const modalPin = page.locator('#overlayPinDocente');
+    await expect(modalPin).toHaveClass(/visible/);
+
+    const inputPin = page.locator('#inputPinDocente');
+    await expect(inputPin).toBeVisible();
+
+    await inputPin.fill('0000');
+    await page.locator('#btnSubmitPinDocente').click();
+
+    const errorBanner = page.locator('#errorPinDocente');
+    await expect(errorBanner).not.toHaveClass(/hidden/);
+    await expect(errorBanner).toContainText('PIN incorrecto');
+
+    await page.locator('#btnCancelarPinDocente').click();
+    await expect(modalPin).not.toHaveClass(/visible/);
+  });
+
   test('Ausencia de errores críticos no controlados en consola', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));

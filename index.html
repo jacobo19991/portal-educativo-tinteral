@@ -139,11 +139,11 @@
     <section class="docentes-panel" aria-label="Herramientas para docentes" role="region">
       <h3 class="docentes-panel-titulo"><i data-lucide="settings" class="icon-sm icon-align"></i> Herramientas Docentes</h3>
       <div class="docentes-grid">
-        <a href="https://drive.google.com/drive/folders/1T1rYmRMQ8rkQi5JxhFPv-tY2sdpotUdx" target="_blank" rel="noopener noreferrer" class="btn-docente" aria-label="Abrir Google Drive" role="button">
+        <a href="https://drive.google.com/drive/folders/1T1rYmRMQ8rkQi5JxhFPv-tY2sdpotUdx" id="btn-docente-drive" target="_blank" rel="noopener noreferrer" class="btn-docente" aria-label="Abrir Google Drive" role="button">
           <i data-lucide="folder-open"></i>
           <span>Abrir Drive</span>
         </a>
-        <a href="./docs/MANUAL_DE_USO.md" class="btn-docente" aria-label="Ver manual de uso" role="button">
+        <a href="./docs/MANUAL_DE_USO.md" id="btn-docente-manual" class="btn-docente" aria-label="Ver manual de uso" role="button">
           <i data-lucide="book-open"></i>
           <span>Manual de uso</span>
         </a>
@@ -288,6 +288,39 @@
       <span>Vista previa desde Google Drive</span>
       <span class="dot">·</span>
       <span>Descarga disponible <i data-lucide="download" class="icon-sm icon-align"></i></span>
+    </div>
+  </div>
+
+  <!-- Modal de PIN Docente -->
+  <div class="overlay" id="overlayPinDocente" aria-modal="true" role="dialog" aria-labelledby="pinDocenteTitulo">
+    <div class="sheet" style="max-width: 440px;">
+      <div class="handle"></div>
+      <div class="sheet-hdr">
+        <h2 class="sheet-titulo" id="pinDocenteTitulo">Acceso Docente</h2>
+        <button class="cerrar btn-cerrar-pin-docente" id="btnCerrarPinDocente" aria-label="Cerrar modal">✕</button>
+      </div>
+      <p class="sheet-sub" style="margin-bottom: 16px;">Ingrese el PIN docente para acceder</p>
+      
+      <form id="formPinDocente" style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label for="inputPinDocente" style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-main);">PIN de seguridad</label>
+          <input type="password" id="inputPinDocente" maxlength="20" placeholder="Ingrese el PIN" required
+            style="width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; font-weight: 500;">
+        </div>
+
+        <div id="errorPinDocente" class="error-banner hidden" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+          ⚠️ PIN incorrecto. Intenta de nuevo.
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 6px;">
+          <button type="button" id="btnCancelarPinDocente" class="btn-docente btn-docente-outline" style="flex: 1; justify-content: center; padding: 12px;">
+            Cancelar
+          </button>
+          <button type="submit" id="btnSubmitPinDocente" class="mat-ver n1" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px; border-radius: 10px; cursor: pointer;">
+            Ingresar
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
