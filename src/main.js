@@ -209,11 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     fetchMateriasFromDB();
     
-    // Configurar enlace dinámico de WhatsApp
+    // Configurar enlace de Reportar Problema (Google Forms / WhatsApp fallback)
     const btnReportar = document.getElementById('btn-reportar-problema');
-    if (btnReportar && window.AppConfig && window.AppConfig.NUMERO_WHATSAPP) {
-        const mensaje = encodeURIComponent("Hola, estoy usando el Portal Educativo del C.E. El Tinteral y necesito reportar el siguiente problema: ");
-        btnReportar.href = `https://wa.me/${window.AppConfig.NUMERO_WHATSAPP}?text=${mensaje}`;
+    if (btnReportar) {
+        btnReportar.href = window.AppConfig?.FORMULARIO_REPORTES_URL || 'https://forms.gle/eDrth5nJ2drQSfUC7';
     }
 });
 
