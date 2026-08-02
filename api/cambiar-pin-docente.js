@@ -46,7 +46,10 @@ export default async function handler(req, res) {
     }
 
     let userData = null;
-    let isMockMode = url.includes('fake-supabase') || token.startsWith('token-admin');
+    // El modo simulado SOLO se activa cuando SUPABASE_URL contiene 'fake-supabase'.
+    // Esto ocurre únicamente en el entorno de CI (GitHub Actions).
+    // En producción (Vercel) SUPABASE_URL siempre es una URL real de Supabase.
+    let isMockMode = url.includes('fake-supabase');
 
     if (isMockMode) {
       userData = { id: 'mock-admin-id' };
