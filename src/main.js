@@ -279,14 +279,20 @@ function aplicarDatosMaterias(dbData) {
     }
 }
 
-// Iniciar búsqueda en la base de datos inmediatamente después de pintar la página
+// Cargar la estructura educativa inmediatamente de forma instantánea y actualizar en segundo plano
 document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) {
         lucide.createIcons();
     }
+
+    // Pintado instantáneo si existen datos locales
+    if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
+        aplicarDatosMaterias(window.MATERIAS_DATA);
+    }
+
     cargarContenidoEducativo();
     
-    // Configurar enlace de Reportar Problema (Google Forms / WhatsApp fallback)
+    // Configurar enlace de Reportar Problema
     const btnReportar = document.getElementById('btn-reportar-problema');
     if (btnReportar) {
         btnReportar.href = window.AppConfig?.FORMULARIO_REPORTES_URL || 'https://forms.gle/eDrth5nJ2drQSfUC7';
