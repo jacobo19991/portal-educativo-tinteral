@@ -1,5 +1,5 @@
 import './config/globals.js';
-import './data/materiasData.js';
+import { MATERIAS_DATA } from './data/materiasData.js';
 import { renderNiveles } from './components/materias.js';
 import './components/buscador.js';
 import './components/overlays.js';
@@ -10,501 +10,1009 @@ import { fetchWithTimeout } from './utils/fetchUtils.js';
 
 // Utilidad segura para manipular localStorage
 const SecureStorage = {
-  getItem: (key) => {
-    try {
-      return localStorage.getItem(key);
-    } catch (e) {
-      console.warn('Error leyendo localStorage:', e);
-      return null;
+    getItem: (key) => {
+        try {
+            return localStorage.getItem(key);
+        } catch (error) {
+            console.warn('Error leyendo localStorage:', error);
+            return null;
+        }
+    },
+
+    setItem: (key, value) => {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (error) {
+            console.warn('Error escribiendo localStorage:', error);
+            return false;
+        }
+    },
+
+    removeItem: (key) => {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (error) {
+            console.warn('Error eliminando datos de localStorage:', error);
+            return false;
+        }
     }
-  },
-  
-  setItem: (key, value) => {
-    try {
-      localStorage.setItem(key, value);
-      return true;
-    } catch (e) {
-      console.warn('Error escribiendo localStorage:', e);
-      return false;
-    }
-  },
-  
-  removeItem: (key) => {
-    try {
-      localStorage.removeItem(key);
-      return true;
-    } catch (e) {
-      console.warn('Error removiendo localStorage:', e);
-      return false;
-    }
-  }
 };
 
 // Utilidad segura para manipular sessionStorage
 const SecureSessionStorage = {
-  getItem: (key) => {
-    try {
-      return sessionStorage.getItem(key);
-    } catch (e) {
-      console.warn('Error leyendo sessionStorage:', e);
-      return null;
+    getItem: (key) => {
+        try {
+            return sessionStorage.getItem(key);
+        } catch (error) {
+            console.warn('Error leyendo sessionStorage:', error);
+            return null;
+        }
+    },
+
+    setItem: (key, value) => {
+        try {
+            sessionStorage.setItem(key, value);
+            return true;
+        } catch (error) {
+            console.warn('Error escribiendo sessionStorage:', error);
+            return false;
+        }
+    },
+
+    removeItem: (key) => {
+        try {
+            sessionStorage.removeItem(key);
+            return true;
+        } catch (error) {
+            console.warn('Error eliminando datos de sessionStorage:', error);
+            return false;
+        }
     }
-  },
-  
-  setItem: (key, value) => {
-    try {
-      sessionStorage.setItem(key, value);
-      return true;
-    } catch (e) {
-      console.warn('Error escribiendo sessionStorage:', e);
-      return false;
-    }
-  },
-  
-  removeItem: (key) => {
-    try {
-      sessionStorage.removeItem(key);
-      return true;
-    } catch (e) {
-      console.warn('Error removiendo sessionStorage:', e);
-      return false;
-    }
-  }
 };
 
-window.actualizarContenidoTotal = async function (btn) {
+function tieneNivelesValidos(contenidoEducativo) {
+    return Boolean(
+        contenidoEducativo &&
+        Array.isArray(contenidoEducativo.niveles) &&
+        contenidoEducativo.niveles.length > 0
+    );
+}
+
+function ocultarEsqueletosCarga() {
+    const contenedor = document.getElementById('contenedor-niveles');
+
+    if (!contenedor) {
+        return;
+    }
+
+    contenedor
+        .querySelectorAll('.skeleton-wrap, .skeleton, .skeleton-btn')
+        .forEach((elemento) => elemento.remove());
+
+    document.body.classList.remove('is-loading');
+}
+
+function mostrarErrorSinContenido() {
+    const contenedor = document.getElementById('contenedor-niveles');
+
+    if (!contenedor) {
+        return;
+    }
+
+    contenedor.innerHTML = '';
+
+    const mensaje = document.createElement('div');
+    mensaje.className = 'error-banner';
+    mensaje.setAttribute('role', 'alert');
+    mensaje.textContent =
+        'No se pudo cargar el contenido educativo. Pulsa “Actualizar contenido” para intentarlo nuevamente.';
+
+    contenedor.appendChild(mensaje);
+}
+
+// Actualizar contenido sin eliminar completamente el Service Worker
+window.actualizarContenidoTotal = async function actualizarContenidoTotal(btn) {
     if (btn) {
         btn.disabled = true;
         btn.classList.add('is-loading');
     }
-    if (window.Toast) window.Toast.show('Actualizando contenido…', 'info');
+
+    if (window.Toast) {
+        window.Toast.show('Actualizando contenido…', 'info');
+    }
 
     try {
         SecureStorage.removeItem('materias_cache_v2');
         SecureStorage.removeItem('materias_cache_v1');
         SecureSessionStorage.removeItem('drive_files_cache');
 
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            const reg = await navigator.serviceWorker.getRegistration();
-            if (reg && reg.waiting) {
-                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
+        await cargarContenidoEducativo(true);
+
+        if (window.Toast) {
+            window.Toast.show('Contenido actualizado.', 'success');
         }
     } catch (error) {
-        console.error('❌ Error al actualizar contenido:', error);
+        console.error('Error al actualizar contenido:', error);
+
+        if (window.Toast) {
+            window.Toast.show(
+                'No se pudo actualizar desde Google Drive.',
+                'error'
+            );
+        }
     } finally {
-        setTimeout(() => window.location.reload(true), 500);
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('is-loading');
+        }
+
+        ocultarEsqueletosCarga();
     }
 };
 
 // Registro de Service Worker para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(registration => {
-                console.log('✅ ServiceWorker registrado con éxito:', registration.scope);
-                
-                // Detectar actualización silenciosa del Service Worker
+        navigator.serviceWorker
+            .register('./sw.js')
+            .then((registration) => {
+                console.log(
+                    'Service Worker registrado correctamente:',
+                    registration.scope
+                );
+
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
+
+                    if (!newWorker) {
+                        return;
+                    }
+
                     newWorker.addEventListener('statechange', () => {
-                        // Si hay un nuevo SW instalado y ya había un controlador previo
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🔄 Nueva versión del portal disponible.');
+                        if (
+                            newWorker.state === 'installed' &&
+                            navigator.serviceWorker.controller
+                        ) {
+                            console.log(
+                                'Nueva versión del portal disponible.'
+                            );
+
                             mostrarAvisoActualizacionSW();
                         }
                     });
                 });
             })
-            .catch(error => {
-                console.error('❌ Error al registrar el ServiceWorker:', error);
+            .catch((error) => {
+                console.error(
+                    'Error al registrar el Service Worker:',
+                    error
+                );
             });
     });
 }
 
-// Carga asíncrona de estructura de Drive vía Apps Script
+// Carga de contenido educativo desde caché, archivo local y Apps Script
 async function cargarContenidoEducativo(forceRefresh = false) {
     const CACHE_KEY = 'materias_cache_v2';
-    // Se redujo el TTL a 15 mins para desarrollo/producción dinámica
     const CACHE_TTL = 15 * 60 * 1000;
 
+    let contenidoMostrado = false;
+
     try {
-        // Fase 3: Verificar caché primero (si no es forceRefresh)
         const cachedStr = SecureStorage.getItem(CACHE_KEY);
+
         if (cachedStr && !forceRefresh) {
             try {
                 const cached = JSON.parse(cachedStr);
-                if (cached && cached.timestamp && (Date.now() - cached.timestamp < CACHE_TTL)) {
-                    console.log("⚡ Usando caché reciente generada desde Apps Script.");
-                    aplicarDatosMaterias(cached.data);
-                    
-                    // Actualización en segundo plano
-                    if (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL) {
-                        fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 10000)
-                            .then(res => res.json())
-                            .then(asData => procesarDatosAppsScript(asData, CACHE_KEY))
-                            .catch(() => console.warn("Fallo actualización en background de Apps Script"));
-                    }
-                    return;
+
+                const cacheEsValida =
+                    cached &&
+                    typeof cached.timestamp === 'number' &&
+                    Date.now() - cached.timestamp < CACHE_TTL &&
+                    tieneNivelesValidos(cached.data);
+
+                if (cacheEsValida) {
+                    console.log(
+                        'Usando contenido reciente almacenado en caché.'
+                    );
+
+                    contenidoMostrado = aplicarDatosMaterias(
+                        cached.data
+                    );
+                } else {
+                    SecureStorage.removeItem(CACHE_KEY);
                 }
-            } catch (parseErr) {
-                console.warn('Error parseando caché:', parseErr);
+            } catch (parseError) {
+                console.warn(
+                    'La caché de materias no es válida:',
+                    parseError
+                );
+
                 SecureStorage.removeItem(CACHE_KEY);
             }
         }
 
-        console.info("Cargando datos desde Apps Script...");
-
-        // Si no hay caché, intentamos obtener los datos con REINTENTOS
-        if (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL) {
-            let success = false;
-            let asData = null;
-            const maxRetries = 3;
-            for (let i = 1; i <= maxRetries; i++) {
-                try {
-                    console.log(`[Intento ${i}/${maxRetries}] Consultando Apps Script...`);
-                    const asRes = await fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 20000);
-                    asData = await asRes.json();
-                    
-                    if (asData && asData.tree) {
-                        console.info("✅ Apps Script respondió correctamente");
-                        success = true;
-                        break;
-                    }
-                } catch (err) {
-                    console.warn(`⚠️ Intento ${i} de Apps Script falló: ${err.message}`);
-                    if (i < maxRetries) {
-                        await new Promise(res => setTimeout(res, 2000));
-                    }
-                }
-            }
-
-            if (success && asData) {
-                procesarDatosAppsScript(asData, CACHE_KEY);
-                return; // Terminamos exitosamente con Apps Script
-            }
+        // Mostrar inmediatamente el contenido local
+        if (
+            !contenidoMostrado &&
+            tieneNivelesValidos(MATERIAS_DATA)
+        ) {
+            contenidoMostrado =
+                aplicarDatosMaterias(MATERIAS_DATA);
         }
 
-        console.warn("⚠️ Apps Script falló completamente. Saltando a Fallback local.");
-        throw new Error("Apps Script inaccesible");
+        // Si Apps Script no está configurado, mantener el contenido local
+        if (
+            !window.AppConfig?.USAR_APPS_SCRIPT ||
+            !window.AppConfig?.APPS_SCRIPT_URL
+        ) {
+            if (contenidoMostrado) {
+                mostrarAvisoFallback();
+            } else {
+                mostrarErrorSinContenido();
+            }
+
+            return;
+        }
+
+        console.info(
+            'Consultando actualización desde Google Drive mediante Apps Script...'
+        );
+
+        // Un solo intento y máximo 10 segundos
+        const respuesta = await fetchWithTimeout(
+            window.AppConfig.APPS_SCRIPT_URL,
+            {
+                method: 'GET',
+                cache: 'no-store'
+            },
+            10000
+        );
+
+        if (!respuesta.ok) {
+            throw new Error(
+                `Apps Script respondió con estado ${respuesta.status}`
+            );
+        }
+
+        const datosAppsScript = await respuesta.json();
+
+        if (
+            !datosAppsScript ||
+            !Array.isArray(datosAppsScript.tree)
+        ) {
+            throw new Error(
+                'La respuesta de Apps Script no contiene un arreglo tree válido.'
+            );
+        }
+
+        if (datosAppsScript.tree.length === 0) {
+            throw new Error(
+                'Apps Script devolvió una estructura vacía.'
+            );
+        }
+
+        procesarDatosAppsScript(
+            datosAppsScript,
+            CACHE_KEY
+        );
+
+        eliminarAvisoFallback();
+
+        console.info(
+            'Contenido actualizado correctamente desde Google Drive.'
+        );
     } catch (error) {
-        console.warn("⚠️ Fallo total: Usando Fallback local. Razón:", error.message);
-        mostrarAvisoFallback();
-        
-        try {
-            const cachedFallbackStr = SecureStorage.getItem(CACHE_KEY);
-            if (cachedFallbackStr) {
-                const parsed = JSON.parse(cachedFallbackStr);
-                if (parsed && parsed.data) {
-                    aplicarDatosMaterias(parsed.data);
-                }
-            } else if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
-                aplicarDatosMaterias(window.MATERIAS_DATA);
-            }
-        } catch (fallbackErr) {
-            console.error('Error procesando fallback:', fallbackErr);
-            // Mostrar mensaje de error crítico
-            const contenedor = document.getElementById('contenedor-niveles');
-            if (contenedor) {
-                contenedor.innerHTML = '<div class="error-banner">⚠️ No se pudo cargar el contenido. Por favor, recarga la página.</div>';
-            }
+        console.warn(
+            'No fue posible actualizar desde Google Drive:',
+            error.message
+        );
+
+        // Usar el contenido importado, no window.MATERIAS_DATA
+        if (
+            !contenidoMostrado &&
+            tieneNivelesValidos(MATERIAS_DATA)
+        ) {
+            contenidoMostrado =
+                aplicarDatosMaterias(MATERIAS_DATA);
         }
+
+        if (contenidoMostrado) {
+            mostrarAvisoFallback();
+        } else {
+            mostrarErrorSinContenido();
+        }
+    } finally {
+        ocultarEsqueletosCarga();
     }
 }
 
 function mostrarAvisoFallback() {
-    const contenedor = document.getElementById('contenedor-niveles');
-    if (document.getElementById('aviso-fallback')) return;
-    
-    if (contenedor) {
-        const aviso = document.createElement('div');
-        aviso.id = 'aviso-fallback';
-        aviso.style.backgroundColor = '#fdf2f8'; // Rosa tenue/profesional
-        aviso.style.color = '#be185d';
-        aviso.style.padding = '12px 16px';
-        aviso.style.borderRadius = '8px';
-        aviso.style.marginBottom = '15px';
-        aviso.style.fontSize = '0.9rem';
-        aviso.style.display = 'flex';
-        aviso.style.alignItems = 'center';
-        aviso.style.justifyContent = 'center';
-        aviso.style.gap = '8px';
-        aviso.style.border = '1px solid #fbcfe8';
-        
-        const icon = document.createElement('i');
-        icon.textContent = '⚠️';
-        
-        const text = document.createElement('span');
-        text.textContent = 'Mostrando estructura temporal. Pulsa ';
-        
-        const actionBtn = document.createElement('strong');
-        actionBtn.textContent = 'Actualizar contenido';
-        actionBtn.style.cursor = 'pointer';
-        actionBtn.style.textDecoration = 'underline';
-        actionBtn.addEventListener('click', () => {
-            if (window.actualizarContenidoTotal) window.actualizarContenidoTotal(actionBtn);
-        });
-        
-        const afterText = document.createElement('span');
-        afterText.textContent = ' para intentar cargar los datos desde Drive.';
-        
-        text.appendChild(actionBtn);
-        text.appendChild(afterText);
-        
-        aviso.appendChild(icon);
-        aviso.appendChild(text);
-        
-        contenedor.parentNode.insertBefore(aviso, contenedor);
+    const contenedor =
+        document.getElementById('contenedor-niveles');
+
+    if (
+        !contenedor ||
+        !contenedor.parentNode ||
+        document.getElementById('aviso-fallback')
+    ) {
+        return;
+    }
+
+    const aviso = document.createElement('div');
+    aviso.id = 'aviso-fallback';
+    aviso.setAttribute('role', 'status');
+
+    aviso.style.backgroundColor = '#fdf2f8';
+    aviso.style.color = '#be185d';
+    aviso.style.padding = '12px 16px';
+    aviso.style.borderRadius = '8px';
+    aviso.style.marginBottom = '15px';
+    aviso.style.fontSize = '0.9rem';
+    aviso.style.display = 'flex';
+    aviso.style.alignItems = 'center';
+    aviso.style.justifyContent = 'center';
+    aviso.style.flexWrap = 'wrap';
+    aviso.style.gap = '8px';
+    aviso.style.border = '1px solid #fbcfe8';
+
+    const icono = document.createElement('span');
+    icono.textContent = '⚠️';
+    icono.setAttribute('aria-hidden', 'true');
+
+    const texto = document.createElement('span');
+    texto.textContent =
+        'Mostrando contenido guardado. No fue posible actualizar desde Google Drive.';
+
+    const botonActualizar =
+        document.createElement('button');
+
+    botonActualizar.type = 'button';
+    botonActualizar.textContent = 'Actualizar contenido';
+    botonActualizar.style.border = 'none';
+    botonActualizar.style.background = 'transparent';
+    botonActualizar.style.color = 'inherit';
+    botonActualizar.style.fontWeight = '700';
+    botonActualizar.style.textDecoration = 'underline';
+    botonActualizar.style.cursor = 'pointer';
+
+    botonActualizar.addEventListener('click', () => {
+        if (
+            typeof window.actualizarContenidoTotal ===
+            'function'
+        ) {
+            window.actualizarContenidoTotal(
+                botonActualizar
+            );
+        }
+    });
+
+    aviso.append(icono, texto, botonActualizar);
+
+    contenedor.parentNode.insertBefore(
+        aviso,
+        contenedor
+    );
+}
+
+function eliminarAvisoFallback() {
+    const aviso =
+        document.getElementById('aviso-fallback');
+
+    if (aviso) {
+        aviso.remove();
     }
 }
 
-function aplicarDatosMaterias(dbData) {
-    if (dbData && dbData.niveles && Array.isArray(dbData.niveles) && dbData.niveles.length > 0) {
-        window.MATERIAS_DATA = dbData;
-        window.materiasDataCompleta = dbData.niveles;
-        
-        const contenedor = document.getElementById('contenedor-niveles');
-        if (contenedor) {
-            renderNiveles(dbData.niveles, contenedor);
+function aplicarDatosMaterias(contenidoEducativo) {
+    if (!tieneNivelesValidos(contenidoEducativo)) {
+        console.warn(
+            'El contenido educativo no contiene niveles válidos.'
+        );
+
+        ocultarEsqueletosCarga();
+        return false;
+    }
+
+    const contenedor =
+        document.getElementById('contenedor-niveles');
+
+    if (!contenedor) {
+        console.error(
+            'No se encontró el contenedor de niveles.'
+        );
+
+        return false;
+    }
+
+    try {
+        // Mantener disponibles los datos para otros componentes
+        window.MATERIAS_DATA = contenidoEducativo;
+        window.materiasDataCompleta =
+            contenidoEducativo.niveles;
+
+        contenedor.innerHTML = '';
+
+        renderNiveles(
+            contenidoEducativo.niveles,
+            contenedor
+        );
+
+        ocultarEsqueletosCarga();
+
+        const fechaActualizacion =
+            document.getElementById(
+                'fecha-actualizacion'
+            );
+
+        if (fechaActualizacion) {
+            fechaActualizacion.textContent =
+                new Date().toLocaleString('es-SV', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
         }
-        
-        // Actualizar la fecha visual
-        const lblFecha = document.getElementById('fecha-actualizacion');
-        if (lblFecha) {
-            lblFecha.innerText = new Date().toLocaleString('es-ES', { 
-                day: '2-digit', month: '2-digit', year: 'numeric', 
-                hour: '2-digit', minute: '2-digit' 
-            });
-        }
+
+        return true;
+    } catch (error) {
+        console.error(
+            'Error al renderizar el contenido educativo:',
+            error
+        );
+
+        ocultarEsqueletosCarga();
+        return false;
     }
 }
 
-// Cargar la estructura educativa inmediatamente de forma instantánea y actualizar en segundo plano
+// Cargar contenido local inmediatamente y actualizar en segundo plano
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.lucide) {
-        lucide.createIcons();
-    }
+    try {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
 
-    // Pintado instantáneo si existen datos locales
-    if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
-        aplicarDatosMaterias(window.MATERIAS_DATA);
-    }
+        if (tieneNivelesValidos(MATERIAS_DATA)) {
+            aplicarDatosMaterias(MATERIAS_DATA);
+        } else {
+            console.error(
+                'MATERIAS_DATA no contiene niveles locales válidos.'
+            );
 
-    cargarContenidoEducativo();
-    
-    // Configurar enlace de Reportar Problema
-    const btnReportar = document.getElementById('btn-reportar-problema');
-    if (btnReportar) {
-        btnReportar.href = window.AppConfig?.FORMULARIO_REPORTES_URL || 'https://forms.gle/eDrth5nJ2drQSfUC7';
+            mostrarErrorSinContenido();
+        }
+
+        cargarContenidoEducativo().catch((error) => {
+            console.error(
+                'Error durante la actualización en segundo plano:',
+                error
+            );
+
+            ocultarEsqueletosCarga();
+        });
+
+        const btnReportar =
+            document.getElementById(
+                'btn-reportar-problema'
+            );
+
+        if (btnReportar) {
+            btnReportar.href =
+                window.AppConfig
+                    ?.FORMULARIO_REPORTES_URL ||
+                'https://forms.gle/eDrth5nJ2drQSfUC7';
+        }
+    } catch (error) {
+        console.error(
+            'Error al iniciar el portal:',
+            error
+        );
+
+        if (tieneNivelesValidos(MATERIAS_DATA)) {
+            aplicarDatosMaterias(MATERIAS_DATA);
+        } else {
+            mostrarErrorSinContenido();
+        }
     }
 });
 
-// Exponer función de recarga completa para overlays.js
-window.refrescarMenuYArchivos = async function() {
-    SecureStorage.removeItem('materias_cache_v1');
-    SecureSessionStorage.removeItem('drive_files_cache');
-    await cargarContenidoEducativo(true);
-};
+// Función utilizada por overlays.js
+window.refrescarMenuYArchivos =
+    async function refrescarMenuYArchivos() {
+        SecureStorage.removeItem(
+            'materias_cache_v1'
+        );
 
-// Detectar cambios en la conexión de red (Caché Offline Sólido)
+        SecureSessionStorage.removeItem(
+            'drive_files_cache'
+        );
+
+        await cargarContenidoEducativo(true);
+    };
+
+// Detectar cambios de conexión
 window.addEventListener('offline', () => {
     if (window.Toast) {
-        window.Toast.show('Sin conexión. Mostrando datos guardados en caché.', 'warning');
+        window.Toast.show(
+            'Sin conexión. Mostrando contenido guardado.',
+            'warning'
+        );
     }
-    console.warn('[Network] Offline: Usando caché local.');
+
+    console.warn(
+        'Sin conexión: usando contenido local.'
+    );
 });
 
 window.addEventListener('online', () => {
     if (window.Toast) {
-        window.Toast.show('Conexión restaurada.', 'success');
+        window.Toast.show(
+            'Conexión restaurada.',
+            'success'
+        );
     }
-    console.log('[Network] Online: Conexión recuperada.');
+
+    console.log(
+        'Conexión recuperada. Actualizando contenido.'
+    );
+
+    cargarContenidoEducativo(true).catch(
+        (error) => {
+            console.warn(
+                'No se pudo actualizar al recuperar la conexión:',
+                error
+            );
+        }
+    );
 });
 
-// -- Funciones auxiliares para la integración de Apps Script --
+// Procesar respuesta de Google Apps Script
+function procesarDatosAppsScript(
+    datosAppsScript,
+    cacheKey
+) {
+    if (
+        !datosAppsScript ||
+        !Array.isArray(datosAppsScript.tree)
+    ) {
+        throw new Error(
+            'Los datos de Apps Script son inválidos.'
+        );
+    }
 
-function procesarDatosAppsScript(asData, cacheKey) {
-    if (!asData || !asData.tree) return;
-    
-    if (asData.warnings && Array.isArray(asData.warnings) && asData.warnings.length > 0) {
-        console.warn("⚠️ AVISO DE GOOGLE DRIVE: Se encontraron elementos fuera de jerarquía:");
-        asData.warnings.forEach(w => console.warn("- " + (w || 'Advertencia desconocida')));
-    }
-    
-    try {
-        const nivelesAdaptados = adaptarAppsScriptASupabase(asData.tree);
-        
-        // Guardar los archivos de las materias para uso inmediato en overlays.js
-        if (asData.filesByFolderId) {
-            try {
-                SecureSessionStorage.setItem('drive_files_cache', JSON.stringify({
-                    timestamp: Date.now(),
-                    data: asData.filesByFolderId
-                }));
-            } catch (e) {
-                console.warn('No se pudo guardar caché de archivos:', e);
+    if (
+        Array.isArray(datosAppsScript.warnings) &&
+        datosAppsScript.warnings.length > 0
+    ) {
+        console.warn(
+            'Google Drive devolvió advertencias de estructura:'
+        );
+
+        datosAppsScript.warnings.forEach(
+            (advertencia) => {
+                console.warn(
+                    String(
+                        advertencia ||
+                        'Advertencia desconocida'
+                    )
+                );
             }
-        }
-        
-        const finalData = { niveles: nivelesAdaptados };
-        SecureStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: finalData }));
-        aplicarDatosMaterias(finalData);
-    } catch (adaptErr) {
-        console.error('Error adaptando datos de Apps Script:', adaptErr);
+        );
     }
+
+    const nivelesAdaptados =
+        normalizarDatosAppsScript(
+            datosAppsScript.tree
+        );
+
+    const contenidoEducativo = {
+        niveles: nivelesAdaptados
+    };
+
+    if (!tieneNivelesValidos(contenidoEducativo)) {
+        throw new Error(
+            'No fue posible convertir la estructura de Google Drive.'
+        );
+    }
+
+    if (datosAppsScript.filesByFolderId) {
+        SecureSessionStorage.setItem(
+            'drive_files_cache',
+            JSON.stringify({
+                timestamp: Date.now(),
+                data:
+                    datosAppsScript.filesByFolderId
+            })
+        );
+    }
+
+    SecureStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+            timestamp: Date.now(),
+            data: contenidoEducativo
+        })
+    );
+
+    aplicarDatosMaterias(contenidoEducativo);
 }
 
+function normalizarDatosAppsScript(tree) {
+    if (!Array.isArray(tree)) {
+        return [];
+    }
 
+    const copiaTree = [...tree];
 
-function adaptarAppsScriptASupabase(tree) {
-    // 1. Ordenar Niveles por el número inicial (ej. "1-INICIAL" -> 1)
-    if (!Array.isArray(tree)) return [];
-    
-    tree.sort((a, b) => {
-        const numA = a && a.nivel ? parseInt(a.nivel.split('-')[0]) || 99 : 99;
-        const numB = b && b.nivel ? parseInt(b.nivel.split('-')[0]) || 99 : 99;
-        return numA - numB;
+    copiaTree.sort((nivelA, nivelB) => {
+        const numeroA =
+            nivelA?.nivel
+                ? Number.parseInt(
+                    nivelA.nivel.split('-')[0],
+                    10
+                ) || 99
+                : 99;
+
+        const numeroB =
+            nivelB?.nivel
+                ? Number.parseInt(
+                    nivelB.nivel.split('-')[0],
+                    10
+                ) || 99
+                : 99;
+
+        return numeroA - numeroB;
     });
 
-    // 2. Orden lógico de grados
     const ordenGrados = [
-        "Inicial", "Parvularia 5 años", "Parvularia 6 años", 
-        "Primer Grado - Sección A", "Primer Grado - Sección B", "Primer Grado",
-        "Segundo Grado - Sección A", "Segundo Grado - Sección B", "Segundo Grado",
-        "Tercer Grado - Sección A", "Tercer Grado - Sección B", "Tercer Grado",
-        "Cuarto Grado - Sección A", "Cuarto Grado - Sección B", "Cuarto Grado",
-        "Quinto Grado - Sección A", "Quinto Grado - Sección B", "Quinto Grado",
-        "Sexto Grado", "Séptimo Grado", "Octavo Grado", "Noveno Grado",
-        "Primer Año", "Segundo Año", "Tercer Año"
+        'Inicial',
+        'Parvularia 5 años',
+        'Parvularia 6 años',
+        'Primer Grado - Sección A',
+        'Primer Grado - Sección B',
+        'Primer Grado',
+        'Segundo Grado - Sección A',
+        'Segundo Grado - Sección B',
+        'Segundo Grado',
+        'Tercer Grado - Sección A',
+        'Tercer Grado - Sección B',
+        'Tercer Grado',
+        'Cuarto Grado - Sección A',
+        'Cuarto Grado - Sección B',
+        'Cuarto Grado',
+        'Quinto Grado - Sección A',
+        'Quinto Grado - Sección B',
+        'Quinto Grado',
+        'Sexto Grado',
+        'Séptimo Grado',
+        'Octavo Grado',
+        'Noveno Grado',
+        'Primer Año',
+        'Segundo Año',
+        'Tercer Año'
     ];
 
-    tree.forEach(nivel => {
-        if (!nivel.grados || !Array.isArray(nivel.grados)) return;
-        // Ordenar grados según el arreglo ordenGrados
-        nivel.grados.sort((a, b) => {
-            const idxA = ordenGrados.indexOf(a && a.grado);
-            const idxB = ordenGrados.indexOf(b && b.grado);
-            if (idxA === -1 && idxB === -1) return (a && a.grado || '').localeCompare(b && b.grado || '');
-            if (idxA === -1) return 1;
-            if (idxB === -1) return -1;
-            return idxA - idxB;
-        });
+    const configuracionNiveles = [
+        {
+            nombre: 'inicial',
+            icono: '🌱',
+            claseColor: 'n1'
+        },
+        {
+            nombre: 'primer ciclo',
+            icono: '📗',
+            claseColor: 'n2'
+        },
+        {
+            nombre: 'segundo ciclo',
+            icono: '📙',
+            claseColor: 'n3'
+        },
+        {
+            nombre: 'tercer ciclo',
+            icono: '📕',
+            claseColor: 'n4'
+        },
+        {
+            nombre: 'bachillerato',
+            icono: '🎓',
+            claseColor: 'n5'
+        }
+    ];
 
-        // 3. Ordenar materias alfabéticamente
-        nivel.grados.forEach(grado => {
-            if (grado.materias && Array.isArray(grado.materias)) {
-                grado.materias.sort((a, b) => {
-                    const nombreA = a && a.materia ? a.materia.toLowerCase() : '';
-                    const nombreB = b && b.materia ? b.materia.toLowerCase() : '';
-                    return nombreA.localeCompare(nombreB);
-                });
+    return copiaTree
+        .map((nivel, indiceNivel) => {
+            if (!nivel?.nivel) {
+                return null;
             }
-        });
-    });
-    const configNiveles = [
-        { name: 'inicial', icono: '🌱', cls: 'n1' },
-        { name: 'primer ciclo', icono: '📗', cls: 'n2' },
-        { name: 'segundo ciclo', icono: '📙', cls: 'n3' },
-        { name: 'tercer ciclo', icono: '📕', cls: 'n4' },
-        { name: 'bachillerato', icono: '🎓', cls: 'n5' }
-    ];
 
-    return tree.map((nivel, i) => {
-        if (!nivel || !nivel.nivel) return null;
-        
-        const confNivel = configNiveles.find(c => nivel.nivel.toLowerCase().includes(c.name)) || { icono: '📁', cls: 'n1' };
-        
-        const nivelResult = {
-            id: `as_n_${i}`,
-            nombre: nivel.nivel.replace(/^\d+-\s*/, ''),
-            icono: confNivel.icono,
-            claseColor: confNivel.cls,
-            grados: (nivel.grados || []).map((grado, j) => {
-                if (!grado || !grado.grado) return null;
-                
-                let gIcon = '📘';
-                if(confNivel.icono.includes('🌱')) gIcon = '👶';
-                else if(confNivel.icono.includes('📗')) gIcon = '📗';
+            const nombreNivel =
+                String(nivel.nivel);
 
-                // Generar un nombre abreviado heurístico (ej: "1° Grado")
-                let abreviado = grado.grado;
-                const numMatch = grado.grado.match(/\d+/);
-                if (numMatch) abreviado = `${numMatch[0]}°`;
-
-                return {
-                    id: `as_g_${i}_${j}`,
-                    nombre: grado.grado,
-                    nombreAbreviado: abreviado,
-                    icono: gIcon,
-                    materias: (grado.materias || []).map((mat, k) => {
-                        if (!mat || !mat.materia) return null;
-                        return {
-                            id: `as_m_${i}_${j}_${k}`,
-                            nombre: mat.materia,
-                            folderId: mat.id || ''
-                        };
-                    }).filter(Boolean)
+            const configuracion =
+                configuracionNiveles.find(
+                    (item) =>
+                        nombreNivel
+                            .toLowerCase()
+                            .includes(item.nombre)
+                ) || {
+                    icono: '📁',
+                    claseColor: 'n1'
                 };
-            }).filter(Boolean)
-        };
-        
-        return nivelResult;
-    }).filter(Boolean);
+
+            const grados = Array.isArray(
+                nivel.grados
+            )
+                ? [...nivel.grados]
+                : [];
+
+            grados.sort((gradoA, gradoB) => {
+                const indiceA =
+                    ordenGrados.indexOf(
+                        gradoA?.grado
+                    );
+
+                const indiceB =
+                    ordenGrados.indexOf(
+                        gradoB?.grado
+                    );
+
+                if (
+                    indiceA === -1 &&
+                    indiceB === -1
+                ) {
+                    return String(
+                        gradoA?.grado || ''
+                    ).localeCompare(
+                        String(
+                            gradoB?.grado || ''
+                        ),
+                        'es'
+                    );
+                }
+
+                if (indiceA === -1) {
+                    return 1;
+                }
+
+                if (indiceB === -1) {
+                    return -1;
+                }
+
+                return indiceA - indiceB;
+            });
+
+            const gradosNormalizados =
+                grados
+                    .map(
+                        (
+                            grado,
+                            indiceGrado
+                        ) => {
+                            if (!grado?.grado) {
+                                return null;
+                            }
+
+                            const materias =
+                                Array.isArray(
+                                    grado.materias
+                                )
+                                    ? [
+                                        ...grado.materias
+                                    ]
+                                    : [];
+
+                            materias.sort(
+                                (
+                                    materiaA,
+                                    materiaB
+                                ) =>
+                                    String(
+                                        materiaA?.materia ||
+                                        ''
+                                    ).localeCompare(
+                                        String(
+                                            materiaB
+                                                ?.materia ||
+                                            ''
+                                        ),
+                                        'es'
+                                    )
+                            );
+
+                            let iconoGrado = '📘';
+
+                            if (
+                                configuracion.icono ===
+                                '🌱'
+                            ) {
+                                iconoGrado = '👶';
+                            } else if (
+                                configuracion.icono ===
+                                '📗'
+                            ) {
+                                iconoGrado = '📗';
+                            }
+
+                            const coincidenciaNumero =
+                                String(
+                                    grado.grado
+                                ).match(/\d+/);
+
+                            const nombreAbreviado =
+                                coincidenciaNumero
+                                    ? `${coincidenciaNumero[0]}°`
+                                    : String(
+                                        grado.grado
+                                    );
+
+                            const materiasNormalizadas =
+                                materias
+                                    .map(
+                                        (
+                                            materia,
+                                            indiceMateria
+                                        ) => {
+                                            if (
+                                                !materia?.materia
+                                            ) {
+                                                return null;
+                                            }
+
+                                            return {
+                                                id:
+                                                    materia.id ||
+                                                    `as_m_${indiceNivel}_${indiceGrado}_${indiceMateria}`,
+                                                nombre:
+                                                    String(
+                                                        materia.materia
+                                                    ),
+                                                folderId:
+                                                    materia.folderId ||
+                                                    materia.folder_id ||
+                                                    materia.idCarpeta ||
+                                                    materia.id ||
+                                                    ''
+                                            };
+                                        }
+                                    )
+                                    .filter(Boolean);
+
+                            return {
+                                id:
+                                    grado.id ||
+                                    `as_g_${indiceNivel}_${indiceGrado}`,
+                                nombre: String(
+                                    grado.grado
+                                ),
+                                nombreAbreviado,
+                                icono:
+                                    iconoGrado,
+                                pin: '',
+                                materias:
+                                    materiasNormalizadas
+                            };
+                        }
+                    )
+                    .filter(Boolean);
+
+            return {
+                id:
+                    nivel.id ||
+                    `as_n_${indiceNivel}`,
+                nombre:
+                    nombreNivel.replace(
+                        /^\d+-\s*/,
+                        ''
+                    ),
+                icono:
+                    configuracion.icono,
+                claseColor:
+                    configuracion.claseColor,
+                grados:
+                    gradosNormalizados
+            };
+        })
+        .filter(Boolean);
 }
 
 function mostrarAvisoActualizacionSW() {
-    if (document.getElementById('sw-update-banner')) return;
-    
+    if (
+        document.getElementById(
+            'sw-update-banner'
+        )
+    ) {
+        return;
+    }
+
     const banner = document.createElement('div');
     banner.id = 'sw-update-banner';
     banner.style.position = 'fixed';
     banner.style.bottom = '20px';
     banner.style.left = '50%';
     banner.style.transform = 'translateX(-50%)';
-    banner.style.backgroundColor = '#1e293b'; 
+    banner.style.backgroundColor = '#1e293b';
     banner.style.color = '#f8fafc';
     banner.style.padding = '10px 16px';
     banner.style.borderRadius = '30px';
-    banner.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    banner.style.boxShadow =
+        '0 10px 25px rgba(0,0,0,0.2)';
     banner.style.zIndex = '99999';
     banner.style.display = 'flex';
     banner.style.alignItems = 'center';
     banner.style.gap = '12px';
     banner.style.fontSize = '13px';
     banner.style.fontWeight = '500';
-    
-    banner.innerHTML = `
-        <span>Nueva versión disponible.</span>
-        <button id="sw-update-btn" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-size:12px; transition: background 0.2s;">
-            Actualizar
-        </button>
-    `;
-    
+
+    const texto = document.createElement('span');
+    texto.textContent =
+        'Nueva versión disponible.';
+
+    const botonActualizar =
+        document.createElement('button');
+
+    botonActualizar.id = 'sw-update-btn';
+    botonActualizar.type = 'button';
+    botonActualizar.textContent = 'Actualizar';
+    botonActualizar.style.background =
+        '#3b82f6';
+    botonActualizar.style.color = 'white';
+    botonActualizar.style.border = 'none';
+    botonActualizar.style.padding =
+        '6px 12px';
+    botonActualizar.style.borderRadius =
+        '20px';
+    botonActualizar.style.cursor = 'pointer';
+    botonActualizar.style.fontWeight = '600';
+    botonActualizar.style.fontSize = '12px';
+
+    banner.append(texto, botonActualizar);
     document.body.appendChild(banner);
-    
-    const updateBtn = document.getElementById('sw-update-btn');
-    if (updateBtn) {
-        updateBtn.addEventListener('click', () => {
-            const btn = document.getElementById('sw-update-btn');
-            if (btn) {
-                btn.innerText = 'Actualizando...';
-                btn.style.opacity = '0.7';
-                btn.style.cursor = 'wait';
+
+    botonActualizar.addEventListener(
+        'click',
+        async () => {
+            botonActualizar.textContent =
+                'Actualizando...';
+
+            botonActualizar.disabled = true;
+            botonActualizar.style.opacity =
+                '0.7';
+            botonActualizar.style.cursor =
+                'wait';
+
+            try {
+                const registro =
+                    await navigator.serviceWorker.getRegistration();
+
+                if (registro?.waiting) {
+                    registro.waiting.postMessage({
+                        type: 'SKIP_WAITING'
+                    });
+                }
+            } catch (error) {
+                console.warn(
+                    'Error al actualizar el Service Worker:',
+                    error
+                );
             }
-            
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.getRegistration().then(reg => {
-                    if (reg && reg.waiting) {
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    }
-                }).catch(e => console.warn('Error al obtener registro SW:', e));
-            }
-            
+
+            SecureStorage.removeItem(
+                'materias_cache_v2'
+            );
+
+            SecureStorage.removeItem(
+                'materias_cache_v1'
+            );
+
             setTimeout(() => {
-                SecureStorage.removeItem('materias_cache_v2');
-                SecureStorage.removeItem('materias_cache_v1');
-                window.location.reload(true);
+                window.location.reload();
             }, 500);
-        });
-    }
+        }
+    );
 }

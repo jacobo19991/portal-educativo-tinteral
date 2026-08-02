@@ -84,73 +84,104 @@ export function setupDocentesPinProtection() {
   });
 
   if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const pinValue = inputPin ? inputPin.value.trim() : '';
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-      if (!pinValue) {
-        if (errorBox) {
-          errorBox.textContent = '⚠️ Ingrese un PIN docente.';
-          errorBox.classList.remove('hidden');
+        const pinValue = inputPin
+            ? inputPin.value.trim()
+            : '';
+
+        if (!pinValue) {
+            if (errorBox) {
+                errorBox.textContent =
+                    '⚠️ Ingrese un PIN docente.';
+                errorBox.classList.remove('hidden');
+            }
+
+            return;
         }
-        return;
-      }
 
-      if (btnSubmit) {
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = 'Validando...';
-      }
-      if (errorBox) errorBox.classList.add('hidden');
-
-      let isApproved = false;
-
-      try {
-        const res = await fetchWithTimeout('/api/validar-pin-docente', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin: pinValue })
-        }, 10000);
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.valid === true) isApproved = true;
-        }
-      } catch (err) {
-        console.warn('Backend API inaccesible, intentando verificación local:', err);
-        // Fallback para servidor de desarrollo local estático o sin Vercel Functions
-        if (pinValue === '2026') {
-          isApproved = true;
-        }
-      }
-
-      if (isApproved) {
-        sessionStorage.setItem('docente_pin_valid_until', String(Date.now() + 30 * 60 * 1000));
-        const destUrl = targetUrl;
-        const openTab = targetBlank;
-        cerrarModal();
-
-        if (destUrl) {
-          if (openTab) {
-            window.open(destUrl, '_blank', 'noopener,noreferrer');
-          } else {
-            window.location.href = destUrl;
-          }
-        }
-      } else {
-        if (errorBox) {
-          errorBox.textContent = '⚠️ PIN incorrecto. Intenta de nuevo.';
-          errorBox.classList.remove('hidden');
-        }
-        if (inputPin) {
-          inputPin.focus();
-          inputPin.select();
-        }
-      } finally {
         if (btnSubmit) {
-          btnSubmit.disabled = false;
-          btnSubmit.innerText = 'Ingresar';
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Validando...';
         }
-      }
-    });
-  }
+
+        if (errorBox) {
+            errorBox.classList.add('hidden');
+        }
+
+        try {
+            const response = await fetchWithTimeout(
+                '/api/validar-pin-docente',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pin: pinValue
+                    })
+                },
+                10000
+            );
+
+            const data = await response.json();
+
+            if (data?.valid === true) {
+                const expiresAt =
+                    Date.now() + 30 * 60 * 1000;
+
+                sessionStorage.setItem(
+                    'docente_pin_valid_until',
+                    String(expiresAt)
+                );
+
+                const destinationUrl = targetUrl;
+                const openInNewTab = targetBlank;
+
+                cerrarModal();
+
+                if (destinationUrl) {
+                    if (openInNewTab) {
+                        window.open(
+                            destinationUrl,
+                            '_blank',
+                            'noopener,noreferrer'
+                        );
+                    } else {
+                        window.location.href =
+                            destinationUrl;
+                    }
+                }
+            } else {
+                if (errorBox) {
+                    errorBox.textContent =
+                        '⚠️ PIN incorrecto. Intenta de nuevo.';
+                    errorBox.classList.remove('hidden');
+                }
+
+                if (inputPin) {
+                    inputPin.focus();
+                    inputPin.select();
+                }
+            }
+        } catch (error) {
+            console.error(
+                'Error al validar PIN docente:',
+                error
+            );
+
+            if (errorBox) {
+                errorBox.textContent =
+                    '⚠️ Error al validar el PIN. Intenta de nuevo.';
+                errorBox.classList.remove('hidden');
+            }
+        } finally {
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Ingresar';
+                 }
+            }
+        });
+    }
 }
