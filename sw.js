@@ -23,14 +23,20 @@ function esArchivoPropioDelProyecto(url) {
 }
 
 // Función para limitar el número de elementos en caché dinámica
-function limitCacheSize(name, size) {
-    caches.open(name).then(cache => {
-        cache.keys().then(keys => {
-            if (keys.length > size) {
-                cache.delete(keys[0]).then(() => limitCacheSize(name, size));
-            }
-        });
-    });
+// CORREGIDO: Usa un enfoque iterativo para evitar stack overflow
+async function limitCacheSize(name, maxSize) {
+    try {
+        const cache = await caches.open(name);
+        const keys = await cache.keys();
+        
+        if (keys.length > maxSize) {
+            const keysToDelete = keys.slice(0, keys.length - maxSize);
+            await Promise.all(keysToDelete.map(key => cache.delete(key)));
+            console.log(`[Service Worker] Limpiados ${keysToDelete.length} elementos de caché (${keys.length} -> ${maxSize})`);
+        }
+    } catch (error) {
+        console.error('[Service Worker] Error limpiando caché:', error);
+    }
 }
 
 // Instalación del Service Worker (Cacheo inicial de assets estáticos)

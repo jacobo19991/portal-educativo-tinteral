@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.classList.add('hidden');
 
     }, 300);
-
+  
   });
 
 
@@ -57,9 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
 
         renderRecentSearches();
-
       }
-
     }
 
   });
@@ -80,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ) {
 
       renderRecentSearches();
-
     }
 
   });
@@ -100,9 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ) {
 
       dropdown.classList.add('hidden');
-
     }
-
+ 
   });
 
 });
@@ -116,21 +112,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function getRecents() {
 
-  return JSON.parse(
-    localStorage.getItem('recents_v2')
-    || '[]'
-  );
+  let recents = [];
+  try {
+    recents = JSON.parse(
+      localStorage.getItem('recents_v2')
+      || '[]'
+    );
+    if (!Array.isArray(recents)) {
+      recents = [];
+    }
+  } catch (e) {
+    recents = [];
+  }
+  return recents;
 
 }
 
 
 function saveRecents(data) {
-
-  localStorage.setItem(
-    'recents_v2',
-    JSON.stringify(data)
-  );
-
+  try {
+    localStorage.setItem(
+      'recents_v2',
+      JSON.stringify(data)
+    );
+  } catch (e) {
+    console.warn('No se pudo guardar en localStorage:', e);
+  }
 }
 
 
@@ -163,7 +170,6 @@ window.BuscadorApp = {
     if (recents.length > 5) {
 
       recents.pop();
-
     }
 
     saveRecents(recents);
@@ -171,7 +177,6 @@ window.BuscadorApp = {
   }
 
 };
-
 
 
 
@@ -208,7 +213,7 @@ function renderRecentSearches() {
 
     return;
 
-  }
+}
 
 
   list.innerHTML = '';
@@ -223,7 +228,6 @@ function renderRecentSearches() {
       'recent-item';
 
 
-
     const icon =
       document.createElement('i');
 
@@ -236,12 +240,10 @@ function renderRecentSearches() {
       'icon-md icon-muted';
 
 
-
     const span =
       document.createElement(
         'span'
       );
-
 
 
     const bold =
@@ -250,8 +252,7 @@ function renderRecentSearches() {
       );
 
     bold.textContent =
-      r.materia;
-
+      window.escapeHtml(r.materia);
 
 
     const grado =
@@ -261,50 +262,40 @@ function renderRecentSearches() {
 
     grado.className =
       'recent-grado';
-
+    
     grado.textContent =
-      ` (${r.grado})`;
-
+      ` (${window.escapeHtml(r.grado)})`;
 
 
     span.appendChild(
       bold
     );
-
     span.appendChild(
       grado
     );
-
 
     div.append(
       icon,
       span
     );
 
-
     div.addEventListener(
       'click',
       () => {
-
         dropdown.classList.add(
           'hidden'
         );
 
 
         if (window.AppState) {
-
           window.AppState.gradoAbreviada =
             r.grado || "";
-
           window.AppState.grado =
             r.grado || "";
-
           window.AppState.materia =
-            r.materia || "";
-
+            window.escapeHtml(r.materia);
           window.AppState.folderId =
             r.folderId || "";
-
         }
 
 
@@ -317,11 +308,8 @@ function renderRecentSearches() {
 
           window.OverlaysApp
             .abrirSheet();
-
         }
-
       });
-
 
     list.appendChild(
       div
@@ -336,9 +324,7 @@ function renderRecentSearches() {
       .createIcons({
         root: list
       });
-
   }
-
   dropdown.classList.remove(
     'hidden'
   );
@@ -364,7 +350,6 @@ function filtrarMaterias(term) {
     document.querySelectorAll('.materia-row').forEach(row => {
 
         row.style.display = 'flex';
-
         const nombre =
           row.querySelector(
             '.mat-nombre'
@@ -376,8 +361,11 @@ function filtrarMaterias(term) {
         ) {
 
           nombre.innerHTML =
-            row.dataset.materiaOriginal;
-
+            window.escapeHtml(row.dataset.materiaOriginal);
+        } else if (nombre) {
+          // Si no hay materiaOriginal guardada, escapar el texto actual
+          nombre.innerHTML =
+            window.escapeHtml(nombre.textContent);
         }
 
       });
@@ -395,7 +383,6 @@ function filtrarMaterias(term) {
       });
 
 
-
     document
       .querySelectorAll(
         '.nivel-panel,.materias-panel'
@@ -407,7 +394,6 @@ function filtrarMaterias(term) {
         );
 
       });
-
 
 
     document
@@ -439,7 +425,6 @@ function filtrarMaterias(term) {
           '.nivel-btn'
         );
 
-
       const nombreNivel =
         nivelBtn
           ?
@@ -452,12 +437,10 @@ function filtrarMaterias(term) {
             )
           : "";
 
-
       const matchNivel =
         nombreNivel.includes(
           term
         );
-
 
       const gradoWraps =
         nivelWrap.querySelectorAll(
@@ -477,7 +460,6 @@ function filtrarMaterias(term) {
               '.grado-btn'
             );
 
-
           const nombreGrado =
             gradoBtn
               ?
@@ -491,13 +473,11 @@ function filtrarMaterias(term) {
               : "";
 
 
-
           const matchGrado =
             matchNivel ||
             nombreGrado.includes(
               term
             );
-
 
           const materias =
             gradoWrap.querySelectorAll(
@@ -520,14 +500,12 @@ function filtrarMaterias(term) {
                 return;
 
 
-
               const original =
 
                 materia.dataset
                   .materiaOriginal ||
 
-                nombreEl.textContent;
-
+                window.escapeHtml(nombreEl.textContent);
 
               if (
                 !materia.dataset
@@ -539,7 +517,6 @@ function filtrarMaterias(term) {
                   original;
 
               }
-
 
               const normalizado =
                 original
@@ -569,7 +546,7 @@ function filtrarMaterias(term) {
 
 
                 nombreEl.innerHTML =
-                  original;
+                  window.escapeHtml(original);
 
 
                 if (
@@ -587,7 +564,7 @@ function filtrarMaterias(term) {
 
 
                   nombreEl.innerHTML =
-                    original.replace(
+                    window.escapeHtml(original).replace(
                       regex,
                       '<mark class="highlight">$1</mark>'
                     );
@@ -595,13 +572,12 @@ function filtrarMaterias(term) {
                 }
 
               } else {
-
+                
                 materia.style.display =
                   'none';
 
                 nombreEl.innerHTML =
-                  original;
-
+                  window.escapeHtml(original);
               }
 
             });
@@ -616,7 +592,6 @@ function filtrarMaterias(term) {
 
 
           if (gradoVisible) {
-
             gradoWrap.style.display =
               'block';
 
@@ -655,7 +630,6 @@ function filtrarMaterias(term) {
 
 
       if (nivelVisible) {
-
         nivelWrap.style.display =
           'block';
 

@@ -1,7 +1,7 @@
 {
   "name": "portal-educativo",
   "version": "1.0.0",
-  "description": "Portal educativo para consultar niveles, grados, materias y recursos académicos mediante Supabase y Google Drive.",
+  "description": "Portal educativo que organiza y consulta recursos académicos almacenados en Google Drive, con autenticación y configuración administrativa mediante Supabase.",
   "main": "sw.js",
   "directories": {
     "doc": "docs"
@@ -16,8 +16,8 @@
     "type": "git",
     "url": "git+https://github.com/jacobo19991/portal-educativo-tinteral.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["educacion", "portal", "google-drive", "supabase", "pwa"],
+  "author": "jacobo19991",
   "license": "ISC",
   "type": "module",
   "bugs": {

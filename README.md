@@ -8,16 +8,38 @@ El portal es completamente público para estudiantes y padres de familia, permit
 
 Unicamente las opciones de la sección **“Herramientas Docentes”** (*Abrir Drive* y *Manual de uso*) están protegidas por un PIN docente validado exclusivamente en el backend (`/api/validar-pin-docente.js`). El botón *"Reportar problema"* redirige directamente al formulario de Google Forms sin solicitar PIN. Las funciones administrativas para cambiar el PIN docente están protegidas mediante Supabase Auth, tokens JWT y verificación de rol `admin`.
 
+## 🏗️ Arquitectura del Proyecto
+
+La plataforma utiliza una arquitectura distribuida que separa el contenido de la seguridad:
+
+**Contenido y Estructura Académica (Fuente Principal):**
+```text
+Google Drive / Apps Script
+        ↓
+Carpetas, materias, archivos y recursos educativos
+        ↓
+Portal web
+```
+*Google Drive es la fuente principal de contenido y estructura académica.* Todos los niveles, grados, materias y archivos PDF/Guías se gestionan directamente a través de las carpetas en Drive. La estructura se sincroniza mediante Apps Script y se cachea en el portal para alta velocidad, con un archivo local estático como única alternativa de respaldo (Fallback) en caso de fallo total.
+
+**Seguridad y Administración:**
+```text
+Supabase
+        ↓
+Autenticación administrativa, roles y configuración del PIN
+```
+Supabase se utiliza **exclusivamente** para el panel administrativo, el manejo de roles (`admin`) y el almacenamiento encriptado de la configuración (el hash del PIN docente). No se utiliza para almacenar materias ni recursos académicos.
+
 ## ✨ Funciones e Implementaciones Clave
 
 *   **Acceso Público para Alumnos:** Todo el catálogo académico, materias, asignaturas y recursos semanales son de acceso libre sin barreras ni credenciales.
-*   **Protección de Herramientas Docentes (`/api/validar-pin-docente.js`):** Las opciones "Abrir Drive" y "Manual de uso" requieren ingresar el PIN docente. La validación se realiza exclusivamente en el servidor consultando primero el hash seguro en la tabla `configuracion_portal` de Supabase (con fallback a la variable `DOCENTES_PIN`), respondiendo `{ "valid": true, "version": "..." }` o `{ "valid": false }` sin exponer el PIN almacenado ni el hash al cliente.
-*   **Cambio Seguro del PIN Docente (`/api/cambiar-pin-docente.js`):** Los administradores autenticados pueden actualizar el PIN docente desde la interfaz de administración. El PIN se procesa únicamente en el servidor utilizando un algoritmo de derivación de claves PBKDF2 con salt criptográfico de 512 bits.
-*   **Formulario de Reporte Centralizado:** El enlace de reportes apunta directamente al formulario oficial de Google Forms (`https://forms.gle/eDrth5nJ2drQSfUC7`), centralizado en `src/config/globals.js`.
-*   **Control Estricto de Orígenes (CORS):** Todos los endpoints filtran peticiones mediante la variable de entorno `ALLOWED_ORIGINS`, aplicando encabezados `Vary: Origin`, `Cache-Control: no-store` y rechazando el uso de `Access-Control-Allow-Origin: *`.
-*   **Pruebas Automatizadas con Playwright:** Suite completa de pruebas end-to-end e integración (`tests/portal-publico.spec.js` y `tests/seguridad.spec.js`) que validan la interfaz pública, el buscador, modales de PIN, cambio de PIN y barreras de seguridad con mocks dinámicos de Playwright sin usar contraseñas fijas.
+*   **Protección de Herramientas Docentes (`/api/validar-pin-docente.js`):** Las opciones "Abrir Drive" y "Manual de uso" requieren ingresar el PIN docente. La validación se realiza exclusivamente en el servidor consultando el hash seguro mediante Scrypt (con fallback temporal a la variable encriptada), manteniendo una sesión temporal de 30 minutos.
+*   **Cambio Seguro del PIN Docente (`/api/cambiar-pin-docente.js`):** Los administradores autenticados pueden actualizar el PIN docente. El PIN se procesa utilizando `scrypt` contra ataques de hardware, con rate-limiting en memoria.
+*   **Formulario de Reporte Centralizado:** El enlace de reportes apunta directamente al formulario oficial de Google Forms.
+*   **Control Estricto de Orígenes (CORS) y Seguridad HTTP:** Todos los endpoints filtran peticiones aplicando `Vary: Origin`, cabeceras de seguridad estrictas (HSTS, CSP, X-Content-Type-Options) y protección contra fuerza bruta.
+*   **Pruebas Automatizadas con Playwright:** Suite de pruebas end-to-end e integración CI/CD mediante GitHub Actions.
 
-## 🗄️ Esquema de Base de Datos en Supabase (`configuracion_portal`)
+## 🗄️ Esquema de Seguridad en Supabase (`configuracion_portal`)
 
 Para almacenar el hash del PIN docente de forma segura y permitir su actualización en caliente, se utiliza la siguiente tabla en Supabase:
 
@@ -61,13 +83,14 @@ El backend utiliza las siguientes variables de entorno:
 /
 ├── api/
 │   ├── admin.js                 # Endpoint administrativo protegido por JWT y rol admin
-│   ├── cambiar-pin-docente.js   # Endpoint seguro para actualizar el PIN docente en Supabase
+│   ├── cambiar-pin-docente.js   # Endpoint seguro con Scrypt y rate-limiting
 │   ├── drive.js                 # Proxy seguro de consulta a Google Drive
-│   ├── materias.js              # Consulta del catálogo de materias y niveles
 │   ├── usuarios.js              # Creación de usuarios administrativos
 │   ├── validar-pin-docente.js   # Validador serverless de PIN para herramientas docentes
 │   └── utils/
-│       └── cryptoUtils.js       # Utilidades criptográficas (PBKDF2 + Salt)
+│       ├── cryptoUtils.js       # Utilidades criptográficas (Scrypt + PBKDF2 compat)
+│       ├── docentesPinService.js# Servicio centralizado de PIN
+│       └── rateLimiter.js       # Limitador de tasa en memoria
 ├── src/                         # Módulos frontend Vanilla JS
 │   ├── components/              # Buscador, catálogo, modales, PIN docente y cambio de PIN
 │   ├── config/                  # Configuración (globals.js) y estado global

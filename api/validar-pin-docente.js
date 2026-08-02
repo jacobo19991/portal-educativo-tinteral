@@ -1,4 +1,5 @@
-import { verifyPin } from './utils/cryptoUtils.js';
+import { validateDocentesPin } from './utils/docentesPinService.js';
+import { rateLimit } from './utils/rateLimiter.js';
 
 export default async function handler(req, res) {
   const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -22,61 +23,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  const limitRes = rateLimit(ip, 5, 60000);
+  if (!limitRes.success) {
+    return res.status(429).json({ error: `Demasiados intentos. Intenta de nuevo en ${limitRes.retryAfter} segundos.` });
+  }
+
   try {
     if (!req.body || typeof req.body !== 'object') {
-      return res.status(200).json({ valid: false });
+      return res.status(400).json({ valid: false });
     }
 
     const { pin } = req.body;
 
     if (!pin || typeof pin !== 'string' || pin.trim() === '' || pin.length > 20) {
-      return res.status(200).json({ valid: false });
+      return res.status(400).json({ valid: false });
     }
 
     const url = process.env.SUPABASE_URL;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    let dbRow = null;
+    const { valid, version } = await validateDocentesPin(pin, url, key);
 
-    if (url && key) {
-      try {
-        const dbRes = await fetch(`${url}/rest/v1/configuracion_portal?clave=eq.docentes_pin&select=valor_hash,updated_at`, {
-          headers: {
-            "apikey": key,
-            "Authorization": `Bearer ${key}`,
-            "Content-Type": "application/json"
-          }
-        });
-
-        if (dbRes.ok) {
-          const data = await dbRes.json();
-          if (Array.isArray(data) && data.length > 0) {
-            dbRow = data[0];
-          }
-        }
-      } catch (dbErr) {
-        console.error("Error al consultar configuracion_portal en Supabase:", dbErr);
-      }
-    }
-
-    let isValid = false;
-    let version = dbRow?.updated_at || 'v1';
-
-    if (dbRow && dbRow.valor_hash) {
-      isValid = verifyPin(pin, dbRow.valor_hash);
-    } else {
-      const docentesPin = process.env.DOCENTES_PIN;
-      if (docentesPin) {
-        isValid = (docentesPin === pin);
-      } else {
-        console.error("Configuración incompleta: Ni configuracion_portal ni DOCENTES_PIN están configurados.");
-      }
-    }
-
-    return res.status(200).json({
-      valid: isValid,
-      version: isValid ? version : undefined
-    });
+    return res.status(200).json({ valid, version });
 
   } catch (error) {
     console.error("Error inesperado en validar-pin-docente:", error);

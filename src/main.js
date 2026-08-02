@@ -8,9 +8,70 @@ import './components/adminPinModal.js';
 
 import { fetchWithTimeout } from './utils/fetchUtils.js';
 
-// Reseteo TOTAL del contenido: borra localStorage, sessionStorage y,
-// crucialmente, el Cache Storage del Service Worker (que "Actualizar
-// contenido" antes NO tocaba, por lo que el JS/CSS viejo seguía sirviéndose).
+// Utilidad segura para manipular localStorage
+const SecureStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn('Error leyendo localStorage:', e);
+      return null;
+    }
+  },
+  
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.warn('Error escribiendo localStorage:', e);
+      return false;
+    }
+  },
+  
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      console.warn('Error removiendo localStorage:', e);
+      return false;
+    }
+  }
+};
+
+// Utilidad segura para manipular sessionStorage
+const SecureSessionStorage = {
+  getItem: (key) => {
+    try {
+      return sessionStorage.getItem(key);
+    } catch (e) {
+      console.warn('Error leyendo sessionStorage:', e);
+      return null;
+    }
+  },
+  
+  setItem: (key, value) => {
+    try {
+      sessionStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.warn('Error escribiendo sessionStorage:', e);
+      return false;
+    }
+  },
+  
+  removeItem: (key) => {
+    try {
+      sessionStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      console.warn('Error removiendo sessionStorage:', e);
+      return false;
+    }
+  }
+};
+
 window.actualizarContenidoTotal = async function (btn) {
     if (btn) {
         btn.disabled = true;
@@ -19,25 +80,20 @@ window.actualizarContenidoTotal = async function (btn) {
     if (window.Toast) window.Toast.show('Actualizando contenido…', 'info');
 
     try {
-        // Eliminar solo las cachés de datos, preservando el tema (dark mode) y el historial de búsqueda
-        localStorage.removeItem('materias_cache_v2');
-        localStorage.removeItem('materias_cache_v1');
-        sessionStorage.removeItem('drive_files_cache');
+        SecureStorage.removeItem('materias_cache_v2');
+        SecureStorage.removeItem('materias_cache_v1');
+        SecureSessionStorage.removeItem('drive_files_cache');
 
-        if ('caches' in window) {
-            const nombres = await caches.keys();
-            await Promise.all(nombres.map((nombre) => caches.delete(nombre)));
-        }
-
-        if ('serviceWorker' in navigator) {
-            const registros = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registros.map((reg) => reg.unregister()));
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg && reg.waiting) {
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
         }
     } catch (error) {
-        console.error('❌ Error al limpiar caché/Service Worker:', error);
+        console.error('❌ Error al actualizar contenido:', error);
     } finally {
-        // Recarga forzada desde el servidor (bypassa la caché HTTP del navegador)
-        window.location.reload(true);
+        setTimeout(() => window.location.reload(true), 500);
     }
 };
 
@@ -66,33 +122,34 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Conexión asíncrona a Supabase (vía Vercel Proxy) con Caché (Fase 3: Optimización)
-async function fetchMateriasFromDB(forceRefresh = false) {
+// Carga asíncrona de estructura de Drive vía Apps Script
+async function cargarContenidoEducativo(forceRefresh = false) {
     const CACHE_KEY = 'materias_cache_v2';
     // Se redujo el TTL a 15 mins para desarrollo/producción dinámica
     const CACHE_TTL = 15 * 60 * 1000;
 
     try {
         // Fase 3: Verificar caché primero (si no es forceRefresh)
-        const cachedStr = localStorage.getItem(CACHE_KEY);
+        const cachedStr = SecureStorage.getItem(CACHE_KEY);
         if (cachedStr && !forceRefresh) {
-            const cached = JSON.parse(cachedStr);
-            if (Date.now() - cached.timestamp < CACHE_TTL) {
-                console.log("⚡ Usando caché reciente generada desde Apps Script.");
-                aplicarDatosMaterias(cached.data);
-                
-                // Actualización en segundo plano
-                if (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL) {
-                    fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 10000)
-                        .then(res => res.json())
-                        .then(asData => procesarDatosAppsScript(asData, CACHE_KEY))
-                        .catch(() => fallbackBackgroundSupabase(CACHE_KEY));
-                } else {
-                    fallbackBackgroundSupabase(CACHE_KEY);
+            try {
+                const cached = JSON.parse(cachedStr);
+                if (cached && cached.timestamp && (Date.now() - cached.timestamp < CACHE_TTL)) {
+                    console.log("⚡ Usando caché reciente generada desde Apps Script.");
+                    aplicarDatosMaterias(cached.data);
+                    
+                    // Actualización en segundo plano
+                    if (window.AppConfig.USAR_APPS_SCRIPT && window.AppConfig.APPS_SCRIPT_URL) {
+                        fetchWithTimeout(window.AppConfig.APPS_SCRIPT_URL, {}, 10000)
+                            .then(res => res.json())
+                            .then(asData => procesarDatosAppsScript(asData, CACHE_KEY))
+                            .catch(() => console.warn("Fallo actualización en background de Apps Script"));
+                    }
+                    return;
                 }
-                return;
-            } else {
-                localStorage.removeItem(CACHE_KEY);
+            } catch (parseErr) {
+                console.warn('Error parseando caché:', parseErr);
+                SecureStorage.removeItem(CACHE_KEY);
             }
         }
 
@@ -128,39 +185,35 @@ async function fetchMateriasFromDB(forceRefresh = false) {
             }
         }
 
-        console.warn("⚠️ Apps Script falló completamente.");
-        /*
-        // [MEJORA FUTURA] Supabase desactivado temporalmente para eliminar espera inútil de 8s.
-        const res = await fetchWithTimeout('/api/materias', {}, 8000);
-        const dbData = await res.json();
-        
-        // Si hay datos válidos en la Base de Datos, actualizamos la plataforma
-        if (dbData && dbData.niveles && dbData.niveles.length > 0) {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: dbData }));
-            aplicarDatosMaterias(dbData);
-            console.log("✅ Datos frescos cargados desde Supabase (Base de Datos)");
-        } else {
-            throw new Error("Supabase devolvió datos inválidos o vacíos (ej. faltan credenciales)");
-        }
-        */
-        throw new Error("Saltando directamente a Fallback local (Supabase deshabilitado)");
+        console.warn("⚠️ Apps Script falló completamente. Saltando a Fallback local.");
+        throw new Error("Apps Script inaccesible");
     } catch (error) {
-        // Riesgo Cero: Si falla Supabase o el internet, el portal ya está usando materiasData.js (Fallback local)
         console.warn("⚠️ Fallo total: Usando Fallback local. Razón:", error.message);
         mostrarAvisoFallback();
         
-        const cachedFallbackStr = localStorage.getItem(CACHE_KEY);
-        if (cachedFallbackStr) {
-             aplicarDatosMaterias(JSON.parse(cachedFallbackStr).data);
-        } else if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
-             aplicarDatosMaterias(window.MATERIAS_DATA);
+        try {
+            const cachedFallbackStr = SecureStorage.getItem(CACHE_KEY);
+            if (cachedFallbackStr) {
+                const parsed = JSON.parse(cachedFallbackStr);
+                if (parsed && parsed.data) {
+                    aplicarDatosMaterias(parsed.data);
+                }
+            } else if (window.MATERIAS_DATA && window.MATERIAS_DATA.niveles) {
+                aplicarDatosMaterias(window.MATERIAS_DATA);
+            }
+        } catch (fallbackErr) {
+            console.error('Error procesando fallback:', fallbackErr);
+            // Mostrar mensaje de error crítico
+            const contenedor = document.getElementById('contenedor-niveles');
+            if (contenedor) {
+                contenedor.innerHTML = '<div class="error-banner">⚠️ No se pudo cargar el contenido. Por favor, recarga la página.</div>';
+            }
         }
     }
 }
 
 function mostrarAvisoFallback() {
     const contenedor = document.getElementById('contenedor-niveles');
-    // Prevenir duplicados
     if (document.getElementById('aviso-fallback')) return;
     
     if (contenedor) {
@@ -177,13 +230,36 @@ function mostrarAvisoFallback() {
         aviso.style.justifyContent = 'center';
         aviso.style.gap = '8px';
         aviso.style.border = '1px solid #fbcfe8';
-        aviso.innerHTML = '<i>⚠️</i> <span>Mostrando estructura temporal. Pulsa <strong style="cursor:pointer; text-decoration:underline;" onclick="window.actualizarContenidoTotal && window.actualizarContenidoTotal(this)">Actualizar contenido</strong> para intentar cargar los datos desde Drive.</span>';
+        
+        const icon = document.createElement('i');
+        icon.textContent = '⚠️';
+        
+        const text = document.createElement('span');
+        text.textContent = 'Mostrando estructura temporal. Pulsa ';
+        
+        const actionBtn = document.createElement('strong');
+        actionBtn.textContent = 'Actualizar contenido';
+        actionBtn.style.cursor = 'pointer';
+        actionBtn.style.textDecoration = 'underline';
+        actionBtn.addEventListener('click', () => {
+            if (window.actualizarContenidoTotal) window.actualizarContenidoTotal(actionBtn);
+        });
+        
+        const afterText = document.createElement('span');
+        afterText.textContent = ' para intentar cargar los datos desde Drive.';
+        
+        text.appendChild(actionBtn);
+        text.appendChild(afterText);
+        
+        aviso.appendChild(icon);
+        aviso.appendChild(text);
+        
         contenedor.parentNode.insertBefore(aviso, contenedor);
     }
 }
 
 function aplicarDatosMaterias(dbData) {
-    if (dbData && dbData.niveles && dbData.niveles.length > 0) {
+    if (dbData && dbData.niveles && Array.isArray(dbData.niveles) && dbData.niveles.length > 0) {
         window.MATERIAS_DATA = dbData;
         window.materiasDataCompleta = dbData.niveles;
         
@@ -208,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) {
         lucide.createIcons();
     }
-    fetchMateriasFromDB();
+    cargarContenidoEducativo();
     
     // Configurar enlace de Reportar Problema (Google Forms / WhatsApp fallback)
     const btnReportar = document.getElementById('btn-reportar-problema');
@@ -219,9 +295,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Exponer función de recarga completa para overlays.js
 window.refrescarMenuYArchivos = async function() {
-    localStorage.removeItem('materias_cache_v1');
-    sessionStorage.removeItem('drive_files_cache');
-    await fetchMateriasFromDB(true);
+    SecureStorage.removeItem('materias_cache_v1');
+    SecureSessionStorage.removeItem('drive_files_cache');
+    await cargarContenidoEducativo(true);
 };
 
 // Detectar cambios en la conexión de red (Caché Offline Sólido)
@@ -244,41 +320,43 @@ window.addEventListener('online', () => {
 function procesarDatosAppsScript(asData, cacheKey) {
     if (!asData || !asData.tree) return;
     
-    if (asData.warnings && asData.warnings.length > 0) {
+    if (asData.warnings && Array.isArray(asData.warnings) && asData.warnings.length > 0) {
         console.warn("⚠️ AVISO DE GOOGLE DRIVE: Se encontraron elementos fuera de jerarquía:");
-        asData.warnings.forEach(w => console.warn("- " + w));
+        asData.warnings.forEach(w => console.warn("- " + (w || 'Advertencia desconocida')));
     }
     
-    const nivelesAdaptados = adaptarAppsScriptASupabase(asData.tree);
-    
-    // Guardar los archivos de las materias para uso inmediato en overlays.js
-    if (asData.filesByFolderId) {
-        sessionStorage.setItem('drive_files_cache', JSON.stringify({
-            timestamp: Date.now(),
-            data: asData.filesByFolderId
-        }));
+    try {
+        const nivelesAdaptados = adaptarAppsScriptASupabase(asData.tree);
+        
+        // Guardar los archivos de las materias para uso inmediato en overlays.js
+        if (asData.filesByFolderId) {
+            try {
+                SecureSessionStorage.setItem('drive_files_cache', JSON.stringify({
+                    timestamp: Date.now(),
+                    data: asData.filesByFolderId
+                }));
+            } catch (e) {
+                console.warn('No se pudo guardar caché de archivos:', e);
+            }
+        }
+        
+        const finalData = { niveles: nivelesAdaptados };
+        SecureStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: finalData }));
+        aplicarDatosMaterias(finalData);
+    } catch (adaptErr) {
+        console.error('Error adaptando datos de Apps Script:', adaptErr);
     }
-    
-    const finalData = { niveles: nivelesAdaptados };
-    localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: finalData }));
-    aplicarDatosMaterias(finalData);
 }
 
-function fallbackBackgroundSupabase(cacheKey) {
-    fetchWithTimeout('/api/materias', {}, 8000).then(res => res.json()).then(dbData => {
-        if (dbData && dbData.niveles && dbData.niveles.length > 0) {
-            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: dbData }));
-            // Note: En SWR no llamamos a aplicarDatosMaterias para evitar parpadeos,
-            // pero si necesitamos pintar, se haría aquí.
-        }
-    }).catch(() => {});
-}
+
 
 function adaptarAppsScriptASupabase(tree) {
     // 1. Ordenar Niveles por el número inicial (ej. "1-INICIAL" -> 1)
+    if (!Array.isArray(tree)) return [];
+    
     tree.sort((a, b) => {
-        const numA = parseInt(a.nivel.split('-')[0]) || 99;
-        const numB = parseInt(b.nivel.split('-')[0]) || 99;
+        const numA = a && a.nivel ? parseInt(a.nivel.split('-')[0]) || 99 : 99;
+        const numB = b && b.nivel ? parseInt(b.nivel.split('-')[0]) || 99 : 99;
         return numA - numB;
     });
 
@@ -295,11 +373,12 @@ function adaptarAppsScriptASupabase(tree) {
     ];
 
     tree.forEach(nivel => {
+        if (!nivel.grados || !Array.isArray(nivel.grados)) return;
         // Ordenar grados según el arreglo ordenGrados
         nivel.grados.sort((a, b) => {
-            const idxA = ordenGrados.indexOf(a.grado);
-            const idxB = ordenGrados.indexOf(b.grado);
-            if (idxA === -1 && idxB === -1) return a.grado.localeCompare(b.grado);
+            const idxA = ordenGrados.indexOf(a && a.grado);
+            const idxB = ordenGrados.indexOf(b && b.grado);
+            if (idxA === -1 && idxB === -1) return (a && a.grado || '').localeCompare(b && b.grado || '');
             if (idxA === -1) return 1;
             if (idxB === -1) return -1;
             return idxA - idxB;
@@ -307,8 +386,12 @@ function adaptarAppsScriptASupabase(tree) {
 
         // 3. Ordenar materias alfabéticamente
         nivel.grados.forEach(grado => {
-            if (grado.materias) {
-                grado.materias.sort((a, b) => a.materia.localeCompare(b.materia));
+            if (grado.materias && Array.isArray(grado.materias)) {
+                grado.materias.sort((a, b) => {
+                    const nombreA = a && a.materia ? a.materia.toLowerCase() : '';
+                    const nombreB = b && b.materia ? b.materia.toLowerCase() : '';
+                    return nombreA.localeCompare(nombreB);
+                });
             }
         });
     });
@@ -321,14 +404,18 @@ function adaptarAppsScriptASupabase(tree) {
     ];
 
     return tree.map((nivel, i) => {
+        if (!nivel || !nivel.nivel) return null;
+        
         const confNivel = configNiveles.find(c => nivel.nivel.toLowerCase().includes(c.name)) || { icono: '📁', cls: 'n1' };
         
-        return {
+        const nivelResult = {
             id: `as_n_${i}`,
             nombre: nivel.nivel.replace(/^\d+-\s*/, ''),
             icono: confNivel.icono,
             claseColor: confNivel.cls,
             grados: (nivel.grados || []).map((grado, j) => {
+                if (!grado || !grado.grado) return null;
+                
                 let gIcon = '📘';
                 if(confNivel.icono.includes('🌱')) gIcon = '👶';
                 else if(confNivel.icono.includes('📗')) gIcon = '📗';
@@ -343,15 +430,20 @@ function adaptarAppsScriptASupabase(tree) {
                     nombre: grado.grado,
                     nombreAbreviado: abreviado,
                     icono: gIcon,
-                    materias: (grado.materias || []).map((mat, k) => ({
-                        id: `as_m_${i}_${j}_${k}`,
-                        nombre: mat.materia,
-                        folderId: mat.id
-                    }))
+                    materias: (grado.materias || []).map((mat, k) => {
+                        if (!mat || !mat.materia) return null;
+                        return {
+                            id: `as_m_${i}_${j}_${k}`,
+                            nombre: mat.materia,
+                            folderId: mat.id || ''
+                        };
+                    }).filter(Boolean)
                 };
-            })
+            }).filter(Boolean)
         };
-    });
+        
+        return nivelResult;
+    }).filter(Boolean);
 }
 
 function mostrarAvisoActualizacionSW() {
@@ -384,24 +476,29 @@ function mostrarAvisoActualizacionSW() {
     
     document.body.appendChild(banner);
     
-    document.getElementById('sw-update-btn').addEventListener('click', () => {
-        const btn = document.getElementById('sw-update-btn');
-        btn.innerText = 'Actualizando...';
-        btn.style.opacity = '0.7';
-        btn.style.cursor = 'wait';
-        
-        if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.getRegistration().then(reg => {
-                if (reg && reg.waiting) {
-                    reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                }
-            });
-        }
-        
-        setTimeout(() => {
-            localStorage.removeItem('materias_cache_v2');
-            localStorage.removeItem('materias_cache_v1');
-            window.location.reload(true);
-        }, 300);
-    });
+    const updateBtn = document.getElementById('sw-update-btn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', () => {
+            const btn = document.getElementById('sw-update-btn');
+            if (btn) {
+                btn.innerText = 'Actualizando...';
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'wait';
+            }
+            
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg && reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                }).catch(e => console.warn('Error al obtener registro SW:', e));
+            }
+            
+            setTimeout(() => {
+                SecureStorage.removeItem('materias_cache_v2');
+                SecureStorage.removeItem('materias_cache_v1');
+                window.location.reload(true);
+            }, 500);
+        });
+    }
 }

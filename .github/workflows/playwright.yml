@@ -18,7 +18,12 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npm test
+      env:
+        ALLOWED_ORIGINS: http://localhost:3000
+        SUPABASE_URL: http://fake-supabase.local
+        SUPABASE_SERVICE_ROLE_KEY: fake-key
+        DOCENTES_PIN: 1234
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

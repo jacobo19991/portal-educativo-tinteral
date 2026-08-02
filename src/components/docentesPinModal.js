@@ -39,7 +39,8 @@ export function setupDocentesPinProtection() {
 
   function handleResourceAccess(e, url, openInNewTab = false) {
     e.preventDefault();
-    const isAlreadyValid = sessionStorage.getItem('docente_pin_valid') === 'true';
+    const validUntil = Number(sessionStorage.getItem('docente_pin_valid_until'));
+    const isAlreadyValid = Number.isFinite(validUntil) && Date.now() < validUntil;
     if (isAlreadyValid) {
       if (openInNewTab) {
         window.open(url, '_blank', 'noopener,noreferrer');
@@ -107,7 +108,7 @@ export function setupDocentesPinProtection() {
         const data = await res.json();
 
         if (data && data.valid === true) {
-          sessionStorage.setItem('docente_pin_valid', 'true');
+          sessionStorage.setItem('docente_pin_valid_until', String(Date.now() + 30 * 60 * 1000));
           const destUrl = targetUrl;
           const openTab = targetBlank;
           cerrarModal();
