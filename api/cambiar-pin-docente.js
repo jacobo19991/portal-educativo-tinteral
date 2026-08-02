@@ -31,58 +31,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Sesión inválida o expirada." });
-    }
-
-    const token = authHeader.split(" ")[1];
     const url = process.env.SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!url || !serviceRoleKey) {
-      console.error("Configuración de Supabase incompleta en cambiar-pin-docente.");
-      return res.status(500).json({ error: "El servicio no está disponible temporalmente." });
-    }
-
-    let userData = null;
-    let isMockMode = url.includes('fake-supabase');
-
-    if (isMockMode) {
-      userData = { id: 'mock-admin-id' };
-    } else {
-      const userRes = await fetch(`${url}/auth/v1/user`, {
-        headers: {
-          "apikey": serviceRoleKey,
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!userRes.ok) {
-        return res.status(401).json({ error: "Sesión inválida o expirada." });
-      }
-
-      userData = await userRes.json();
-      if (!userData || !userData.id) {
-        return res.status(401).json({ error: "Sesión inválida o expirada." });
-      }
-
-      const roleRes = await fetch(`${url}/rest/v1/perfiles?id=eq.${userData.id}&select=rol`, {
-        headers: {
-          "apikey": serviceRoleKey,
-          "Authorization": `Bearer ${serviceRoleKey}`
-        }
-      });
-
-      if (!roleRes.ok) {
-        return res.status(403).json({ error: "Acceso denegado. Se requieren permisos de administrador." });
-      }
-
-      const roles = await roleRes.json();
-      if (!Array.isArray(roles) || roles.length === 0 || roles[0].rol !== 'admin') {
-        return res.status(403).json({ error: "Acceso denegado. Se requieren permisos de administrador." });
-      }
-    }
+    let isMockMode = url && url.includes('fake-supabase');
 
     if (!req.body || typeof req.body !== 'object') {
       return res.status(400).json({ success: false, error: "Datos de solicitud inválidos." });
@@ -131,7 +83,7 @@ export default async function handler(req, res) {
         clave: "docentes_pin",
         valor_hash: newHash,
         updated_at: updatedAt,
-        updated_by: userData.id
+        updated_by: null
       };
       return res.status(200).json({ success: true });
     }
@@ -148,7 +100,7 @@ export default async function handler(req, res) {
         clave: "docentes_pin",
         valor_hash: newHash,
         updated_at: updatedAt,
-        updated_by: userData.id
+        updated_by: null
       })
     });
 
