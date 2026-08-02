@@ -4,6 +4,7 @@ import { renderNiveles } from './components/materias.js';
 import './components/buscador.js';
 import './components/overlays.js';
 import './components/docentesPinModal.js';
+import './components/adminPinModal.js';
 
 import { fetchWithTimeout } from './utils/fetchUtils.js';
 

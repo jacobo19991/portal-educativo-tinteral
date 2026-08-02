@@ -40,10 +40,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ valid: false });
     }
 
-    // El PIN se valida directamente contra la variable de entorno DOCENTES_PIN de Vercel
-    const { valid } = await validateDocentesPin(pin);
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    return res.status(200).json({ valid });
+    const { valid, version } = await validateDocentesPin(pin, url, key);
+
+    return res.status(200).json({ valid, version });
 
   } catch (error) {
     console.error("Error inesperado en validar-pin-docente:", error);

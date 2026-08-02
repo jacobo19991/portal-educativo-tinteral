@@ -155,7 +155,10 @@
           <i data-lucide="refresh-cw"></i>
           <span>Actualizar contenido</span>
         </button>
-
+        <button id="btn-cambiar-pin-docente" class="btn-docente btn-docente-outline" aria-label="Cambiar PIN docente" role="button">
+          <i data-lucide="key"></i>
+          <span>Cambiar PIN docente</span>
+        </button>
       </div>
     </section>
   </main>
@@ -325,6 +328,57 @@
     </div>
   </div>
 
+
+  <!-- Modal de Cambiar PIN Docente -->
+  <div class="overlay" id="overlayCambiarPinDocente" aria-modal="true" role="dialog" aria-labelledby="cambiarPinDocenteTitulo">
+    <div class="sheet" style="max-width: 440px;">
+      <div class="handle"></div>
+      <div class="sheet-hdr">
+        <h2 class="sheet-titulo" id="cambiarPinDocenteTitulo">Cambiar PIN docente</h2>
+        <button class="cerrar btn-cerrar-cambiar-pin-docente" id="btnCerrarCambiarPinDocente" aria-label="Cerrar modal">✕</button>
+      </div>
+      <p class="sheet-sub" style="margin-bottom: 16px;">Ingrese el PIN actual y defina el nuevo PIN de seguridad</p>
+      
+      <form id="formCambiarPinDocente" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="btnToggleMostrarPin" style="font-size: 11px; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);">
+            👁️ Mostrar
+          </button>
+        </div>
+
+        <div>
+          <label for="inputPinActual" style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-main);">PIN actual</label>
+          <input type="password" id="inputPinActual" maxlength="20" placeholder="Ingrese el PIN actual" required
+            style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px;">
+        </div>
+
+        <div>
+          <label for="inputPinNuevo" style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-main);">Nuevo PIN</label>
+          <input type="password" id="inputPinNuevo" minlength="4" maxlength="20" placeholder="Mínimo 4 caracteres" required
+            style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px;">
+        </div>
+
+        <div>
+          <label for="inputConfirmacionPin" style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-main);">Confirmar nuevo PIN</label>
+          <input type="password" id="inputConfirmacionPin" minlength="4" maxlength="20" placeholder="Repita el nuevo PIN" required
+            style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px;">
+        </div>
+
+        <div id="errorCambiarPinDocente" class="error-banner hidden" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;"></div>
+
+        <div id="successCambiarPinDocente" class="hidden" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;"></div>
+
+        <div style="display: flex; gap: 10px; margin-top: 6px;">
+          <button type="button" id="btnCancelarCambiarPinDocente" class="btn-docente btn-docente-outline" style="flex: 1; justify-content: center; padding: 12px;">
+            Cancelar
+          </button>
+          <button type="submit" id="btnSubmitCambiarPinDocente" class="mat-ver n1" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px; border-radius: 10px; cursor: pointer;">
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Scripts Modulares -->
   <script src="https://unpkg.com/lucide@0.468.0" defer></script>
