@@ -135,10 +135,41 @@ export function setupCambiarPinDocenteModal() {
         btnSubmit.innerText = 'Guardando...';
       }
 
+      try {
+        let token = '';
+        try {
+          if (!window.supabase) throw new Error("Supabase no inicializado");
+          const { data: { session }, error } = await window.supabase.auth.getSession();
+          if (error || !session?.access_token) {
+            if (errorBox) {
+              errorBox.textContent = '⚠️ La sesión administrativa expiró. Inicia sesión nuevamente.';
+              errorBox.classList.remove('hidden');
+            }
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.innerText = 'Guardar';
+            }
+            return;
+          }
+          token = session.access_token;
+        } catch (sErr) {
+          console.error('Error al obtener sesión:', sErr);
+          if (errorBox) {
+            errorBox.textContent = '⚠️ Error al verificar la sesión. Inicia sesión nuevamente.';
+            errorBox.classList.remove('hidden');
+          }
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = 'Guardar';
+          }
+          return;
+        }
+
         const res = await fetchWithTimeout('/api/cambiar-pin-docente', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             pinActual: actual,
