@@ -258,14 +258,14 @@ function mostrarAvisoFallback() {
     }
 }
 
-function aplicarDatosMaterias(dbData) {
-    if (dbData && dbData.niveles && Array.isArray(dbData.niveles) && dbData.niveles.length > 0) {
-        window.MATERIAS_DATA = dbData;
-        window.materiasDataCompleta = dbData.niveles;
+function aplicarDatosMaterias(contenidoEducativo) {
+    if (contenidoEducativo && contenidoEducativo.niveles && Array.isArray(contenidoEducativo.niveles) && contenidoEducativo.niveles.length > 0) {
+        window.MATERIAS_DATA = contenidoEducativo;
+        window.materiasDataCompleta = contenidoEducativo.niveles;
         
         const contenedor = document.getElementById('contenedor-niveles');
         if (contenedor) {
-            renderNiveles(dbData.niveles, contenedor);
+            renderNiveles(contenidoEducativo.niveles, contenedor);
         }
         
         // Actualizar la fecha visual
@@ -279,14 +279,14 @@ function aplicarDatosMaterias(dbData) {
     }
 }
 
-// Iniciar búsqueda en la base de datos inmediatamente después de pintar la página
+// Cargar la estructura educativa desde Google Drive mediante Apps Script
 document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) {
         lucide.createIcons();
     }
     cargarContenidoEducativo();
     
-    // Configurar enlace de Reportar Problema (Google Forms / WhatsApp fallback)
+    // Configurar enlace del formulario para reportar problemas
     const btnReportar = document.getElementById('btn-reportar-problema');
     if (btnReportar) {
         btnReportar.href = window.AppConfig?.FORMULARIO_REPORTES_URL || 'https://forms.gle/eDrth5nJ2drQSfUC7';
@@ -326,7 +326,7 @@ function procesarDatosAppsScript(asData, cacheKey) {
     }
     
     try {
-        const nivelesAdaptados = adaptarAppsScriptASupabase(asData.tree);
+        const nivelesAdaptados = normalizarDatosAppsScript(asData.tree);
         
         // Guardar los archivos de las materias para uso inmediato en overlays.js
         if (asData.filesByFolderId) {
@@ -350,7 +350,7 @@ function procesarDatosAppsScript(asData, cacheKey) {
 
 
 
-function adaptarAppsScriptASupabase(tree) {
+function normalizarDatosAppsScript(tree) {
     // 1. Ordenar Niveles por el número inicial (ej. "1-INICIAL" -> 1)
     if (!Array.isArray(tree)) return [];
     

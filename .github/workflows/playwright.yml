@@ -23,7 +23,7 @@ jobs:
         ALLOWED_ORIGINS: http://localhost:3000
         SUPABASE_URL: http://fake-supabase.local
         SUPABASE_SERVICE_ROLE_KEY: fake-key
-        DOCENTES_PIN: 1234
+        DOCENTES_PIN: ci-test-pin-4827
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
