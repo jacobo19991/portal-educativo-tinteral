@@ -54,13 +54,17 @@ export function setupDocentesPinProtection() {
 
   if (btnDrive) {
     btnDrive.addEventListener('click', (e) => {
-      handleResourceAccess(e, btnDrive.href, true);
+      const url = btnDrive.dataset.url || '';
+      const openBlank = btnDrive.dataset.blank === 'true';
+      handleResourceAccess(e, url, openBlank);
     });
   }
 
   if (btnManual) {
     btnManual.addEventListener('click', (e) => {
-      handleResourceAccess(e, btnManual.href, false);
+      const url = btnManual.dataset.url || '';
+      const openBlank = btnManual.dataset.blank === 'true';
+      handleResourceAccess(e, url, openBlank);
     });
   }
 

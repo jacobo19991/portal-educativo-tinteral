@@ -47,9 +47,20 @@ window.OverlaysApp = (function() {
   }
 
   function abrirDrive(tipo) {
-    if (!window.AppState.folderId) return;
-    const folderUrl = `https://drive.google.com/drive/folders/${window.AppState.folderId}`;
-    window.open(folderUrl, '_blank', 'noopener,noreferrer');
+    if (!window.AppState.folderId) {
+      if (window.Toast) window.Toast.show('No hay carpeta asociada a esta materia.', 'error');
+      return;
+    }
+    try {
+      const folderUrl = `https://drive.google.com/drive/folders/${window.AppState.folderId}`;
+      const opened = window.open(folderUrl, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        if (window.Toast) window.Toast.show('No se pudo abrir Drive. Permite las ventanas emergentes.', 'error');
+      }
+    } catch (err) {
+      console.error('Error al abrir Drive:', err);
+      if (window.Toast) window.Toast.show('Error al abrir Google Drive.', 'error');
+    }
   }
 
   async function renderizarTareas(forzarFresco = false) {
@@ -331,8 +342,27 @@ window.OverlaysApp = (function() {
   }
 
   function compartirWhatsApp() {
-    const msg = encodeURIComponent(`*Portal C.E. El Tinteral*\nRevisa los recursos de *${window.AppState.materia}* - *${window.AppState.gradoAbreviada}*:\n${window.AppConfig.LINK_PORTAL}`);
-    window.open(`https://wa.me/${window.AppConfig.NUMERO_WHATSAPP}?text=${msg}`, '_blank', 'noopener,noreferrer');
+    if (!window.AppState.materia) {
+      if (window.Toast) window.Toast.show('Selecciona una materia antes de compartir.', 'error');
+      return;
+    }
+    try {
+      const portalUrl = window.AppConfig.LINK_PORTAL || window.location.origin;
+      const mensaje = encodeURIComponent(
+        `*Portal C.E. El Tinteral*\nRevisa los recursos de *${window.AppState.materia}* - *${window.AppState.gradoAbreviada}*:\n${portalUrl}`
+      );
+      const numero = (window.AppConfig.NUMERO_WHATSAPP || '').trim();
+      const waUrl = numero
+        ? `https://wa.me/${numero}?text=${mensaje}`
+        : `https://wa.me/?text=${mensaje}`;
+      const opened = window.open(waUrl, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        if (window.Toast) window.Toast.show('Activa las ventanas emergentes para compartir.', 'error');
+      }
+    } catch (err) {
+      console.error('Error al compartir en WhatsApp:', err);
+      if (window.Toast) window.Toast.show('No se pudo abrir WhatsApp. Intenta de nuevo.', 'error');
+    }
   }
 
   function crearTarjetaRecurso(icono, titulo, desc, folder, isFullWidth = false) {
